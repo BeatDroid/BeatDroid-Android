@@ -13,7 +13,7 @@ import Animated, {
 const duration = 1000;
 const offset = 100;
 
-export default function SplashScreen() {
+export default function WelcomeScreen() {
   const theme = useTheme();
   const styles = getStyles(theme);
   const headerPosition = useSharedValue(-offset);
@@ -25,7 +25,6 @@ export default function SplashScreen() {
   useEffect(() => {
     // Start header and footer animations immediately
     headerPosition.value = withTiming(0, { duration });
-    footerPosition.value = withTiming(0, { duration });
 
     // Start feature box animations after header/footer complete
     setTimeout(() => {
@@ -38,6 +37,11 @@ export default function SplashScreen() {
         // Start third feature box after second completes
         setTimeout(() => {
           featureBox3Position.value = withTiming(0, { duration });
+
+          // Start footer animation after third completes
+          setTimeout(() => {
+            footerPosition.value = withTiming(0, { duration });
+          }, duration * 1.5);
         }, duration / 3);
       }, duration / 3);
     }, duration);
@@ -49,7 +53,13 @@ export default function SplashScreen() {
       featureBox2Position.value = -offset;
       featureBox3Position.value = -offset;
     };
-  }, []);
+  }, [
+    featureBox1Position,
+    featureBox2Position,
+    featureBox3Position,
+    footerPosition,
+    headerPosition,
+  ]);
 
   const animatedHeaderStyle = useAnimatedStyle(() => {
     return {
