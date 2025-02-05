@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "Portfolio",
-    "slug": "Portfolio",
+    "name": "BeatDroid",
+    "slug": "BeatDroid",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
@@ -16,7 +16,7 @@
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "package": "com.dhanush911.Portfolio"
+      "package": "com.destiny911gtr.beatdroid"
     },
     "web": {
       "bundler": "metro",
