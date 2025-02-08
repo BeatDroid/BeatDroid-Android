@@ -56,11 +56,11 @@ const AnimatedImageContainer = ({ uri }: Props) => {
             source={{
               uri,
             }}
-            style={styles.poster}
+            className="flex-1"
             fadeDuration={2000}
           />
         ) : (
-          <View style={styles.centre}>
+          <View className="flex-1 items-center justify-center">
             <ActivityIndicator size={"large"} />
           </View>
         )}
@@ -78,13 +78,5 @@ const styles = StyleSheet.create({
     width: "100%",
     height: "auto",
     overflow: "hidden",
-  },
-  poster: {
-    flex: 1,
-  },
-  centre: {
-    flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
   },
 });

@@ -1,31 +1,27 @@
-import { View, Text, ViewProps, StyleSheet } from "react-native";
 import React, { ReactNode } from "react";
-import { SafeAreaView, Edge } from "react-native-safe-area-context";
+import { ViewProps } from "react-native";
 import { useTheme } from "react-native-paper";
+import { Edge, SafeAreaView } from "react-native-safe-area-context";
 
 interface Props {
   safeAreaEdges?: Edge[];
   style?: ViewProps["style"];
+  className?: string;
   children: ReactNode;
 }
 
 const Background = ({
   safeAreaEdges = ["bottom", "top"],
   style = {},
+  className = "flex-1 p-4",
   children,
 }: Props) => {
   const theme = useTheme();
 
-  const styles = StyleSheet.create({
-    container: {
-      flex: 1,
-      backgroundColor: '#0F172A'
-    }
-  });
-
   return (
     <SafeAreaView
-      style={[style, styles.container, { backgroundColor: theme.colors.background }]}
+      className={className}
+      style={[style, { backgroundColor: theme.colors.background }]}
       edges={safeAreaEdges}
     >
       {children}

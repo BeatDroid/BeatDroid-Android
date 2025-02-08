@@ -1,4 +1,4 @@
-import Background from "@/components/Background";
+import { Background, WelcomeCards } from "@/components";
 import { router } from "expo-router";
 import { useEffect } from "react";
 import { StyleSheet, Text, View } from "react-native";
@@ -100,59 +100,57 @@ export default function WelcomeScreen() {
   });
 
   return (
-    <Background style={styles.container}>
-      <Animated.View style={[styles.titleLayout, animatedHeaderStyle]}>
-        <Animated.Text style={styles.title}>BeatDroid 🎷</Animated.Text>
-        <Text style={styles.subtitle}>
+    <Background>
+      <Animated.View
+        style={animatedHeaderStyle}
+        className="flex-1 items-center justify-center"
+      >
+        <Animated.Text
+          style={styles.title}
+          className="text-2xl font-bold mb-3 text-center"
+        >
+          BeatDroid 🎷
+        </Animated.Text>
+        <Text style={styles.subtitle} className="text-base text-center">
           Create eye-catching, Pinterest-style music posters effortlessly on
           Android! 🍀
         </Text>
       </Animated.View>
-      <View style={styles.centreLayout}>
+      <View className="flex-[6] items-center justify-center">
         <Animated.View style={animatedFeatureBox1Style}>
-          <Card style={styles.section}>
-            <Text style={styles.sectionTitle}>✨ Features</Text>
-            <Text style={styles.sectionText}>
-              • Seamless integration with Spotify
-            </Text>
-            <Text style={styles.sectionText}>
-              • Customizable themes and layouts
-            </Text>
-            <Text style={styles.sectionText}>
-              • Offline mode for creating posters anywhere
-            </Text>
-          </Card>
+          <WelcomeCards
+            title="✨ Features"
+            highlights={[
+              "Seamless integration with Spotify",
+              "Customizable themes and layouts",
+              "Offline mode for creating posters anywhere",
+            ]}
+          />
         </Animated.View>
 
         <Animated.View style={animatedFeatureBox2Style}>
-          <Card style={styles.section}>
-            <Text style={styles.sectionTitle}>🚀 Quick Start</Text>
-            <Text style={styles.sectionText}>
-              • Connect your Spotify account
-            </Text>
-            <Text style={styles.sectionText}>• Choose a track or album</Text>
-            <Text style={styles.sectionText}>
-              • Customize your poster and save it!
-            </Text>
-          </Card>
+          <WelcomeCards
+            title="🚀 Quick Start"
+            highlights={[
+              "Connect your Spotify account",
+              "Choose a track or album",
+              "Customize your poster and save it!",
+            ]}
+          />
         </Animated.View>
 
         <Animated.View style={animatedFeatureBox3Style}>
-          <Card style={styles.section}>
-            <Text style={styles.sectionTitle}>🖼️ Save & Share</Text>
-            <Text style={styles.sectionText}>
-              • Download posters to your device
-            </Text>
-            <Text style={styles.sectionText}>
-              • Print out your favorite designs
-            </Text>
-            <Text style={styles.sectionText}>
-              • Frame and display your music art
-            </Text>
-          </Card>
+          <WelcomeCards
+            title="🖼️ Save & Share"
+            highlights={[
+              "Download posters to your device",
+              "Print out your favorite designs",
+              "Frame and display your music art",
+            ]}
+          />
         </Animated.View>
       </View>
-      <Animated.View style={animatedFooterStyle}>
+      <Animated.View style={animatedFooterStyle} className="mt-4">
         <Button
           mode="contained"
           onPress={() => router.push("/result")}
@@ -167,55 +165,20 @@ export default function WelcomeScreen() {
 
 const getStyles = (theme: MD3Theme) =>
   StyleSheet.create({
-    container: {
-      flex: 1,
-      padding: 16,
-      backgroundColor: "#ffffff",
-    },
     title: {
-      fontSize: 28,
-      fontWeight: "bold",
       color: theme.colors.primary,
-      marginBottom: 12,
-      textAlign: "center",
     },
     subtitle: {
-      fontSize: 16,
       color: theme.colors.onSurfaceVariant,
-      textAlign: "center",
     },
     section: {
-      width: "100%",
-      marginBottom: 24,
-      padding: 16,
       backgroundColor: theme.colors.surfaceVariant,
-      borderRadius: 8,
-      shadowColor: "transparent",
-      shadowOpacity: 0,
-      shadowRadius: 0,
-      elevation: 0,
     },
     sectionTitle: {
-      fontSize: 20,
-      fontWeight: "600",
       color: theme.colors.primary,
-      marginBottom: 12,
     },
     sectionText: {
-      fontSize: 14,
       color: theme.colors.onSurface,
-      marginBottom: 8,
-      lineHeight: 20,
-    },
-    titleLayout: {
-      flex: 1,
-      alignItems: "center",
-      justifyContent: "center",
-    },
-    centreLayout: {
-      flex: 6,
-      alignItems: "center",
-      justifyContent: "center",
     },
     fullWidth: {
       width: "100%",
