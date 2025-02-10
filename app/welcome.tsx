@@ -110,7 +110,10 @@ export default function Welcome() {
         </Text>
       </Animated.View>
       <View className="flex-[6] items-center justify-center">
-        <Animated.View className={"w-full"} style={animatedFeatureBox1Style}>
+        <Animated.View
+          className={"w-full mb-6"}
+          style={animatedFeatureBox1Style}
+        >
           <InfoCard
             title="✨ Features"
             highlights={[
@@ -121,7 +124,10 @@ export default function Welcome() {
           />
         </Animated.View>
 
-        <Animated.View className={"w-full"} style={animatedFeatureBox2Style}>
+        <Animated.View
+          className={"w-full mb-6"}
+          style={animatedFeatureBox2Style}
+        >
           <InfoCard
             title="🚀 Quick Start"
             highlights={[
@@ -132,7 +138,10 @@ export default function Welcome() {
           />
         </Animated.View>
 
-        <Animated.View className={"w-full"} style={animatedFeatureBox3Style}>
+        <Animated.View
+          className={"w-full mb-6"}
+          style={animatedFeatureBox3Style}
+        >
           <InfoCard
             title="🖼️ Save & Share"
             highlights={[

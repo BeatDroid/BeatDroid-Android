@@ -9,7 +9,7 @@ interface Props {
 
 const InfoCardComponent = ({ title, highlights }: Props) => {
   return (
-    <Card className="w-full mb-6 rounded-lg shadow-none">
+    <Card className="w-full rounded-lg shadow-none">
       <CardHeader>
         <CardTitle>{title}</CardTitle>
       </CardHeader>
