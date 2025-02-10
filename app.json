@@ -38,7 +38,7 @@
         "react-native-edge-to-edge",
         {
           "android": {
-            "parentTheme": "Theme.EdgeToEdge",
+            "parentTheme": "Theme.EdgeToEdge.Material3.Dynamic",
             "enforceNavigationBarContrast": false
           }
         }
