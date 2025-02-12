@@ -1,5 +1,4 @@
 import React, { ReactNode } from "react";
-import { ViewProps } from "react-native";
 import { Edge, SafeAreaView } from "react-native-safe-area-context";
 
 interface Props {
@@ -10,11 +9,14 @@ interface Props {
 
 const Background = ({
   safeAreaEdges = ["bottom", "top"],
-  className = "flex-1 p-4 bg-background",
+  className = "",
   children,
 }: Props) => {
   return (
-    <SafeAreaView className={className} edges={safeAreaEdges}>
+    <SafeAreaView
+      className={`flex-1 p-4 bg-background ${className}`}
+      edges={safeAreaEdges}
+    >
       {children}
     </SafeAreaView>
   );

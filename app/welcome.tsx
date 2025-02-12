@@ -2,6 +2,7 @@ import Background from "@/components/ui-custom/background";
 import InfoCard from "@/components/ui-custom/info-card";
 import { Button } from "@/components/ui/button";
 import { Text } from "@/components/ui/text";
+import { router } from "expo-router";
 import { useEffect } from "react";
 import { View } from "react-native";
 import Animated, {
@@ -153,7 +154,7 @@ export default function Welcome() {
         </Animated.View>
       </View>
       <Animated.View style={animatedFooterStyle} className="mt-4">
-        <Button>
+        <Button onPress={() => router.push("/posterview")}>
           <Text>Lets Go</Text>
         </Button>
       </Animated.View>

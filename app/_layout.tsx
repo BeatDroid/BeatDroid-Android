@@ -12,6 +12,7 @@ import { Platform } from "react-native";
 import { SystemBars } from "react-native-edge-to-edge";
 import { NAV_THEME } from "~/lib/constants";
 import { useColorScheme } from "~/lib/useColorScheme";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
 
 const LIGHT_THEME: Theme = {
   ...DefaultTheme,
@@ -54,10 +55,12 @@ function ProviderStack() {
   }
 
   return (
-    <ThemeProvider value={isDarkColorScheme ? DARK_THEME : LIGHT_THEME}>
-      <SystemBars style={isDarkColorScheme ? "light" : "dark"} />
-      <NavigationStack />
-    </ThemeProvider>
+    <GestureHandlerRootView>
+      <ThemeProvider value={isDarkColorScheme ? DARK_THEME : LIGHT_THEME}>
+        <SystemBars style={isDarkColorScheme ? "light" : "dark"} />
+        <NavigationStack />
+      </ThemeProvider>
+    </GestureHandlerRootView>
   );
 }
 
@@ -66,6 +69,7 @@ function NavigationStack() {
     <Stack>
       <Stack.Screen name="index" options={{ headerShown: false }} />
       <Stack.Screen name="welcome" options={{ headerShown: false }} />
+      <Stack.Screen name="posterview" options={{ headerShown: false }} />
     </Stack>
   );
 }
