@@ -23,10 +23,7 @@ const DARK_THEME: Theme = {
   colors: NAV_THEME.dark,
 };
 
-export {
-  // Catch any errors thrown by the Layout component.
-  ErrorBoundary,
-} from "expo-router";
+import { ErrorBoundary } from "@/components/error-boundary";
 
 export default function RootLayout() {
   return <ProviderStack />;
@@ -55,12 +52,14 @@ function ProviderStack() {
   }
 
   return (
-    <GestureHandlerRootView>
-      <ThemeProvider value={isDarkColorScheme ? DARK_THEME : LIGHT_THEME}>
-        <SystemBars style={isDarkColorScheme ? "light" : "dark"} />
-        <NavigationStack />
-      </ThemeProvider>
-    </GestureHandlerRootView>
+    <ErrorBoundary>
+      <GestureHandlerRootView>
+        <ThemeProvider value={isDarkColorScheme ? DARK_THEME : LIGHT_THEME}>
+          <SystemBars style={isDarkColorScheme ? "light" : "dark"} />
+          <NavigationStack />
+        </ThemeProvider>
+      </GestureHandlerRootView>
+    </ErrorBoundary>
   );
 }
 

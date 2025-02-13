@@ -3,22 +3,21 @@ import { router } from "expo-router";
 import React from "react";
 import { View } from "react-native";
 
-export default function SplashScreen() {
+interface SplashScreenProps {}
+
+export default function SplashScreen({}: SplashScreenProps) {
   React.useEffect(() => {
-    setTimeout(() => {
+    const timer = setTimeout(() => {
       router.replace("/welcome");
     }, 500);
+
+    return () => clearTimeout(timer);
   }, []);
 
   return (
-    <View
-      style={{
-        flex: 1,
-        justifyContent: "center",
-        alignItems: "center",
-      }}
-    >
-      <Text>Splash Screen (WIP)</Text>
+    <View className="flex-1 items-center justify-center">
+      <Text className="text-lg font-medium">Splash Screen (WIP)</Text>
     </View>
   );
+}
 }
