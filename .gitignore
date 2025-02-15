@@ -35,7 +35,8 @@ yarn-error.*
 # typescript
 *.tsbuildinfo
 
-app-example
+# editor
+.cursor
 
 # prebuild
 android/
