@@ -57,7 +57,7 @@ export default function Search() {
           placeholder={
             searchType === "Choose type"
               ? "Select search type first"
-              : `Enter ${searchType.toLowerCase()} query`
+              : `Enter ${searchType.toLowerCase()} name`
           }
           value={searchParam}
           onChangeText={setSearchParam}

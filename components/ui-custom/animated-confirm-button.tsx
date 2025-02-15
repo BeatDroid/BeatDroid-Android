@@ -46,7 +46,7 @@ const AnimatedConfirmButton = ({
     <Animated.View
       style={animatedFooterStyle}
       className={`my-4 ${
-        floating && `absolute bottom-[0] p-safe self-center w-full`
+        floating && `absolute bottom-[14] p-safe self-center w-full`
       }`}
     >
       <Button onPress={onPress} disabled={disabled}>
