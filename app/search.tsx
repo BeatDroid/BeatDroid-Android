@@ -29,7 +29,7 @@ export default function Search() {
         description="Search for your favorite music or albums"
       />
       <View className="flex-1">
-        <Label className="py-4">Search Type</Label>
+        <Label className="pt-10 pb-4">Search Type</Label>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="outline">
@@ -64,6 +64,7 @@ export default function Search() {
         />
       </View>
       <AnimatedConfirmButton
+        floating
         title="Search"
         onPress={() => console.log("Search")}
         disabled={searchType === "Choose type" || searchParam === ""}
