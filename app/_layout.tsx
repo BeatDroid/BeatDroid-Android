@@ -1,18 +1,20 @@
 import "~/global.css";
 
+import { ErrorBoundary } from "@/components/error-boundary";
 import {
   DarkTheme,
   DefaultTheme,
   Theme,
   ThemeProvider,
 } from "@react-navigation/native";
+import { PortalHost } from "@rn-primitives/portal";
 import { Stack } from "expo-router";
 import * as React from "react";
 import { Platform } from "react-native";
 import { SystemBars } from "react-native-edge-to-edge";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { NAV_THEME } from "~/lib/constants";
 import { useColorScheme } from "~/lib/useColorScheme";
-import { GestureHandlerRootView } from "react-native-gesture-handler";
 
 const LIGHT_THEME: Theme = {
   ...DefaultTheme,
@@ -22,8 +24,6 @@ const DARK_THEME: Theme = {
   ...DarkTheme,
   colors: NAV_THEME.dark,
 };
-
-import { ErrorBoundary } from "@/components/error-boundary";
 
 export default function RootLayout() {
   return <ProviderStack />;
@@ -57,6 +57,7 @@ function ProviderStack() {
         <ThemeProvider value={isDarkColorScheme ? DARK_THEME : LIGHT_THEME}>
           <SystemBars style={isDarkColorScheme ? "light" : "dark"} />
           <NavigationStack />
+          <PortalHost />
         </ThemeProvider>
       </GestureHandlerRootView>
     </ErrorBoundary>
@@ -68,6 +69,7 @@ function NavigationStack() {
     <Stack>
       <Stack.Screen name="index" options={{ headerShown: false }} />
       <Stack.Screen name="welcome" options={{ headerShown: false }} />
+      <Stack.Screen name="search" options={{ headerShown: false }} />
       <Stack.Screen name="posterview" options={{ headerShown: false }} />
     </Stack>
   );

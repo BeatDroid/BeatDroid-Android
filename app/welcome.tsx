@@ -1,9 +1,11 @@
+import AnimatedConfirmButton from "@/components/ui-custom/animated-confirm-button";
+import AnimatedHeader from "@/components/ui-custom/animated-header";
 import Background from "@/components/ui-custom/background";
 import InfoCard from "@/components/ui-custom/info-card";
 import { Button } from "@/components/ui/button";
 import { Text } from "@/components/ui/text";
 import { router } from "expo-router";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { View } from "react-native";
 import Animated, {
   interpolate,
@@ -16,16 +18,12 @@ const duration = 1000;
 const offset = 100;
 
 export default function Welcome() {
-  const headerPosition = useSharedValue(-offset);
-  const footerPosition = useSharedValue(offset);
+  const [enableButton, setEnableButton] = useState(false);
   const featureBox1Position = useSharedValue(-offset);
   const featureBox2Position = useSharedValue(-offset);
   const featureBox3Position = useSharedValue(-offset);
 
   useEffect(() => {
-    // Start header and footer animations immediately
-    headerPosition.value = withTiming(0, { duration });
-
     // Start feature box animations after header/footer complete
     setTimeout(() => {
       featureBox1Position.value = withTiming(0, { duration });
@@ -40,40 +38,19 @@ export default function Welcome() {
 
           // Start footer animation after third completes
           setTimeout(() => {
-            footerPosition.value = withTiming(0, { duration });
+            setEnableButton(true);
           }, duration);
         }, duration / 3);
       }, duration / 3);
     }, duration);
 
     return () => {
-      headerPosition.value = -offset;
-      footerPosition.value = offset;
+      setEnableButton(false);
       featureBox1Position.value = -offset;
       featureBox2Position.value = -offset;
       featureBox3Position.value = -offset;
     };
-  }, [
-    featureBox1Position,
-    featureBox2Position,
-    featureBox3Position,
-    footerPosition,
-    headerPosition,
-  ]);
-
-  const animatedHeaderStyle = useAnimatedStyle(() => {
-    return {
-      transform: [{ translateY: headerPosition.value }],
-      opacity: interpolate(headerPosition.value, [-offset, 0], [0, 1]),
-    };
-  });
-
-  const animatedFooterStyle = useAnimatedStyle(() => {
-    return {
-      transform: [{ translateY: footerPosition.value }],
-      opacity: interpolate(footerPosition.value, [offset, 0], [0, 1]),
-    };
-  });
+  }, [featureBox1Position, featureBox2Position, featureBox3Position]);
 
   const animatedFeatureBox1Style = useAnimatedStyle(() => {
     return {
@@ -98,18 +75,12 @@ export default function Welcome() {
 
   return (
     <Background>
-      <Animated.View
-        style={animatedHeaderStyle}
-        className="flex-1 items-center justify-center"
-      >
-        <Text className="text-2xl font-bold mb-3 text-center">
-          BeatDroid 🎷
-        </Text>
-        <Text className="text-base text-center">
-          Create eye-catching, Pinterest-style music posters effortlessly on
-          Android! 🍀
-        </Text>
-      </Animated.View>
+      <AnimatedHeader
+        offset={100}
+        duration={1000}
+        title="BeatDroid 🎷"
+        description="Create eye-catching, Pinterest-style music posters effortlessly on Android! 🍀"
+      />
       <View className="flex-[6] items-center justify-center">
         <Animated.View
           className={"w-full mb-6"}
@@ -153,11 +124,11 @@ export default function Welcome() {
           />
         </Animated.View>
       </View>
-      <Animated.View style={animatedFooterStyle} className="mt-4">
-        <Button onPress={() => router.push("/posterview")}>
-          <Text>Lets Go</Text>
-        </Button>
-      </Animated.View>
+      <AnimatedConfirmButton
+        title="Let's Go"
+        onPress={() => router.push("/search")}
+        disabled={!enableButton}
+      />
     </Background>
   );
 }
