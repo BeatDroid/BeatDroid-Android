@@ -17,6 +17,7 @@ import { NAV_THEME } from "~/lib/constants";
 import { useColorScheme } from "~/lib/useColorScheme";
 import { QueryClientProvider } from "@tanstack/react-query";
 import queryClient from "@/config/queryClient";
+import { AuthProvider } from "@/contexts/auth-context";
 
 const LIGHT_THEME: Theme = {
   ...DefaultTheme,
@@ -56,13 +57,15 @@ function ProviderStack() {
   return (
     <ErrorBoundary>
       <GestureHandlerRootView>
-        <ThemeProvider value={isDarkColorScheme ? DARK_THEME : LIGHT_THEME}>
-          <QueryClientProvider client={queryClient}>
-            <SystemBars style={isDarkColorScheme ? "light" : "dark"} />
-            <NavigationStack />
-            <PortalHost />
-          </QueryClientProvider>
-        </ThemeProvider>
+        <AuthProvider>
+          <ThemeProvider value={isDarkColorScheme ? DARK_THEME : LIGHT_THEME}>
+            <QueryClientProvider client={queryClient}>
+              <SystemBars style={isDarkColorScheme ? "light" : "dark"} />
+              <NavigationStack />
+              <PortalHost />
+            </QueryClientProvider>
+          </ThemeProvider>
+        </AuthProvider>
       </GestureHandlerRootView>
     </ErrorBoundary>
   );

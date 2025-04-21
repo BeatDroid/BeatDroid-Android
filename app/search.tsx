@@ -14,6 +14,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Text } from "@/components/ui/text";
+import { router } from "expo-router";
 import { useState } from "react";
 import { View } from "react-native";
 import Animated, { FadeIn } from "react-native-reanimated";
@@ -66,7 +67,7 @@ export default function Search() {
       <AnimatedConfirmButton
         floating
         title="Search"
-        onPress={() => console.log("Search")}
+        onPress={() => router.navigate("/posterview")}
         disabled={searchType === "Choose type" || searchParam === ""}
       />
     </Background>
