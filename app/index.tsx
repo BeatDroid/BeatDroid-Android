@@ -1,18 +1,20 @@
-import { Text } from "@/components/ui/text";
 import { router } from "expo-router";
 import React from "react";
 import { View } from "react-native";
 
+import { useTokenGenApi } from "@/api/generate-token/useTokenGenApi";
+import { Text } from "@/components/ui/text";
+
 interface SplashScreenProps {}
 
 export default function SplashScreen({}: SplashScreenProps) {
-  React.useEffect(() => {
-    const timer = setTimeout(() => {
-      router.replace("/welcome");
-    }, 500);
+  const genTokenApi = useTokenGenApi();
 
-    return () => clearTimeout(timer);
-  }, []);
+  React.useEffect(() => {
+    if (genTokenApi.isSuccess) {
+      router.replace("/welcome");
+    }
+  }, [genTokenApi.isSuccess, genTokenApi.data]);
 
   return (
     <View className="flex-1 items-center justify-center">

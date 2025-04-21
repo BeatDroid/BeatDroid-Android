@@ -5,12 +5,11 @@ export interface CustomQueryOptions<TData, TError> extends Omit<UseQueryOptions<
 }
 
 export function useCustomQuery<TData, TError = unknown>(
-  key: QueryKey,
   options: CustomQueryOptions<TData, TError>
 ) {
   return useQuery<TData, TError>({
     ...options,
-    queryKey: key,
+    queryKey: options.queryKey,
     queryFn: options.queryFn,
   });
 }
