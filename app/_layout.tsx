@@ -15,6 +15,8 @@ import { SystemBars } from "react-native-edge-to-edge";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { NAV_THEME } from "~/lib/constants";
 import { useColorScheme } from "~/lib/useColorScheme";
+import { QueryClientProvider } from "@tanstack/react-query";
+import queryClient from "@/config/queryClient";
 
 const LIGHT_THEME: Theme = {
   ...DefaultTheme,
@@ -55,9 +57,11 @@ function ProviderStack() {
     <ErrorBoundary>
       <GestureHandlerRootView>
         <ThemeProvider value={isDarkColorScheme ? DARK_THEME : LIGHT_THEME}>
-          <SystemBars style={isDarkColorScheme ? "light" : "dark"} />
-          <NavigationStack />
-          <PortalHost />
+          <QueryClientProvider client={queryClient}>
+            <SystemBars style={isDarkColorScheme ? "light" : "dark"} />
+            <NavigationStack />
+            <PortalHost />
+          </QueryClientProvider>
         </ThemeProvider>
       </GestureHandlerRootView>
     </ErrorBoundary>
