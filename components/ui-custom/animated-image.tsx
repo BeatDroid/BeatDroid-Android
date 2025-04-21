@@ -1,6 +1,6 @@
 import { Image } from "expo-image";
 import { cssInterop } from "nativewind";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { ActivityIndicator, View } from "react-native";
 import { Gesture, GestureDetector } from "react-native-gesture-handler";
 import Animated, {
@@ -9,9 +9,12 @@ import Animated, {
   withSpring,
   withTiming,
 } from "react-native-reanimated";
+import { binaryToImageUri } from "@/utils/image-utils";
 
 interface Props {
-  uri: string | undefined;
+  uri?: string;
+  binaryData?: ArrayBuffer | Uint8Array | Blob;
+  mimeType?: string;
 }
 
 const maxVerticalAngle = 70;
@@ -24,11 +27,32 @@ const ExpoImage = cssInterop(Image, {
   },
 });
 
-const AnimatedImage = ({ uri }: Props) => {
+const AnimatedImage = ({ uri, binaryData, mimeType = "image/png" }: Props) => {
   const imageRef = React.useRef<Image>(null);
   const rotateY = useSharedValue<string>("0deg");
   const rotateX = useSharedValue<string>("0deg");
   const isPressed = useSharedValue<boolean>(false);
+  const [imageUri, setImageUri] = useState<string | undefined>(uri);
+  const [isLoading, setIsLoading] = useState<boolean>(!!binaryData && !uri);
+
+  // Convert binary data to URI if provided
+  useEffect(() => {
+    if (binaryData) {
+      setIsLoading(true);
+      binaryToImageUri(binaryData, mimeType)
+        .then((dataUri) => {
+          setImageUri(dataUri);
+        })
+        .catch((error) => {
+          console.error("Failed to convert binary data to image URI:", error);
+        })
+        .finally(() => {
+          setIsLoading(false);
+        });
+    } else if (uri) {
+      setImageUri(uri);
+    }
+  }, [binaryData, uri, mimeType]);
 
   const pan = Gesture.Pan()
     .onBegin(() => {
@@ -66,11 +90,15 @@ const AnimatedImage = ({ uri }: Props) => {
         className={`bg-transparent w-full h-auto overflow-hidden`}
         style={animatedStyles}
       >
-        {uri ? (
+        {isLoading ? (
+          <View className="flex-1 items-center justify-center">
+            <ActivityIndicator size={"large"} />
+          </View>
+        ) : imageUri ? (
           <ExpoImage
             ref={imageRef}
             source={{
-              uri,
+              uri: imageUri,
             }}
             contentFit="contain"
             placeholder={{ blurHash }}

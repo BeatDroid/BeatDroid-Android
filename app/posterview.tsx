@@ -1,10 +1,21 @@
+import { usePosterDownApi } from "@/api/download-poster/usePosterDownApi";
 import AnimatedImage from "@/components/ui-custom/animated-image";
 import Background from "@/components/ui-custom/background";
+import { ActivityIndicator } from "react-native";
 
 export default function Result() {
+  const posterApi = usePosterDownApi();
+
+  if (posterApi.isLoading)
+    return (
+      <Background className="items-center justify-center px-5 gap-2">
+        <ActivityIndicator size="large" />
+      </Background>
+    );
+
   return (
     <Background className="items-center justify-center px-5 gap-2">
-      <AnimatedImage uri="https://github.com/TrueMyst/BeatPrints/blob/main/examples/here_with_me_by_d4vd_237.png?raw=true" />
+      <AnimatedImage uri={posterApi.data} />
     </Background>
   );
 }

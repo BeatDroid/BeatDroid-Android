@@ -4,14 +4,14 @@ import { AuthContextProps } from './auth-types';
 const AuthContext = createContext<AuthContextProps | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [token, setTokenState] = useState<string | null>(null);
+  const [token, setTokenState] = useState<string>("");
 
   const setToken = useCallback((newToken: string) => {
     setTokenState(newToken);
   }, []);
 
   const clearToken = useCallback(() => {
-    setTokenState(null);
+    setTokenState("");
   }, []);
 
   const value = {
