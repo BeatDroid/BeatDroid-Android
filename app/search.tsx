@@ -1,3 +1,4 @@
+import { useAlbumSearchApi } from "@/api/search-album/useSearchAlbumApi";
 import AnimatedConfirmButton from "@/components/ui-custom/animated-confirm-button";
 import AnimatedHeader from "@/components/ui-custom/animated-header";
 import Background from "@/components/ui-custom/background";
@@ -14,14 +15,26 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Text } from "@/components/ui/text";
-import { router } from "expo-router";
 import { useState } from "react";
 import { View } from "react-native";
 import Animated, { FadeIn } from "react-native-reanimated";
+import { router } from "expo-router";
+import { parsePosterUrl } from "@/utils/text-utls";
 
 export default function Search() {
   const [searchType, setSearchType] = useState("Choose type");
-  const [searchParam, setSearchParam] = useState("");
+  const [searchParam, setSearchParam] = useState("Abbey Road");
+  const [artistName, setArtistName] = useState("The Beatles");
+
+  const searchAlbumApi = useAlbumSearchApi({
+    onSuccess: (data) => {
+      router.navigate({
+        pathname: "/[posterview]",
+        params: { posterview: parsePosterUrl(data) },
+      });
+    },
+    onError: (error) => console.log(error),
+  });
 
   return (
     <Background>
@@ -42,8 +55,11 @@ export default function Search() {
               <DropdownMenuLabel>Select a search type</DropdownMenuLabel>
               <DropdownMenuSeparator />
               <DropdownMenuGroup>
-                <DropdownMenuItem onPress={() => setSearchType("Track")}>
-                  <Text>Track</Text>
+                <DropdownMenuItem
+                  disabled
+                  onPress={() => setSearchType("Track")}
+                >
+                  <Text>Track (Coming Soon)</Text>
                 </DropdownMenuItem>
                 <DropdownMenuItem onPress={() => setSearchType("Album")}>
                   <Text>Album</Text>
@@ -52,7 +68,7 @@ export default function Search() {
             </Animated.View>
           </DropdownMenuContent>
         </DropdownMenu>
-        <Label className="py-4">Search</Label>
+        <Label className="py-4">What are you looking for?</Label>
         <Input
           editable={searchType !== "Choose type"}
           placeholder={
@@ -63,12 +79,30 @@ export default function Search() {
           value={searchParam}
           onChangeText={setSearchParam}
         />
+        <Input
+          className="mt-5"
+          editable={searchType !== "Choose type"}
+          placeholder={
+            searchType === "Choose type"
+              ? "Select search type first"
+              : `Enter artist name`
+          }
+          value={artistName}
+          onChangeText={setArtistName}
+        />
       </View>
       <AnimatedConfirmButton
         floating
         title="Search"
-        onPress={() => router.navigate("/posterview")}
-        disabled={searchType === "Choose type" || searchParam === ""}
+        loading={searchAlbumApi.isPending}
+        onPress={() =>
+          searchAlbumApi.mutate({ album: searchParam, artist: artistName })
+        }
+        disabled={
+          searchType === "Choose type" ||
+          searchParam === "" ||
+          artistName === ""
+        }
       />
     </Background>
   );

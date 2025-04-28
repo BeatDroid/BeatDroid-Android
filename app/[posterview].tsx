@@ -2,9 +2,11 @@ import { usePosterDownApi } from "@/api/download-poster/usePosterDownApi";
 import AnimatedImage from "@/components/ui-custom/animated-image";
 import Background from "@/components/ui-custom/background";
 import { ActivityIndicator } from "react-native";
+import { useLocalSearchParams } from "expo-router";
 
 export default function Result() {
-  const posterApi = usePosterDownApi();
+  const { posterview } = useLocalSearchParams<{ posterview: string }>();
+  const posterApi = usePosterDownApi({ posterUrl: posterview! });
 
   if (posterApi.isLoading)
     return (

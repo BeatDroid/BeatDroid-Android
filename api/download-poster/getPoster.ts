@@ -1,6 +1,9 @@
 import { apiClient } from "../client/ky-instance";
 
-export async function getPoster(token: string | null): Promise<Blob> {
+export async function getPoster(
+  token: string | null,
+  posterUrl: string
+): Promise<Blob> {
   const response = await apiClient
     .extend({
       hooks: {
@@ -11,7 +14,7 @@ export async function getPoster(token: string | null): Promise<Blob> {
         ],
       },
     })
-    .get("get_poster/albums/abbey_road_(remastered)_by_the_beatles_644.png");
+    .get(posterUrl);
 
   if (!response.ok)
     return Promise.reject(

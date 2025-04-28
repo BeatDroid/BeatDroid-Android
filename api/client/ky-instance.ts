@@ -1,7 +1,9 @@
 import ky from "ky";
 
+const prefixUrl = process.env.EXPO_PUBLIC_BASE_URL || "";
+
 export const apiClient = ky.create({
-  prefixUrl: "https://beatdroiddev.raspiripper.cloud" + "/api/v1",
+  prefixUrl: prefixUrl + "/api/v1",
   timeout: 10000,
   headers: { "Content-Type": "application/json" },
 });

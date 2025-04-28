@@ -1,6 +1,7 @@
+import { binaryToImageUri } from "@/utils/image-utils";
 import { Image } from "expo-image";
 import { cssInterop } from "nativewind";
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { ActivityIndicator, View } from "react-native";
 import { Gesture, GestureDetector } from "react-native-gesture-handler";
 import Animated, {
@@ -9,7 +10,6 @@ import Animated, {
   withSpring,
   withTiming,
 } from "react-native-reanimated";
-import { binaryToImageUri } from "@/utils/image-utils";
 
 interface Props {
   uri?: string;
@@ -35,13 +35,23 @@ const AnimatedImage = ({ uri, binaryData, mimeType = "image/png" }: Props) => {
   const [imageUri, setImageUri] = useState<string | undefined>(uri);
   const [isLoading, setIsLoading] = useState<boolean>(!!binaryData && !uri);
 
+  const resetImage = useCallback(
+    (data: string) => {
+      if (imageUri === data) return;
+      Image.clearDiskCache();
+      Image.clearMemoryCache();
+      setImageUri(data);
+    },
+    [imageUri]
+  );
+
   // Convert binary data to URI if provided
   useEffect(() => {
     if (binaryData) {
       setIsLoading(true);
       binaryToImageUri(binaryData, mimeType)
         .then((dataUri) => {
-          setImageUri(dataUri);
+          resetImage(dataUri);
         })
         .catch((error) => {
           console.error("Failed to convert binary data to image URI:", error);
@@ -50,9 +60,9 @@ const AnimatedImage = ({ uri, binaryData, mimeType = "image/png" }: Props) => {
           setIsLoading(false);
         });
     } else if (uri) {
-      setImageUri(uri);
+      resetImage(uri);
     }
-  }, [binaryData, uri, mimeType]);
+  }, [binaryData, uri, mimeType, resetImage]);
 
   const pan = Gesture.Pan()
     .onBegin(() => {

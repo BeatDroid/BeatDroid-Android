@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { Text } from "react-native";
+import { ActivityIndicator, Text } from "react-native";
 import Animated, {
   interpolate,
   useAnimatedStyle,
@@ -15,6 +15,7 @@ interface AnimatedConfirmButtonProps {
   floating?: boolean;
   duration?: number;
   offset?: number;
+  loading?: boolean;
 }
 
 const AnimatedConfirmButton = ({
@@ -24,6 +25,7 @@ const AnimatedConfirmButton = ({
   floating = false,
   duration = 500,
   offset = 100,
+  loading = false,
 }: AnimatedConfirmButtonProps) => {
   const footerPosition = useSharedValue(offset);
 
@@ -37,7 +39,10 @@ const AnimatedConfirmButton = ({
 
   const animatedFooterStyle = useAnimatedStyle(() => {
     return {
-      transform: [{ translateY: footerPosition.value }],
+      transform: [
+        { translateY: footerPosition.value },
+        { scale: interpolate(footerPosition.value, [offset, 0], [0.8, 1]) },
+      ],
       opacity: interpolate(footerPosition.value, [offset, 0], [0, 1]),
     };
   });
@@ -49,8 +54,12 @@ const AnimatedConfirmButton = ({
         floating && `absolute bottom-[14] p-safe self-center w-full`
       }`}
     >
-      <Button onPress={onPress} disabled={disabled}>
-        <Text>{title}</Text>
+      <Button onPress={onPress} disabled={disabled || loading}>
+        {loading ? (
+          <ActivityIndicator size="small" color="#000" />
+        ) : (
+          <Text>{title}</Text>
+        )}
       </Button>
     </Animated.View>
   );

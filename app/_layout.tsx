@@ -77,7 +77,7 @@ function NavigationStack() {
       <Stack.Screen name="index" options={{ headerShown: false }} />
       <Stack.Screen name="welcome" options={{ headerShown: false }} />
       <Stack.Screen name="search" options={{ headerShown: false }} />
-      <Stack.Screen name="posterview" options={{ headerShown: false }} />
+      <Stack.Screen name="[posterview]" options={{ headerShown: false }} />
     </Stack>
   );
 }
