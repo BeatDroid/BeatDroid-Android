@@ -15,7 +15,13 @@ export default function SplashScreen({}: SplashScreenProps) {
   React.useEffect(() => {
     if (genTokenApi.isSuccess) {
       setToken(genTokenApi.data.access_token);
-      router.replace("/welcome");
+
+      // Ensure screen is mounted before navigating
+      const timer = setTimeout(() => {
+        router.replace("/welcome");
+      }, 300);
+
+      return () => clearTimeout(timer);
     }
   }, [genTokenApi.isSuccess, genTokenApi.data, setToken]);
 

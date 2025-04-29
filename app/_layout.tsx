@@ -1,6 +1,8 @@
 import "~/global.css";
 
 import { ErrorBoundary } from "@/components/error-boundary";
+import queryClient from "@/config/queryClient";
+import { AuthProvider } from "@/contexts/auth-context";
 import {
   DarkTheme,
   DefaultTheme,
@@ -8,16 +10,15 @@ import {
   ThemeProvider,
 } from "@react-navigation/native";
 import { PortalHost } from "@rn-primitives/portal";
+import { QueryClientProvider } from "@tanstack/react-query";
 import { Stack } from "expo-router";
 import * as React from "react";
 import { Platform } from "react-native";
 import { SystemBars } from "react-native-edge-to-edge";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
+import { Toaster } from "sonner-native";
 import { NAV_THEME } from "~/lib/constants";
 import { useColorScheme } from "~/lib/useColorScheme";
-import { QueryClientProvider } from "@tanstack/react-query";
-import queryClient from "@/config/queryClient";
-import { AuthProvider } from "@/contexts/auth-context";
 
 const LIGHT_THEME: Theme = {
   ...DefaultTheme,
@@ -66,6 +67,11 @@ function ProviderStack() {
             </QueryClientProvider>
           </ThemeProvider>
         </AuthProvider>
+        <Toaster
+          richColors
+          position="bottom-center"
+          autoWiggleOnUpdate="toast-change"
+        />
       </GestureHandlerRootView>
     </ErrorBoundary>
   );

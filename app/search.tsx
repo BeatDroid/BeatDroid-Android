@@ -15,11 +15,12 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Text } from "@/components/ui/text";
+import { parsePosterUrl } from "@/utils/text-utls";
+import { router } from "expo-router";
 import { useState } from "react";
 import { View } from "react-native";
 import Animated, { FadeIn } from "react-native-reanimated";
-import { router } from "expo-router";
-import { parsePosterUrl } from "@/utils/text-utls";
+import { toast } from "sonner-native";
 
 export default function Search() {
   const [searchType, setSearchType] = useState("Choose type");
@@ -33,7 +34,12 @@ export default function Search() {
         params: { posterview: parsePosterUrl(data) },
       });
     },
-    onError: (error) => console.log(error),
+    onError: (error) => {
+      console.log(error);
+      toast.error("Search failed", {
+        description: error?.message ?? "Unknown error",
+      });
+    },
   });
 
   return (
