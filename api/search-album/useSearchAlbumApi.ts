@@ -1,15 +1,16 @@
 import { useAuth } from "@/contexts/auth-context";
 import { useCustomMutation } from "@/hooks/useCustomMutation";
 import { searchAlbum } from "./searchAlbum";
+import { searchPosterParameter } from "./types";
 
 interface UseAlbumSearchApiParams {
   onSuccess: (data: string) => void;
   onError: (error: unknown) => void;
-  onMutate?: (variables: { album: string; artist: string }) => void;
+  onMutate?: (variables: searchPosterParameter) => void;
 }
 
 export type UseAlbumSearchApi = ReturnType<
-  typeof useCustomMutation<string, { album: string; artist: string }>
+  typeof useCustomMutation<string, searchPosterParameter>
 >;
 
 export function useAlbumSearchApi({
@@ -20,8 +21,13 @@ export function useAlbumSearchApi({
   const { token } = useAuth();
   const searchAlbumApi = useCustomMutation({
     mutationKey: ["usePosterDownApi"],
-    mutationFn: async ({ album, artist }: { album: string; artist: string }) =>
-      searchAlbum(token!, album, artist),
+    mutationFn: async ({
+      album_name = "",
+      artist_name = "",
+      theme = "Dark",
+      accent = false,
+    }: searchPosterParameter) =>
+      searchAlbum(token!, album_name, artist_name, theme, accent),
     onSuccess,
     onError,
     onMutate,

@@ -4,7 +4,9 @@ import { searchPosterResponse } from "./types";
 export async function searchAlbum(
   token: string,
   album: string,
-  artist: string
+  artist: string,
+  theme: string,
+  accent: boolean
 ): Promise<string> {
   const response = await apiClient
     .extend({
@@ -20,9 +22,9 @@ export async function searchAlbum(
       json: {
         album_name: album,
         artist_name: artist,
-        theme: "Dark",
+        theme,
         indexing: true,
-        accent: false,
+        accent,
       },
     })
     .json<searchPosterResponse>();
