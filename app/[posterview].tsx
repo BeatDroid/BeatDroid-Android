@@ -1,8 +1,10 @@
 import { usePosterDownApi } from "@/api/download-poster/usePosterDownApi";
+import AnimatedConfirmButton from "@/components/ui-custom/animated-confirm-button";
 import AnimatedImage from "@/components/ui-custom/animated-image";
 import Background from "@/components/ui-custom/background";
-import { ActivityIndicator } from "react-native";
+import { handleDownloadPoster } from "@/utils/image-utils";
 import { useLocalSearchParams } from "expo-router";
+import { ActivityIndicator } from "react-native";
 
 export default function Result() {
   const { posterview } = useLocalSearchParams<{ posterview: string }>();
@@ -18,6 +20,12 @@ export default function Result() {
   return (
     <Background className="items-center justify-center px-5 gap-2">
       <AnimatedImage uri={posterApi.data} />
+      <AnimatedConfirmButton
+        floating
+        title="Download"
+        onPress={() => handleDownloadPoster(posterview)}
+        disabled={!posterApi.isSuccess}
+      />
     </Background>
   );
 }

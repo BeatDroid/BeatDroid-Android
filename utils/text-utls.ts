@@ -4,3 +4,7 @@ const prefixUrlWithApi = `${prefixUrl.split("://")[1]}/api/v1/`;
 export const parsePosterUrl = (url: string) => {
   return url.split(`${prefixUrlWithApi}`)[1];
 };
+
+export const parsePosterUrlWithApi = (url: string) => {
+  return `${prefixUrl}/api/v1/${url}`;
+};
