@@ -69,7 +69,7 @@ const SwitchNative = React.forwardRef<SwitchPrimitives.RootRef, SwitchPrimitives
         <SwitchPrimitives.Root
           className={cn(
             'flex-row h-8 w-[46px] shrink-0 items-center rounded-full border-2 border-transparent',
-            props.checked ? 'bg-primary' : 'bg-input',
+            props.checked ? 'bg-primary' : 'bg-background',
             className
           )}
           {...props}
@@ -77,7 +77,7 @@ const SwitchNative = React.forwardRef<SwitchPrimitives.RootRef, SwitchPrimitives
         >
           <Animated.View style={animatedThumbStyle}>
             <SwitchPrimitives.Thumb
-              className={'h-7 w-7 rounded-full bg-background shadow-md shadow-foreground/25 ring-0'}
+              className={'h-7 w-7 rounded-full bg-card shadow-md shadow-foreground/25 ring-0'}
             />
           </Animated.View>
         </SwitchPrimitives.Root>

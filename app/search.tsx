@@ -3,6 +3,7 @@ import AnimatedConfirmButton from "@/components/ui-custom/animated-confirm-butto
 import AnimatedHeader from "@/components/ui-custom/animated-header";
 import Background from "@/components/ui-custom/background";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -73,89 +74,116 @@ export default function Search() {
         description="Search for your favorite music or albums"
       />
       <View className="flex-1">
-        <Label className="pt-10 pb-4">Search Type</Label>
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="outline">
-              <Text>{searchType}</Text>
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent className="w-64 native:w-72">
-            <Animated.View entering={FadeIn.duration(300)}>
-              <DropdownMenuLabel>Select a search type</DropdownMenuLabel>
-              <DropdownMenuSeparator />
-              <DropdownMenuGroup>
-                <DropdownMenuItem
-                  disabled
-                  onPress={() => setSearchType("Track")}
-                >
-                  <Text>Track (Coming Soon)</Text>
-                </DropdownMenuItem>
-                <DropdownMenuItem onPress={() => setSearchType("Album")}>
-                  <Text>Album</Text>
-                </DropdownMenuItem>
-              </DropdownMenuGroup>
-            </Animated.View>
-          </DropdownMenuContent>
-        </DropdownMenu>
-        <Label className="py-4">What are you looking for?</Label>
-        <Input
-          editable={searchType !== "Choose type"}
-          placeholder={
-            searchType === "Choose type"
-              ? "Select search type first"
-              : `Enter ${searchType.toLowerCase()} name`
-          }
-          value={searchParam}
-          onChangeText={setSearchParam}
-        />
-        <Input
-          className="mt-5"
-          editable={searchType !== "Choose type"}
-          placeholder={
-            searchType === "Choose type"
-              ? "Select search type first"
-              : `Enter artist name`
-          }
-          value={artistName}
-          onChangeText={setArtistName}
-        />
-        <Label className="py-4">A splash of color maybe?</Label>
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="outline">
-              <Text>{theme}</Text>
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent className="w-64 native:w-72">
-            <Animated.View entering={FadeIn.duration(300)}>
-              <DropdownMenuSeparator />
-              <DropdownMenuLabel>Choose a colour theme</DropdownMenuLabel>
-              {themes.map((theme) => (
-                <DropdownMenuItem key={theme} onPress={() => setTheme(theme)}>
+        <Card>
+          <CardHeader>
+            <Label>Search Type</Label>
+          </CardHeader>
+          <CardContent>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline">
+                  <Text>{searchType}</Text>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className="w-64 native:w-72">
+                <Animated.View entering={FadeIn.duration(300)}>
+                  <DropdownMenuLabel>Select a search type</DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuGroup>
+                    <DropdownMenuItem
+                      disabled
+                      onPress={() => setSearchType("Track")}
+                    >
+                      <Text>Track (Coming Soon)</Text>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onPress={() => setSearchType("Album")}>
+                      <Text>Album</Text>
+                    </DropdownMenuItem>
+                  </DropdownMenuGroup>
+                </Animated.View>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </CardContent>
+        </Card>
+        <Card className="mt-4">
+          <CardHeader>
+            <Label className="">What are you looking for?</Label>
+          </CardHeader>
+          <CardContent>
+            <Input
+              editable={searchType !== "Choose type"}
+              placeholder={
+                searchType === "Choose type"
+                  ? "Select search type first"
+                  : `Enter ${searchType.toLowerCase()} name`
+              }
+              value={searchParam}
+              onChangeText={setSearchParam}
+            />
+            <Input
+              className="mt-5"
+              editable={searchType !== "Choose type"}
+              placeholder={
+                searchType === "Choose type"
+                  ? "Select search type first"
+                  : `Enter artist name`
+              }
+              value={artistName}
+              onChangeText={setArtistName}
+            />
+          </CardContent>
+        </Card>
+        <Card className="mt-4">
+          <CardHeader>
+            <Label>A splash of color maybe?</Label>
+          </CardHeader>
+          <CardContent>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline">
                   <Text>{theme}</Text>
-                </DropdownMenuItem>
-              ))}
-            </Animated.View>
-          </DropdownMenuContent>
-        </DropdownMenu>
-        <Label className="py-4">With a cherry on top?</Label>
-        <View className="flex-row items-center mt-1">
-          <Switch
-            checked={accentLine}
-            onCheckedChange={setAccentLine}
-            nativeID="accent-line"
-          />
-          <Label
-            className="ml-6"
-            nativeID="accent-line"
-            onPress={() => {
-              setAccentLine((prev) => !prev);
-            }}
-          >
-            Accent line below poster
-          </Label>
-        </View>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className="w-64 native:w-72">
+                <Animated.View entering={FadeIn.duration(300)}>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuLabel>Choose a colour theme</DropdownMenuLabel>
+                  {themes.map((theme) => (
+                    <DropdownMenuItem
+                      key={theme}
+                      onPress={() => setTheme(theme)}
+                    >
+                      <Text>{theme}</Text>
+                    </DropdownMenuItem>
+                  ))}
+                </Animated.View>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </CardContent>
+        </Card>
+        <Card className="mt-4">
+          <CardHeader>
+            <Label>With a cherry on top?</Label>
+          </CardHeader>
+          <CardContent>
+            <View className="flex-row items-center mt-1">
+              <Switch
+                checked={accentLine}
+                onCheckedChange={setAccentLine}
+                nativeID="accent-line"
+              />
+              <Label
+                className="ml-6"
+                nativeID="accent-line"
+                onPress={() => {
+                  setAccentLine((prev) => !prev);
+                }}
+              >
+                Accent line below poster
+              </Label>
+            </View>
+          </CardContent>
+        </Card>
       </View>
       <AnimatedConfirmButton
         floating
