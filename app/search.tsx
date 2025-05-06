@@ -1,4 +1,5 @@
 import { useAlbumSearchApi } from "@/api/search-album/useSearchAlbumApi";
+import AnimatedCard from "@/components/ui-custom/animated-card";
 import AnimatedConfirmButton from "@/components/ui-custom/animated-confirm-button";
 import AnimatedHeader from "@/components/ui-custom/animated-header";
 import Background from "@/components/ui-custom/background";
@@ -70,11 +71,13 @@ export default function Search() {
   return (
     <Background>
       <AnimatedHeader
+        duration={500}
+        offset={50}
         title="Search 🔍"
         description="Search for your favorite music or albums"
       />
       <View className="flex-1">
-        <Card>
+        <AnimatedCard>
           <CardHeader>
             <Label>Search Type</Label>
           </CardHeader>
@@ -104,14 +107,14 @@ export default function Search() {
               </DropdownMenuContent>
             </DropdownMenu>
           </CardContent>
-        </Card>
-        <Card className="mt-4">
+        </AnimatedCard>
+        <AnimatedCard className="mt-4" disabled={searchType === "Choose type"}>
           <CardHeader>
             <Label className="">What are you looking for?</Label>
           </CardHeader>
           <CardContent>
             <Input
-              editable={searchType !== "Choose type"}
+              // editable={searchType !== "Choose type"}
               placeholder={
                 searchType === "Choose type"
                   ? "Select search type first"
@@ -122,7 +125,7 @@ export default function Search() {
             />
             <Input
               className="mt-5"
-              editable={searchType !== "Choose type"}
+              // editable={searchType !== "Choose type"}
               placeholder={
                 searchType === "Choose type"
                   ? "Select search type first"
@@ -132,8 +135,8 @@ export default function Search() {
               onChangeText={setArtistName}
             />
           </CardContent>
-        </Card>
-        <Card className="mt-4">
+        </AnimatedCard>
+        <AnimatedCard className="mt-4" disabled={searchType === "Choose type"}>
           <CardHeader>
             <Label>A splash of color maybe?</Label>
           </CardHeader>
@@ -160,8 +163,8 @@ export default function Search() {
               </DropdownMenuContent>
             </DropdownMenu>
           </CardContent>
-        </Card>
-        <Card className="mt-4">
+        </AnimatedCard>
+        <AnimatedCard className="mt-4" disabled={searchType === "Choose type"}>
           <CardHeader>
             <Label>With a cherry on top?</Label>
           </CardHeader>
@@ -183,7 +186,7 @@ export default function Search() {
               </Label>
             </View>
           </CardContent>
-        </Card>
+        </AnimatedCard>
       </View>
       <AnimatedConfirmButton
         floating
