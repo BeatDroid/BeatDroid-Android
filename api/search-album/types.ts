@@ -1,6 +1,6 @@
 export interface searchPosterResponse {
   message: string;
-  url: string;
+  filePath: string;
 }
 
 export interface searchPosterParameter {

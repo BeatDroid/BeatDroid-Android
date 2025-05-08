@@ -7,10 +7,10 @@ import { useLocalSearchParams } from "expo-router";
 import { ActivityIndicator } from "react-native";
 
 export default function Result() {
-  const { posterview } = useLocalSearchParams<{ posterview: string }>();
-  const posterApi = usePosterDownApi({ posterUrl: posterview! });
+  const { posterPath } = useLocalSearchParams<{ posterPath: string }>();
+  const posterApi = usePosterDownApi({ posterPath: posterPath! });
 
-  if (posterApi.isLoading)
+  if (posterApi.isFetching)
     return (
       <Background className="items-center justify-center px-5 gap-2">
         <ActivityIndicator size="large" />
@@ -19,12 +19,11 @@ export default function Result() {
 
   return (
     <Background className="items-center justify-center px-5 gap-2">
-      <AnimatedImage uri={posterApi.data} />
+      <AnimatedImage uri={posterApi.data?.image!} />
       <AnimatedConfirmButton
         floating
         title="Download"
-        onPress={() => handleDownloadPoster(posterview)}
-        disabled={!posterApi.isSuccess}
+        onPress={() => handleDownloadPoster(posterApi.data?.image!)}
       />
     </Background>
   );

@@ -1,16 +1,16 @@
 import { useAuth } from "@/contexts/auth-context";
 import { useCustomMutation } from "@/hooks/useCustomMutation";
 import { searchAlbum } from "./searchAlbum";
-import { searchPosterParameter } from "./types";
+import { searchPosterParameter, searchPosterResponse } from "./types";
 
 interface UseAlbumSearchApiParams {
-  onSuccess: (data: string) => void;
+  onSuccess: (data: searchPosterResponse) => void;
   onError: (error: unknown) => void;
   onMutate?: (variables: searchPosterParameter) => void;
 }
 
 export type UseAlbumSearchApi = ReturnType<
-  typeof useCustomMutation<string, searchPosterParameter>
+  typeof useCustomMutation<searchPosterResponse, searchPosterParameter>
 >;
 
 export function useAlbumSearchApi({

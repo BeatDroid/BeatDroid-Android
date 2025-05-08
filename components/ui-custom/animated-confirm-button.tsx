@@ -10,7 +10,7 @@ import { Button } from "../ui/button";
 
 interface AnimatedConfirmButtonProps {
   title: string;
-  onPress: () => void;
+  onPress?: () => void;
   disabled?: boolean;
   floating?: boolean;
   duration?: number;

@@ -1,23 +1,21 @@
+import { useAuth } from "@/contexts/auth-context";
 import { useCustomQuery } from "@/hooks/useCustomQuery";
 import { getPoster } from "./getPoster";
-import { useAuth } from "@/contexts/auth-context";
-import { binaryToImageUri } from "@/utils/image-utils";
+import { getPosterResponse } from "./types";
 
-export type UsePosterDownApi = ReturnType<typeof useCustomQuery<string>>;
+export type UsePosterDownApi = ReturnType<
+  typeof useCustomQuery<getPosterResponse>
+>;
 
 export function usePosterDownApi({
-  posterUrl,
+  posterPath,
 }: {
-  posterUrl: string;
+  posterPath: string;
 }): UsePosterDownApi {
   const { token } = useAuth();
   const getPosterApi = useCustomQuery({
     queryKey: ["usePosterDownApi"],
-    queryFn: async () => {
-      const blob = await getPoster(token, posterUrl);
-      // Convert the blob to a data URI that can be used with Expo Image
-      return binaryToImageUri(blob);
-    },
+    queryFn: () => getPoster(token, posterPath),
   });
   return getPosterApi;
 }

@@ -55,7 +55,7 @@ export default function Search() {
     onSuccess: (data) => {
       router.navigate({
         pathname: "/[posterview]",
-        params: { posterview: parsePosterUrl(data) },
+        params: { posterPath: data.filePath },
       });
     },
     onError: (error: unknown) => {

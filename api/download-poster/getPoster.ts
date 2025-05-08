@@ -1,9 +1,10 @@
 import { apiClient } from "../client/ky-instance";
+import { getPosterResponse } from "./types";
 
 export async function getPoster(
   token: string | null,
-  posterUrl: string
-): Promise<Blob> {
+  posterPath: string
+): Promise<getPosterResponse> {
   const response = await apiClient
     .extend({
       hooks: {
@@ -14,13 +15,17 @@ export async function getPoster(
         ],
       },
     })
-    .get(posterUrl);
+    .post("get_poster", {
+      json: {
+        filename: posterPath,
+      },
+    })
+    .json<getPosterResponse>();
 
-  if (!response.ok)
+  if (!response.image)
     return Promise.reject(
-      new Error(`Failed to fetch poster: ${response.status}`)
+      new Error(`Failed to fetch poster: ${response.image}`)
     );
 
-  const blob = await response.blob();
-  return blob;
+  return response;
 }

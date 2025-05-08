@@ -7,9 +7,10 @@ export async function searchAlbum(
   artist: string,
   theme: string,
   accent: boolean
-): Promise<string> {
+): Promise<searchPosterResponse> {
   const response = await apiClient
     .extend({
+      timeout: 60000,
       hooks: {
         beforeRequest: [
           (request) => {
@@ -29,5 +30,5 @@ export async function searchAlbum(
     })
     .json<searchPosterResponse>();
 
-  return response.url;
+  return response;
 }
