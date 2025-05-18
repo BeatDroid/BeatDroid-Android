@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { ActivityIndicator, Text } from "react-native";
+import { ActivityIndicator, Text, View } from "react-native";
 import Animated, {
   interpolate,
   useAnimatedStyle,
@@ -50,17 +50,20 @@ const AnimatedConfirmButton = ({
   return (
     <Animated.View
       style={animatedFooterStyle}
+      pointerEvents="box-none"
       className={`my-4 ${
         floating && `absolute bottom-[14] p-safe self-center w-full`
       }`}
     >
-      <Button onPress={onPress} disabled={disabled || loading}>
-        {loading ? (
-          <ActivityIndicator size="small" color="#000" />
-        ) : (
-          <Text>{title}</Text>
-        )}
-      </Button>
+      <View pointerEvents="auto">
+        <Button onPress={onPress} disabled={disabled || loading}>
+          {loading ? (
+            <ActivityIndicator size="small" color="#000" />
+          ) : (
+            <Text>{title}</Text>
+          )}
+        </Button>
+      </View>
     </Animated.View>
   );
 };

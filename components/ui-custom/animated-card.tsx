@@ -1,5 +1,5 @@
 import { ViewRef } from "@rn-primitives/types";
-import React, { ReactNode, useEffect } from "react";
+import React, { useEffect } from "react";
 import { ViewProps } from "react-native";
 import Animated, {
   interpolate,
@@ -14,12 +14,13 @@ const duration = 500;
 
 interface AnimatedCardProps extends ViewProps {
   disabled?: boolean;
-  children: ReactNode;
-  className?: string;
+  color?: string;
 }
 
+const AnimatedCardComponent = Animated.createAnimatedComponent(Card);
+
 const AnimatedCard = React.forwardRef<ViewRef, AnimatedCardProps>(
-  ({ disabled = false, children, className, ...props }, ref) => {
+  ({ disabled = false, color, ...props }, ref) => {
     const footerPosition = useSharedValue(offset);
 
     useEffect(() => {
@@ -30,19 +31,23 @@ const AnimatedCard = React.forwardRef<ViewRef, AnimatedCardProps>(
       }
     }, [disabled, footerPosition]);
 
-    const animatedFooterStyle = useAnimatedStyle(() => {
+    const animatedStyle = useAnimatedStyle(() => {
       return {
         transform: [{ translateY: footerPosition.value }],
         opacity: interpolate(footerPosition.value, [offset, 0], [0, 1]),
+        ...(color && {
+          backgroundColor: withTiming(color, { duration }),
+        }),
       };
     });
 
     return (
-      <Animated.View style={animatedFooterStyle}>
-        <Card ref={ref} className={className} {...props}>
-          {children}
-        </Card>
-      </Animated.View>
+      <AnimatedCardComponent 
+        ref={ref} 
+        style={animatedStyle} 
+        pointerEvents="box-none"
+        {...props} 
+      />
     );
   }
 );

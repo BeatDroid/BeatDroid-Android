@@ -1,0 +1,144 @@
+import { themes } from "@/lib/constants";
+import { ThemeTypes } from "@/lib/types";
+import React, { useEffect } from "react";
+import { View } from "react-native";
+import Animated, {
+  useAnimatedStyle,
+  useSharedValue,
+  withTiming,
+} from "react-native-reanimated";
+
+interface MiniPosterProps {
+  theme?: ThemeTypes;
+  accentEnabled?: boolean;
+}
+
+const MiniPoster = ({
+  theme = "Light",
+  accentEnabled = false,
+}: MiniPosterProps) => {
+  const backgroundColor = useSharedValue(themes[theme].bg);
+  const posterColor = useSharedValue(themes[theme].fg);
+  const textColor = useSharedValue(themes[theme].text);
+  const b1color = useSharedValue(themes[theme].b1);
+  const b2color = useSharedValue(themes[theme].b2);
+  const b3color = useSharedValue(themes[theme].b3);
+  const accentLine = useSharedValue(accentEnabled ? 1 : 0);
+
+  useEffect(() => {
+    accentLine.value = withTiming(accentEnabled ? 1 : 0, { duration: 500 });
+    backgroundColor.value = withTiming(themes[theme].bg, { duration: 500 });
+    posterColor.value = withTiming(themes[theme].fg, { duration: 500 });
+    textColor.value = withTiming(themes[theme].text, { duration: 500 });
+    b1color.value = withTiming(themes[theme].b1, { duration: 500 });
+    b2color.value = withTiming(themes[theme].b2, { duration: 500 });
+    b3color.value = withTiming(themes[theme].b3, { duration: 500 });
+  }, [
+    accentEnabled,
+    accentLine,
+    b1color,
+    b2color,
+    b3color,
+    backgroundColor,
+    posterColor,
+    textColor,
+    theme,
+  ]);
+
+  const posterStyle = useAnimatedStyle(() => {
+    return {
+      backgroundColor: posterColor.value,
+    };
+  });
+
+  const backgroundStyle = useAnimatedStyle(() => {
+    return {
+      backgroundColor: backgroundColor.value,
+    };
+  });
+
+  const textStyle = useAnimatedStyle(() => {
+    return {
+      backgroundColor: textColor.value,
+    };
+  });
+
+  const b1Style = useAnimatedStyle(() => {
+    return {
+      backgroundColor: b1color.value,
+    };
+  });
+
+  const b2Style = useAnimatedStyle(() => {
+    return {
+      backgroundColor: b2color.value,
+    };
+  });
+
+  const b3Style = useAnimatedStyle(() => {
+    return {
+      backgroundColor: b3color.value,
+    };
+  });
+
+  const accentLineStyle = useAnimatedStyle(() => {
+    return {
+      backgroundColor: withTiming(
+        accentEnabled ? posterColor.value : "transparent",
+        { duration: 300 }
+      ),
+    };
+  });
+
+  return (
+    <Animated.View
+      style={backgroundStyle}
+      className="aspect-[7.3/10] h-[235] self-center pt-2"
+    >
+      <Animated.View style={posterStyle} className="flex-1 mx-2" />
+      <Animated.View
+        style={textStyle}
+        className="mt-2 h-3 w-[75%] mx-2 rounded-full"
+      />
+      <View className="flex-row items-center justify-between mx-2">
+        <Animated.View
+          style={textStyle}
+          className="mt-1 h-1 w-[65%] rounded-full"
+        />
+        <View className="flex-row items-center">
+          <Animated.View
+            style={textStyle}
+            className="mt-1 ml-1 aspect-[1] w-[5] rounded-full"
+          />
+          <Animated.View
+            style={b1Style}
+            className="mt-1 ml-1 aspect-[1] w-[5] rounded-full"
+          />
+          <Animated.View
+            style={b2Style}
+            className="mt-1 ml-1 aspect-[1] w-[5] rounded-full"
+          />
+          <Animated.View
+            style={b3Style}
+            className="mt-1 ml-1 aspect-[1] w-[5] rounded-full"
+          />
+        </View>
+      </View>
+      <Animated.View
+        style={textStyle}
+        className="mt-2 mx-2 h-1.5 w-[45%] rounded-full"
+      />
+      <Animated.View
+        style={textStyle}
+        className="mt-1 mx-2 h-1.5 w-[60%] rounded-full"
+      />
+      <Animated.View
+        style={textStyle}
+        className="mt-1 mx-2 h-1.5 w-[30%] rounded-full"
+      />
+      <Animated.View style={accentLineStyle} className="mt-2 h-1 w-full" />
+    </Animated.View>
+  );
+};
+
+export default MiniPoster;

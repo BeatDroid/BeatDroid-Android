@@ -1,8 +1,11 @@
+import { focusManager } from "@tanstack/react-query";
 import { Image } from "expo-image";
+import { useFocusEffect } from "expo-router";
 import { cssInterop } from "nativewind";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Gesture, GestureDetector } from "react-native-gesture-handler";
 import Animated, {
+  runOnJS,
   useAnimatedStyle,
   useSharedValue,
   withSpring,
@@ -11,6 +14,9 @@ import Animated, {
 
 interface Props {
   uri: string;
+  blurhash?: string;
+  loading?: boolean;
+  onPress?: () => void;
 }
 
 const maxVerticalAngle = 70;
@@ -23,15 +29,33 @@ const ExpoImage = cssInterop(Image, {
   },
 });
 
-const AnimatedImage = ({ uri }: Props) => {
+const AnimatedImage = ({ uri, blurhash, loading = true, onPress }: Props) => {
   const imageRef = React.useRef<Image>(null);
+  const [isFocused, setIsFocused] = useState(false);
   const rotateY = useSharedValue<string>("0deg");
   const rotateX = useSharedValue<string>("0deg");
   const isPressed = useSharedValue<boolean>(false);
 
+  useFocusEffect(
+    React.useCallback(() => {
+      setIsFocused(true);
+      return () => {
+        setIsFocused(false);
+      };
+    }, [])
+  );
+
+  const tap = Gesture.Tap().onEnd(() => {
+    if (onPress && !loading) {
+      runOnJS(onPress)();
+    }
+  });
+
   const pan = Gesture.Pan()
     .onBegin(() => {
-      isPressed.value = true;
+      if (!loading) {
+        isPressed.value = true;
+      }
     })
     .onChange((event) => {
       rotateY.value = `${Math.min(
@@ -49,35 +73,43 @@ const AnimatedImage = ({ uri }: Props) => {
       isPressed.value = false;
     });
 
+  const gesture = Gesture.Simultaneous(tap, pan);
+
   const animatedStyles = useAnimatedStyle(() => ({
     transform: [
       { rotateY: rotateY.value },
       { rotateX: rotateX.value },
-      { scale: withTiming(isPressed.value ? 0.95 : 1) },
+      { scale: withTiming(isPressed.value ? 0.95 : 1, { duration: 150 }) },
     ],
   }));
 
-  const blurHash = `LKJbT+Mx-po#1MaKs.kC~UofM{WB`;
-
-  const imageBaseUri = uri.startsWith("data:")
-    ? uri
-    : `data:image/jpeg;base64,${uri}`;
+  if (!isFocused) {
+    return null;
+  }
 
   return (
-    <GestureDetector gesture={pan}>
+    <GestureDetector gesture={gesture}>
       <Animated.View
-        className={`bg-transparent w-full h-auto overflow-hidden`}
+        className={`bg-transparent w-full h-auto overflow-hidden p-5`}
         style={animatedStyles}
       >
         <ExpoImage
           ref={imageRef}
-          source={{
-            uri: imageBaseUri,
-          }}
-          contentFit="contain"
-          placeholder={{ blurHash }}
+          cachePolicy="none"
+          source={
+            loading
+              ? {
+                  blurhash,
+                }
+              : {
+                  uri: uri.startsWith("data:")
+                    ? uri
+                    : `data:image/jpeg;base64,${uri}`,
+                }
+          }
+          contentFit={loading ? "cover" : "contain"}
           transition={2000}
-          className={"h-full w-full"}
+          className={"aspect-[0.65] w-full"}
         />
       </Animated.View>
     </GestureDetector>

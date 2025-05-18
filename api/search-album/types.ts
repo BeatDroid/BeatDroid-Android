@@ -1,6 +1,7 @@
 export interface searchPosterResponse {
   message: string;
   filePath: string;
+  blurhash: string;
 }
 
 export interface searchPosterParameter {

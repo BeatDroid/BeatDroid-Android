@@ -2,8 +2,6 @@ import AnimatedConfirmButton from "@/components/ui-custom/animated-confirm-butto
 import AnimatedHeader from "@/components/ui-custom/animated-header";
 import Background from "@/components/ui-custom/background";
 import InfoCard from "@/components/ui-custom/info-card";
-import { Button } from "@/components/ui/button";
-import { Text } from "@/components/ui/text";
 import { router } from "expo-router";
 import { useEffect, useState } from "react";
 import { View } from "react-native";

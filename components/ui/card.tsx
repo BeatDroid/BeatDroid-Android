@@ -7,6 +7,7 @@ import { TextClassContext } from '@/components/ui/text';
 const Card = React.forwardRef<ViewRef, ViewProps>(({ className, ...props }, ref) => (
   <View
     ref={ref}
+    pointerEvents='auto'
     className={cn(
       'rounded-lg border border-border bg-card shadow-sm shadow-foreground/10',
       className

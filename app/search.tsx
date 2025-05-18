@@ -3,8 +3,9 @@ import AnimatedCard from "@/components/ui-custom/animated-card";
 import AnimatedConfirmButton from "@/components/ui-custom/animated-confirm-button";
 import AnimatedHeader from "@/components/ui-custom/animated-header";
 import Background from "@/components/ui-custom/background";
+import MiniPoster from "@/components/ui-custom/mini-poster";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { CardContent, CardHeader } from "@/components/ui/card";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -18,31 +19,13 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Text } from "@/components/ui/text";
-import { parsePosterUrl } from "@/utils/text-utls";
+import { themes } from "@/lib/constants";
+import { ThemeTypes } from "@/lib/types";
 import { router } from "expo-router";
 import { useState } from "react";
 import { View } from "react-native";
 import Animated, { FadeIn } from "react-native-reanimated";
 import { toast } from "sonner-native";
-
-type ThemeTypes =
-  | "Light"
-  | "Dark"
-  | "Catppuccin"
-  | "Gruvbox"
-  | "Nord"
-  | "RosePine"
-  | "Everforest";
-
-const themes: ThemeTypes[] = [
-  "Light",
-  "Dark",
-  "Catppuccin",
-  "Gruvbox",
-  "Nord",
-  "RosePine",
-  "Everforest",
-];
 
 export default function Search() {
   const [searchType, setSearchType] = useState("Choose type");
@@ -54,8 +37,8 @@ export default function Search() {
   const searchAlbumApi = useAlbumSearchApi({
     onSuccess: (data) => {
       router.navigate({
-        pathname: "/[posterview]",
-        params: { posterPath: data.filePath },
+        pathname: "/[posterPath]",
+        params: { posterPath: data.filePath, blurhash: data.blurhash },
       });
     },
     onError: (error: unknown) => {
@@ -77,7 +60,7 @@ export default function Search() {
         description="Search for your favorite music or albums"
       />
       <View className="flex-1">
-        <AnimatedCard>
+        <AnimatedCard className="border-0">
           <CardHeader>
             <Label>Search Type</Label>
           </CardHeader>
@@ -85,7 +68,7 @@ export default function Search() {
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="outline">
-                  <Text>{searchType}</Text>
+                  <Text className="font-bold">{searchType}</Text>
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent className="w-64 native:w-72">
@@ -108,7 +91,10 @@ export default function Search() {
             </DropdownMenu>
           </CardContent>
         </AnimatedCard>
-        <AnimatedCard className="mt-4" disabled={searchType === "Choose type"}>
+        <AnimatedCard
+          className="mt-4 border-0"
+          disabled={searchType === "Choose type"}
+        >
           <CardHeader>
             <Label className="">What are you looking for?</Label>
           </CardHeader>
@@ -136,57 +122,76 @@ export default function Search() {
             />
           </CardContent>
         </AnimatedCard>
-        <AnimatedCard className="mt-4" disabled={searchType === "Choose type"}>
-          <CardHeader>
-            <Label>A splash of color maybe?</Label>
-          </CardHeader>
-          <CardContent>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="outline">
-                  <Text>{theme}</Text>
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent className="w-64 native:w-72">
-                <Animated.View entering={FadeIn.duration(300)}>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuLabel>Choose a colour theme</DropdownMenuLabel>
-                  {themes.map((theme) => (
-                    <DropdownMenuItem
-                      key={theme}
-                      onPress={() => setTheme(theme)}
-                    >
-                      <Text>{theme}</Text>
-                    </DropdownMenuItem>
-                  ))}
-                </Animated.View>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </CardContent>
-        </AnimatedCard>
-        <AnimatedCard className="mt-4" disabled={searchType === "Choose type"}>
-          <CardHeader>
-            <Label>With a cherry on top?</Label>
-          </CardHeader>
-          <CardContent>
-            <View className="flex-row items-center mt-1">
-              <Switch
-                checked={accentLine}
-                onCheckedChange={setAccentLine}
-                nativeID="accent-line"
-              />
-              <Label
-                className="ml-6"
-                nativeID="accent-line"
-                onPress={() => {
-                  setAccentLine((prev) => !prev);
-                }}
-              >
-                Accent line below poster
-              </Label>
-            </View>
-          </CardContent>
-        </AnimatedCard>
+        <View className="flex-row w-full">
+          <View className="flex-1 h-[250]">
+            <AnimatedCard
+              className="mt-4 border-0 flex-1"
+              disabled={searchType === "Choose type"}
+            >
+              <CardHeader>
+                <Label>Colour theme</Label>
+              </CardHeader>
+              <CardContent className="flex-1 content-center justify-center">
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="outline">
+                      <Text className="font-bold">{theme}</Text>
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent className="w-64 native:w-72">
+                    <Animated.View entering={FadeIn.duration(300)}>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuLabel>
+                        Choose a colour theme
+                      </DropdownMenuLabel>
+                      {Object.keys(themes).map((theme) => (
+                        <DropdownMenuItem
+                          key={theme}
+                          onPress={() => setTheme(theme as ThemeTypes)}
+                        >
+                          <Text>{theme}</Text>
+                        </DropdownMenuItem>
+                      ))}
+                    </Animated.View>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </CardContent>
+            </AnimatedCard>
+            <AnimatedCard
+              className="mt-4 border-primary border-0 flex-1"
+              disabled={searchType === "Choose type"}
+            >
+              <CardHeader>
+                <Label>Decor</Label>
+              </CardHeader>
+              <CardContent>
+                <View className="flex-row items-center mt-1">
+                  <Switch
+                    checked={accentLine}
+                    onCheckedChange={setAccentLine}
+                    nativeID="accent-line"
+                  />
+                  <Label
+                    className="ml-6"
+                    nativeID="accent-line"
+                    onPress={() => {
+                      setAccentLine((prev) => !prev);
+                    }}
+                  >
+                    Accent line
+                  </Label>
+                </View>
+              </CardContent>
+            </AnimatedCard>
+          </View>
+          <View className="w-4" />
+          <AnimatedCard
+            className="mt-4 border-0 items-center justify-center bg-transparent shadow-none"
+            disabled={searchType === "Choose type"}
+          >
+            <MiniPoster theme={theme} accentEnabled={accentLine} />
+          </AnimatedCard>
+        </View>
       </View>
       <AnimatedConfirmButton
         floating
