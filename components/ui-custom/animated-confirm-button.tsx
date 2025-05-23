@@ -1,7 +1,6 @@
 import React, { useEffect } from "react";
-import { ActivityIndicator, Text, View } from "react-native";
+import { ActivityIndicator, Text } from "react-native";
 import Animated, {
-  interpolate,
   useAnimatedStyle,
   useSharedValue,
   withTiming,
@@ -14,7 +13,6 @@ interface AnimatedConfirmButtonProps {
   disabled?: boolean;
   floating?: boolean;
   duration?: number;
-  offset?: number;
   loading?: boolean;
 }
 
@@ -24,46 +22,43 @@ const AnimatedConfirmButton = ({
   disabled = false,
   floating = false,
   duration = 500,
-  offset = 100,
   loading = false,
 }: AnimatedConfirmButtonProps) => {
-  const footerPosition = useSharedValue(offset);
+  const opacity = useSharedValue(0);
 
   useEffect(() => {
     if (!disabled) {
-      footerPosition.value = withTiming(0, { duration });
+      opacity.value = withTiming(1, { duration });
     } else {
-      footerPosition.value = withTiming(offset, { duration });
+      opacity.value = withTiming(0, { duration });
     }
-  }, [disabled, duration, footerPosition, offset]);
+  }, [disabled, duration, opacity]);
 
   const animatedFooterStyle = useAnimatedStyle(() => {
     return {
-      transform: [
-        { translateY: footerPosition.value },
-        { scale: interpolate(footerPosition.value, [offset, 0], [0.8, 1]) },
-      ],
-      opacity: interpolate(footerPosition.value, [offset, 0], [0, 1]),
+      opacity: opacity.value,
     };
   });
 
   return (
     <Animated.View
       style={animatedFooterStyle}
-      pointerEvents="box-none"
       className={`my-4 ${
         floating && `absolute bottom-[14] p-safe self-center w-full`
       }`}
+      pointerEvents="box-none"
     >
-      <View pointerEvents="auto">
-        <Button onPress={onPress} disabled={disabled || loading}>
-          {loading ? (
-            <ActivityIndicator size="small" color="#000" />
-          ) : (
-            <Text>{title}</Text>
-          )}
-        </Button>
-      </View>
+      <Button
+        onPress={onPress}
+        disabled={disabled || loading}
+        className="active:opacity-80"
+      >
+        {loading ? (
+          <ActivityIndicator size="small" color="#000" />
+        ) : (
+          <Text className="text-center">{title}</Text>
+        )}
+      </Button>
     </Animated.View>
   );
 };

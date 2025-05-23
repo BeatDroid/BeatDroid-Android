@@ -15,6 +15,7 @@ import { ChevronRight } from '@/lib/icons/ChevronRight';
 import { ChevronUp } from '@/lib/icons/ChevronUp';
 import { cn } from '@/lib/utils';
 import { TextClassContext } from '@/components/ui/text';
+import { selectionHaptic } from '@/utils/haptic-utils';
 
 const DropdownMenu = DropdownMenuPrimitive.Root;
 
@@ -139,6 +140,10 @@ const DropdownMenuItem = React.forwardRef<
         className
       )}
       {...props}
+      onPress={(events) => {
+        props.onPress?.(events);
+        selectionHaptic();
+      }}
     />
   </TextClassContext.Provider>
 ));

@@ -9,6 +9,7 @@ import Animated, {
 } from 'react-native-reanimated';
 import { useColorScheme } from '@/lib/useColorScheme';
 import { cn } from '@/lib/utils';
+import { selectionHaptic } from '@/utils/haptic-utils';
 
 const SwitchWeb = React.forwardRef<SwitchPrimitives.RootRef, SwitchPrimitives.RootProps>(
   ({ className, ...props }, ref) => (
@@ -74,6 +75,10 @@ const SwitchNative = React.forwardRef<SwitchPrimitives.RootRef, SwitchPrimitives
           )}
           {...props}
           ref={ref}
+          onPress={(events) => {
+            props.onPress?.(events);
+            selectionHaptic();
+          }}
         >
           <Animated.View style={animatedThumbStyle}>
             <SwitchPrimitives.Thumb

@@ -2,39 +2,51 @@ import { ViewRef } from "@rn-primitives/types";
 import React, { useEffect } from "react";
 import { ViewProps } from "react-native";
 import Animated, {
-  interpolate,
   useAnimatedStyle,
   useSharedValue,
+  withDelay,
   withTiming,
 } from "react-native-reanimated";
 import { Card } from "../ui/card";
 
-const offset = 50;
+const initialOpacity = 0; // Start from fully transparent
+const targetOpacity = 1; // Animate to fully opaque
 const duration = 500;
+const delayBetweenCards = 200; // Delay between each card's animation
 
 interface AnimatedCardProps extends ViewProps {
   disabled?: boolean;
   color?: string;
+  delay?: number; // Delay in milliseconds
+  index?: number; // Index for sequencing
 }
 
 const AnimatedCardComponent = Animated.createAnimatedComponent(Card);
 
 const AnimatedCard = React.forwardRef<ViewRef, AnimatedCardProps>(
-  ({ disabled = false, color, ...props }, ref) => {
-    const footerPosition = useSharedValue(offset);
+  (
+    { disabled = false, color, delay = undefined, index = 0, style, ...props },
+    ref
+  ) => {
+    const opacity = useSharedValue(initialOpacity);
 
     useEffect(() => {
       if (!disabled) {
-        footerPosition.value = withTiming(0, { duration });
+        // Calculate delay based on index if no explicit delay is provided
+        const calculatedDelay =
+          delay !== undefined ? delay : index * delayBetweenCards;
+        opacity.value = withDelay(
+          calculatedDelay,
+          withTiming(targetOpacity, { duration })
+        );
       } else {
-        footerPosition.value = withTiming(offset, { duration });
+        opacity.value = withTiming(initialOpacity, { duration });
       }
-    }, [disabled, footerPosition]);
+    }, [disabled, opacity, delay, index]);
 
     const animatedStyle = useAnimatedStyle(() => {
       return {
-        transform: [{ translateY: footerPosition.value }],
-        opacity: interpolate(footerPosition.value, [offset, 0], [0, 1]),
+        opacity: opacity.value,
         ...(color && {
           backgroundColor: withTiming(color, { duration }),
         }),
@@ -42,11 +54,11 @@ const AnimatedCard = React.forwardRef<ViewRef, AnimatedCardProps>(
     });
 
     return (
-      <AnimatedCardComponent 
-        ref={ref} 
-        style={animatedStyle} 
-        pointerEvents="box-none"
-        {...props} 
+      <AnimatedCardComponent
+        ref={ref}
+        style={[animatedStyle, style]}
+        pointerEvents={disabled ? "none" : "box-none"}
+        {...props}
       />
     );
   }

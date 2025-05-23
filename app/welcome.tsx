@@ -59,7 +59,7 @@ export default function Welcome() {
 
   const animatedFeatureBox2Style = useAnimatedStyle(() => {
     return {
-      transform: [{ translateX: featureBox2Position.value }],
+      transform: [{ translateX: -featureBox2Position.value }],
       opacity: interpolate(featureBox2Position.value, [-offset, 0], [0, 1]),
     };
   });

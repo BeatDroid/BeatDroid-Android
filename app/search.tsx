@@ -21,11 +21,13 @@ import { Switch } from "@/components/ui/switch";
 import { Text } from "@/components/ui/text";
 import { themes } from "@/lib/constants";
 import { ThemeTypes } from "@/lib/types";
+import { selectionHaptic } from "@/utils/haptic-utils";
 import { router } from "expo-router";
-import { useState } from "react";
-import { View } from "react-native";
+import React, { useState } from "react";
+import { ScrollView, View } from "react-native";
 import Animated, { FadeIn } from "react-native-reanimated";
 import { toast } from "sonner-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 export default function Search() {
   const [searchType, setSearchType] = useState("Choose type");
@@ -33,6 +35,7 @@ export default function Search() {
   const [artistName, setArtistName] = useState("The Beatles");
   const [theme, setTheme] = useState<ThemeTypes>("Dark");
   const [accentLine, setAccentLine] = useState(false);
+  const insets = useSafeAreaInsets();
 
   const searchAlbumApi = useAlbumSearchApi({
     onSuccess: (data) => {
@@ -59,7 +62,7 @@ export default function Search() {
         title="Search 🔍"
         description="Search for your favorite music or albums"
       />
-      <View className="flex-1">
+      <ScrollView className="flex-1">
         <AnimatedCard className="border-0">
           <CardHeader>
             <Label>Search Type</Label>
@@ -92,6 +95,7 @@ export default function Search() {
           </CardContent>
         </AnimatedCard>
         <AnimatedCard
+          index={0}
           className="mt-4 border-0"
           disabled={searchType === "Choose type"}
         >
@@ -125,6 +129,7 @@ export default function Search() {
         <View className="flex-row w-full">
           <View className="flex-1 h-[250]">
             <AnimatedCard
+              index={1}
               className="mt-4 border-0 flex-1"
               disabled={searchType === "Choose type"}
             >
@@ -138,7 +143,10 @@ export default function Search() {
                       <Text className="font-bold">{theme}</Text>
                     </Button>
                   </DropdownMenuTrigger>
-                  <DropdownMenuContent className="w-64 native:w-72">
+                  <DropdownMenuContent
+                    className="w-64 native:w-72"
+                    insets={{ bottom: insets.bottom + 20 }}
+                  >
                     <Animated.View entering={FadeIn.duration(300)}>
                       <DropdownMenuSeparator />
                       <DropdownMenuLabel>
@@ -158,6 +166,7 @@ export default function Search() {
               </CardContent>
             </AnimatedCard>
             <AnimatedCard
+              index={2}
               className="mt-4 border-primary border-0 flex-1"
               disabled={searchType === "Choose type"}
             >
@@ -176,6 +185,7 @@ export default function Search() {
                     nativeID="accent-line"
                     onPress={() => {
                       setAccentLine((prev) => !prev);
+                      selectionHaptic();
                     }}
                   >
                     Accent line
@@ -186,13 +196,14 @@ export default function Search() {
           </View>
           <View className="w-4" />
           <AnimatedCard
+            index={3}
             className="mt-4 border-0 items-center justify-center bg-transparent shadow-none"
             disabled={searchType === "Choose type"}
           >
             <MiniPoster theme={theme} accentEnabled={accentLine} />
           </AnimatedCard>
         </View>
-      </View>
+      </ScrollView>
       <AnimatedConfirmButton
         floating
         title="Create"
