@@ -6,9 +6,7 @@ import { useTokenGenApi } from "@/api/generate-token/useTokenGenApi";
 import { Text } from "@/components/ui/text";
 import { useAuth } from "@/contexts/auth-context";
 
-interface SplashScreenProps {}
-
-export default function SplashScreen({}: SplashScreenProps) {
+export default function SplashScreen() {
   const genTokenApi = useTokenGenApi();
   const { setToken } = useAuth();
 

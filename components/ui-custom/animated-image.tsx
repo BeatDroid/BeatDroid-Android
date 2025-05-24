@@ -1,8 +1,7 @@
-import { focusManager } from "@tanstack/react-query";
 import { Image } from "expo-image";
 import { useFocusEffect } from "expo-router";
 import { cssInterop } from "nativewind";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { Gesture, GestureDetector } from "react-native-gesture-handler";
 import Animated, {
   runOnJS,

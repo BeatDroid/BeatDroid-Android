@@ -28,7 +28,7 @@ const AnimatedHeader = ({
     return () => {
       headerPosition.value = -offset;
     };
-  }, [headerPosition]);
+  }, [duration, headerPosition, offset]);
 
   const animatedHeaderStyle = useAnimatedStyle(() => {
     return {
