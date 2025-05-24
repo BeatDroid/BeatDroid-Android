@@ -1,13 +1,13 @@
 import { apiClient } from "../client/ky-instance";
-import { searchAlbumResponse } from "./types";
+import { searchTrackResponse } from "./types";
 
-export async function searchAlbum(
+export async function searchTrack(
   token: string,
-  album: string,
+  track: string,
   artist: string,
   theme: string,
   accent: boolean
-): Promise<searchAlbumResponse> {
+): Promise<searchTrackResponse> {
   const response = await apiClient
     .extend({
       timeout: 60000,
@@ -19,16 +19,16 @@ export async function searchAlbum(
         ],
       },
     })
-    .post("generate_album_poster", {
+    .post("generate_track_poster", {
       json: {
-        album_name: album,
+        track_name: track,
         artist_name: artist,
         theme,
         indexing: true,
         accent,
       },
     })
-    .json<searchAlbumResponse>();
+    .json<searchTrackResponse>();
 
   return response;
 }

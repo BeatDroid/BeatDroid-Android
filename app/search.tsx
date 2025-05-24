@@ -1,4 +1,7 @@
-import { useAlbumSearchApi } from "@/api/search-album/useSearchAlbumApi";
+import { searchAlbumResponse } from "@/api/search-album/types";
+import { useAlbumSearchApi } from "@/api/search-album/useAlbumSearchApi";
+import { searchTrackResponse } from "@/api/search-track/types";
+import { useTrackSearchApi } from "@/api/search-track/useTrackSearchApi";
 import AnimatedCard from "@/components/ui-custom/animated-card";
 import AnimatedConfirmButton from "@/components/ui-custom/animated-confirm-button";
 import AnimatedHeader from "@/components/ui-custom/animated-header";
@@ -20,38 +23,54 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Text } from "@/components/ui/text";
 import { themes } from "@/lib/constants";
-import { ThemeTypes } from "@/lib/types";
+import { SearchType, ThemeTypes } from "@/lib/types";
 import { selectionHaptic } from "@/utils/haptic-utils";
+import { selectPoster } from "@/utils/poster-utils";
 import { router } from "expo-router";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { ScrollView, View } from "react-native";
 import Animated, { FadeIn } from "react-native-reanimated";
-import { toast } from "sonner-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { toast } from "sonner-native";
 
 export default function Search() {
-  const [searchType, setSearchType] = useState("Choose type");
+  const insets = useSafeAreaInsets();
+  const [searchType, setSearchType] = useState<SearchType>("Choose type");
   const [searchParam, setSearchParam] = useState("Abbey Road");
   const [artistName, setArtistName] = useState("The Beatles");
   const [theme, setTheme] = useState<ThemeTypes>("Dark");
   const [accentLine, setAccentLine] = useState(false);
-  const insets = useSafeAreaInsets();
+
+  useEffect(() => {
+    const selector = selectPoster(searchType);
+    setSearchParam(selector.searchParam);
+    setArtistName(selector.artistName);
+  }, [searchType]);
+
+  const onSuccess = (data: searchAlbumResponse | searchTrackResponse) => {
+    router.navigate({
+      pathname: "/[posterPath]",
+      params: { posterPath: data.filePath, blurhash: data.blurhash },
+    });
+  };
+
+  const onError = (error: unknown) => {
+    console.log(error);
+    let description = "Unknown error";
+    if (error && typeof error === "object" && "message" in error) {
+      description = String((error as { message?: unknown }).message);
+    }
+    toast.error("Search failed", { description });
+  };
 
   const searchAlbumApi = useAlbumSearchApi({
-    onSuccess: (data) => {
-      router.navigate({
-        pathname: "/[posterPath]",
-        params: { posterPath: data.filePath, blurhash: data.blurhash },
-      });
-    },
-    onError: (error: unknown) => {
-      console.log(error);
-      let description = "Unknown error";
-      if (error && typeof error === "object" && "message" in error) {
-        description = String((error as { message?: unknown }).message);
-      }
-      toast.error("Search failed", { description });
-    },
+    onSuccess,
+    onError,
+  });
+
+  const searchTrackApi = useTrackSearchApi({
+    onSuccess,
+    onError,
   });
 
   return (
@@ -79,11 +98,8 @@ export default function Search() {
                   <DropdownMenuLabel>Select a search type</DropdownMenuLabel>
                   <DropdownMenuSeparator />
                   <DropdownMenuGroup>
-                    <DropdownMenuItem
-                      disabled
-                      onPress={() => setSearchType("Track")}
-                    >
-                      <Text>Track (Coming Soon)</Text>
+                    <DropdownMenuItem onPress={() => setSearchType("Track")}>
+                      <Text>Track</Text>
                     </DropdownMenuItem>
                     <DropdownMenuItem onPress={() => setSearchType("Album")}>
                       <Text>Album</Text>
@@ -104,7 +120,7 @@ export default function Search() {
           </CardHeader>
           <CardContent>
             <Input
-              // editable={searchType !== "Choose type"}
+              editable={searchType !== "Choose type"}
               placeholder={
                 searchType === "Choose type"
                   ? "Select search type first"
@@ -115,7 +131,7 @@ export default function Search() {
             />
             <Input
               className="mt-5"
-              // editable={searchType !== "Choose type"}
+              editable={searchType !== "Choose type"}
               placeholder={
                 searchType === "Choose type"
                   ? "Select search type first"
@@ -207,14 +223,21 @@ export default function Search() {
       <AnimatedConfirmButton
         floating
         title="Create"
-        loading={searchAlbumApi.isPending}
+        loading={searchAlbumApi.isPending || searchTrackApi.isPending}
         onPress={() =>
-          searchAlbumApi.mutate({
-            album_name: searchParam,
-            artist_name: artistName,
-            theme,
-            accent: accentLine,
-          })
+          searchType === "Track"
+            ? searchTrackApi.mutate({
+                track_name: searchParam,
+                artist_name: artistName,
+                theme,
+                accent: accentLine,
+              })
+            : searchAlbumApi.mutate({
+                album_name: searchParam,
+                artist_name: artistName,
+                theme,
+                accent: accentLine,
+              })
         }
         disabled={
           searchType === "Choose type" ||

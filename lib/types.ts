@@ -6,3 +6,5 @@ export type ThemeTypes =
   | "Nord"
   | "RosePine"
   | "Everforest";
+
+export type SearchType = "Track" | "Album" | "Choose type";

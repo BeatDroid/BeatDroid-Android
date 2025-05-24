@@ -1,11 +1,11 @@
-export interface searchAlbumResponse {
+export interface searchTrackResponse {
   message: string;
   filePath: string;
   blurhash: string;
 }
 
-export interface searchAlbumParameter {
-  album_name: string;
+export interface searchTrackParameter {
+  track_name: string;
   artist_name: string;
   theme?:
     | "Light"
