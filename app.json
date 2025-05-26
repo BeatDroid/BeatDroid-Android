@@ -6,16 +6,20 @@
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "myapp",
-    "userInterfaceStyle": "automatic",
+    "userInterfaceStyle": "dark",
     "newArchEnabled": true,
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.dhanush911.BeatDroid"
     },
     "android": {
+      "icon": "./assets/images/icon.png",
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
-        "backgroundColor": "#ffffff"
+        "monochromeImage": "./assets/images/adaptive-monochrome.png",
+        "backgroundColor": "#ec8407"
       },
+      "backgroundColor": "#fcfbf7",
       "package": "com.dhanush911.BeatDroid"
     },
     "web": {
@@ -31,7 +35,11 @@
           "image": "./assets/images/splash-icon.png",
           "imageWidth": 200,
           "resizeMode": "contain",
-          "backgroundColor": "#ffffff"
+          "backgroundColor": "#fcfbf7",
+          "dark": {
+            "image": "./assets/images/splash-icon.png",
+            "backgroundColor": "#fcfbf7"
+          }
         }
       ],
       [
