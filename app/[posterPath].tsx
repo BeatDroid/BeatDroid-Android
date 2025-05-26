@@ -2,6 +2,7 @@ import { usePosterDownApi } from "@/api/download-poster/usePosterDownApi";
 import AnimatedConfirmButton from "@/components/ui-custom/animated-confirm-button";
 import AnimatedImage from "@/components/ui-custom/animated-image";
 import Background from "@/components/ui-custom/background";
+import { selectionHaptic } from "@/utils/haptic-utils";
 import { handleDownloadPoster } from "@/utils/image-utils";
 import { useLocalSearchParams } from "expo-router";
 import { useEffect, useState } from "react";
@@ -16,9 +17,10 @@ export default function Result() {
   const posterApi = usePosterDownApi({ posterPath: posterPath! });
 
   useEffect(() => {
-    if (posterApi.isFetched) {
-    }
-  }, [posterApi.isFetched]);
+    if (!posterApi.isFetching) {
+      setIsLoaded(true);
+    } 
+  }, [posterApi.isFetching]);
 
   return (
     <Background className="items-center justify-center px-5 gap-2">
@@ -28,6 +30,10 @@ export default function Result() {
         blurhash={blurhash!}
         onPress={() => {
           setIsLoaded(true);
+        }}
+        onZoom={(isPressed) => {
+          selectionHaptic();
+          setIsLoaded(isPressed);
         }}
       />
       <AnimatedConfirmButton

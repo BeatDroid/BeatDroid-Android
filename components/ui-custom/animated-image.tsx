@@ -8,13 +8,14 @@ import Animated, {
   useAnimatedStyle,
   useSharedValue,
   withSpring,
-  withTiming,
+  withTiming
 } from "react-native-reanimated";
 
 interface Props {
   uri: string;
   blurhash?: string;
   loading?: boolean;
+  onZoom?: (isPressed: boolean) => void;
   onPress?: () => void;
 }
 
@@ -28,12 +29,18 @@ const ExpoImage = cssInterop(Image, {
   },
 });
 
-const AnimatedImage = ({ uri, blurhash, loading = true, onPress }: Props) => {
+const AnimatedImage = ({
+  uri,
+  blurhash,
+  loading = true,
+  onZoom,
+  onPress,
+}: Props) => {
   const imageRef = React.useRef<Image>(null);
   const [isFocused, setIsFocused] = useState(false);
   const rotateY = useSharedValue<string>("0deg");
   const rotateX = useSharedValue<string>("0deg");
-  const isPressed = useSharedValue<boolean>(false);
+  const isZoomed = useSharedValue<number>(0);
 
   useFocusEffect(
     React.useCallback(() => {
@@ -45,31 +52,33 @@ const AnimatedImage = ({ uri, blurhash, loading = true, onPress }: Props) => {
   );
 
   const tap = Gesture.Tap().onEnd(() => {
-    if (onPress && !loading) {
-      runOnJS(onPress)();
+    if (!loading) {
+      if (onPress) {
+        runOnJS(onPress)();
+      }
+      if (onZoom) {
+        runOnJS(onZoom)(isZoomed.value === 1);
+      }
+      isZoomed.value = isZoomed.value === 1 ? 0 : 1;
     }
   });
 
   const pan = Gesture.Pan()
-    .onBegin(() => {
-      if (!loading) {
-        isPressed.value = true;
-      }
-    })
     .onChange((event) => {
-      rotateY.value = `${Math.min(
-        Math.max(event.translationX, -maxVerticalAngle),
-        maxVerticalAngle
-      )}deg`;
-      rotateX.value = `${Math.min(
-        Math.max(-event.translationY, -maxHorizontalAngle),
-        maxHorizontalAngle
-      )}deg`;
+      if (!loading) {
+        rotateY.value = `${Math.min(
+          Math.max(event.translationX, -maxVerticalAngle),
+          maxVerticalAngle
+        )}deg`;
+        rotateX.value = `${Math.min(
+          Math.max(-event.translationY, -maxHorizontalAngle),
+          maxHorizontalAngle
+        )}deg`;
+      }
     })
     .onFinalize(() => {
       rotateY.value = withSpring("0deg");
       rotateX.value = withSpring("0deg");
-      isPressed.value = false;
     });
 
   const gesture = Gesture.Simultaneous(tap, pan);
@@ -78,7 +87,7 @@ const AnimatedImage = ({ uri, blurhash, loading = true, onPress }: Props) => {
     transform: [
       { rotateY: rotateY.value },
       { rotateX: rotateX.value },
-      { scale: withTiming(isPressed.value ? 0.95 : 1, { duration: 150 }) },
+      { scale: withTiming(isZoomed.value === 1 ? 1.15 : 0.9, { duration: 300 }) },
     ],
   }));
 

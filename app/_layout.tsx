@@ -19,6 +19,7 @@ import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { Toaster } from "sonner-native";
 import { NAV_THEME } from "~/lib/constants";
 import { useColorScheme } from "~/lib/useColorScheme";
+import * as SystemUI from 'expo-system-ui';
 
 const LIGHT_THEME: Theme = {
   ...DefaultTheme,
@@ -47,6 +48,7 @@ function ProviderStack() {
       // Adds the background color to the html element to prevent white background on overscroll.
       document.documentElement.classList.add("bg-background");
     }
+    SystemUI.setBackgroundColorAsync("#fcfbf7")
     setIsColorSchemeLoaded(true);
     hasMounted.current = true;
   }, []);
@@ -81,7 +83,6 @@ function NavigationStack() {
   return (
     <Stack>
       <Stack.Screen name="index" options={{ headerShown: false }} />
-      <Stack.Screen name="welcome" options={{ headerShown: false }} />
       <Stack.Screen name="search" options={{ headerShown: false }} />
       <Stack.Screen name="[posterPath]" options={{ headerShown: false }} />
     </Stack>
