@@ -71,8 +71,10 @@ function ProviderStack() {
         </AuthProvider>
         <Toaster
           richColors
-          position="bottom-center"
+          position="top-center"
           autoWiggleOnUpdate="toast-change"
+          duration={7000}
+          offset={70}
         />
       </GestureHandlerRootView>
     </ErrorBoundary>

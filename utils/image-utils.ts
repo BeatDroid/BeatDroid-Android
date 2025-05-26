@@ -46,12 +46,12 @@ export async function handleDownloadPoster(uri: string): Promise<boolean> {
     console.error("Download error:", error);
 
     // Show more specific error message
-    toast.error("Error", {
+    toast.error("Failed to save the poster", {
       id: toastId,
       description:
-        error instanceof Error
-          ? `Failed to save the poster: ${error.message}`
-          : "Failed to save the poster",
+        error instanceof Error && __DEV__
+          ? `${error.message}`
+          : "Please choose another folder",
     });
 
     return false;

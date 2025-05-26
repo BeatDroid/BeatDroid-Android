@@ -60,7 +60,9 @@ export default function Search() {
     if (error && typeof error === "object" && "message" in error) {
       description = String((error as { message?: unknown }).message);
     }
-    toast.error("Search failed", { description });
+    toast.error("Search failed", {
+      description: __DEV__ ? description : "Please try again",
+    });
   };
 
   const searchAlbumApi = useAlbumSearchApi({
