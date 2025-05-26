@@ -8,6 +8,7 @@ import { router } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import { useEffect, useState } from "react";
 import { View } from "react-native";
+import { useMMKVBoolean } from "react-native-mmkv";
 import Animated, {
   interpolate,
   useAnimatedStyle,
@@ -25,6 +26,9 @@ export default function Welcome() {
   const { setToken } = useAuth();
   const [enableButton, setEnableButton] = useState(false);
   const [hasLoaded, setHasLoaded] = useState(false);
+  const [onboardingCompleted, setOnboardingCompleted] = useMMKVBoolean(
+    "onboardingCompleted"
+  );
   const featureBox1Position = useSharedValue(-offset);
   const featureBox2Position = useSharedValue(-offset);
   const featureBox3Position = useSharedValue(-offset);
@@ -32,10 +36,13 @@ export default function Welcome() {
   useEffect(() => {
     if (genTokenApi.isSuccess) {
       setToken(genTokenApi.data.access_token);
-      SplashScreen.hideAsync();
-      setHasLoaded(true);
+      SplashScreen.hide();
+      if (onboardingCompleted) {
+        router.replace("/search");
+        return;
+      } else setHasLoaded(true);
     }
-  }, [genTokenApi.isSuccess, genTokenApi.data, setToken]);
+  }, [genTokenApi.isSuccess, genTokenApi.data, setToken, onboardingCompleted]);
 
   useEffect(() => {
     if (hasLoaded) {
@@ -98,6 +105,11 @@ export default function Welcome() {
     return null;
   }
 
+  const onOnboardingComplete = () => {
+    setOnboardingCompleted(true);
+    router.push("/search");
+  };
+
   return (
     <Background>
       <AnimatedHeader
@@ -151,7 +163,7 @@ export default function Welcome() {
       </View>
       <AnimatedConfirmButton
         title="Let's Go"
-        onPress={() => router.push("/search")}
+        onPress={onOnboardingComplete}
         disabled={!enableButton}
       />
     </Background>

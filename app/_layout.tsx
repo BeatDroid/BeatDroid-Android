@@ -12,6 +12,7 @@ import {
 import { PortalHost } from "@rn-primitives/portal";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { Stack } from "expo-router";
+import * as SystemUI from 'expo-system-ui';
 import * as React from "react";
 import { Platform } from "react-native";
 import { SystemBars } from "react-native-edge-to-edge";
@@ -19,7 +20,6 @@ import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { Toaster } from "sonner-native";
 import { NAV_THEME } from "~/lib/constants";
 import { useColorScheme } from "~/lib/useColorScheme";
-import * as SystemUI from 'expo-system-ui';
 
 const LIGHT_THEME: Theme = {
   ...DefaultTheme,
@@ -48,7 +48,6 @@ function ProviderStack() {
       // Adds the background color to the html element to prevent white background on overscroll.
       document.documentElement.classList.add("bg-background");
     }
-    SystemUI.setBackgroundColorAsync("#fcfbf7")
     setIsColorSchemeLoaded(true);
     hasMounted.current = true;
   }, []);
@@ -82,11 +81,13 @@ function ProviderStack() {
 }
 
 function NavigationStack() {
+  SystemUI.setBackgroundColorAsync("#181715")
+  
   return (
-    <Stack>
-      <Stack.Screen name="index" options={{ headerShown: false }} />
-      <Stack.Screen name="search" options={{ headerShown: false }} />
-      <Stack.Screen name="[posterPath]" options={{ headerShown: false }} />
+    <Stack screenOptions={{ headerShown: false }}>
+      <Stack.Screen name="index" />
+      <Stack.Screen name="search" />
+      <Stack.Screen name="[posterPath]" />
     </Stack>
   );
 }
