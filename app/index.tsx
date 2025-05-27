@@ -7,7 +7,7 @@ import { useAuth } from "@/contexts/auth-context";
 import { router } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import { useEffect, useState } from "react";
-import { View } from "react-native";
+import { ScrollView, View } from "react-native";
 import { useMMKVBoolean } from "react-native-mmkv";
 import Animated, {
   interpolate,
@@ -118,7 +118,7 @@ export default function Welcome() {
         title="BeatDroid 🎷"
         description="Create eye-catching, Pinterest-style music posters effortlessly on Android! 🍀"
       />
-      <View className="flex-[6] items-center justify-center">
+      <ScrollView className="flex-1 mt-5">
         <Animated.View
           className={"w-full mb-6"}
           style={animatedFeatureBox1Style}
@@ -160,7 +160,7 @@ export default function Welcome() {
             ]}
           />
         </Animated.View>
-      </View>
+      </ScrollView>
       <AnimatedConfirmButton
         title="Let's Go"
         onPress={onOnboardingComplete}
