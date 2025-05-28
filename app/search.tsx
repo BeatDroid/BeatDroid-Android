@@ -144,8 +144,8 @@ export default function Search() {
             />
           </CardContent>
         </AnimatedCard>
-        <View className="flex-row w-full">
-          <View className="flex-1 h-[250]">
+        <View className="flex-row w-full h-[250]">
+          <View className="flex-1">
             <AnimatedCard
               index={1}
               className="mt-4 border-0 flex-1"
@@ -199,7 +199,7 @@ export default function Search() {
                     nativeID="accent-line"
                   />
                   <Label
-                    className="ml-6"
+                    className="ml-6 flex-1"
                     nativeID="accent-line"
                     onPress={() => {
                       setAccentLine((prev) => !prev);
@@ -223,7 +223,6 @@ export default function Search() {
         </View>
       </ScrollView>
       <AnimatedConfirmButton
-        floating
         title="Create"
         loading={searchAlbumApi.isPending || searchTrackApi.isPending}
         onPress={() =>

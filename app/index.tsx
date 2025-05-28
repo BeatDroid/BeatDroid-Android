@@ -7,7 +7,7 @@ import { useAuth } from "@/contexts/auth-context";
 import { router } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import { useEffect, useState } from "react";
-import { ScrollView, View } from "react-native";
+import { ScrollView } from "react-native";
 import { useMMKVBoolean } from "react-native-mmkv";
 import Animated, {
   interpolate,
