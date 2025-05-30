@@ -87,8 +87,9 @@ const AnimatedImage = ({
     transform: [
       { rotateY: rotateY.value },
       { rotateX: rotateX.value },
-      { scale: withTiming(isZoomed.value === 1 ? 1.15 : 0.9, { duration: 300 }) },
+      { scale: withTiming(isZoomed.value === 1 ? 1.1 : 0.9, { duration: 300 }) },
     ],
+    borderRadius: withTiming(loading ? 10 : 0, { duration: 300 })
   }));
 
   if (!isFocused) {
@@ -98,7 +99,7 @@ const AnimatedImage = ({
   return (
     <GestureDetector gesture={gesture}>
       <Animated.View
-        className={`bg-transparent w-full h-auto overflow-hidden p-5`}
+        className={`bg-transparent overflow-hidden`}
         style={animatedStyles}
       >
         <ExpoImage

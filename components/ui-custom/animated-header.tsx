@@ -10,6 +10,7 @@ import { Text } from "../ui/text";
 interface AnimatedHeaderProps {
   title: string;
   description: string;
+  disabled?: boolean;
   duration?: number;
   offset?: number;
 }
@@ -17,22 +18,35 @@ interface AnimatedHeaderProps {
 const AnimatedHeader = ({
   title,
   description,
+  disabled = false,
   duration = 1000,
   offset = 100,
 }: AnimatedHeaderProps) => {
   const headerPosition = useSharedValue(-offset);
 
   useEffect(() => {
-    headerPosition.value = withTiming(0, { duration });
+    if (!disabled) {
+      headerPosition.value = withTiming(0, { duration });
+    }
 
     return () => {
-      headerPosition.value = -offset;
+      headerPosition.value = withTiming(-offset, { duration });
     };
-  }, [duration, headerPosition, offset]);
+  }, [disabled, duration, headerPosition, offset]);
 
   const animatedHeaderStyle = useAnimatedStyle(() => {
     return {
-      transform: [{ translateY: headerPosition.value }],
+      transform: [
+        { translateY: headerPosition.value },
+        {scale: interpolate(headerPosition.value, [-offset, 0], [0.8, 1])},
+        {
+          rotateX: `${interpolate(
+            headerPosition.value,
+            [-offset, 0],
+            [90, 0]
+          )}deg`,
+        },
+      ],
       opacity: interpolate(headerPosition.value, [-offset, 0], [0, 1]),
     };
   });
