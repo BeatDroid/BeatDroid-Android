@@ -1,10 +1,17 @@
 import { apiClient } from "../client/ky-instance";
-import { getPosterResponse } from "./types";
+import {
+  getPosterRequestSchema,
+  getPosterResponseSchema,
+  type GetPosterResponse,
+} from "./zod-schema";
 
 export async function getPoster(
   token: string | null,
   posterPath: string
-): Promise<getPosterResponse> {
+): Promise<GetPosterResponse> {
+  const requestData = getPosterRequestSchema.parse({
+    filename: posterPath,
+  });
   const response = await apiClient
     .extend({
       hooks: {
@@ -16,16 +23,9 @@ export async function getPoster(
       },
     })
     .post("get_poster", {
-      json: {
-        filename: posterPath,
-      },
+      json: requestData,
     })
-    .json<getPosterResponse>();
+    .json<unknown>();
 
-  if (!response.image)
-    return Promise.reject(
-      new Error(`Failed to fetch poster: ${response.image}`)
-    );
-
-  return response;
+  return getPosterResponseSchema.parse(response);
 }

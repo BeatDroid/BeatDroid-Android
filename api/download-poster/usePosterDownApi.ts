@@ -1,10 +1,10 @@
 import { useAuth } from "@/contexts/auth-context";
 import { useCustomQuery } from "@/hooks/useCustomQuery";
 import { getPoster } from "./getPoster";
-import { getPosterResponse } from "./types";
+import { GetPosterResponse } from "./zod-schema";
 
 export type UsePosterDownApi = ReturnType<
-  typeof useCustomQuery<getPosterResponse>
+  typeof useCustomQuery<GetPosterResponse>
 >;
 
 export function usePosterDownApi({

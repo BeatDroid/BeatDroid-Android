@@ -1,5 +1,9 @@
 import { apiClient } from "../client/ky-instance";
-import { searchTrackResponse } from "./types";
+import {
+  searchTrackRequestSchema,
+  searchTrackResponseSchema,
+  type SearchTrackResponse,
+} from "./zod-schema";
 
 export async function searchTrack(
   token: string,
@@ -7,10 +11,18 @@ export async function searchTrack(
   artist: string,
   theme: string,
   accent: boolean
-): Promise<searchTrackResponse> {
+): Promise<SearchTrackResponse> {
+  const requestData = searchTrackRequestSchema.parse({
+    track_name: track,
+    artist_name: artist,
+    theme,
+    accent,
+    indexing: true,
+  });
+
   const response = await apiClient
     .extend({
-      timeout: 60000,
+      timeout: 30000,
       hooks: {
         beforeRequest: [
           (request) => {
@@ -20,15 +32,9 @@ export async function searchTrack(
       },
     })
     .post("generate_track_poster", {
-      json: {
-        track_name: track,
-        artist_name: artist,
-        theme,
-        indexing: true,
-        accent,
-      },
+      json: requestData,
     })
-    .json<searchTrackResponse>();
+    .json<unknown>();
 
-  return response;
+  return searchTrackResponseSchema.parse(response);
 }

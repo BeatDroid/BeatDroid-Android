@@ -1,5 +1,9 @@
 import { apiClient } from "../client/ky-instance";
-import { searchAlbumResponse } from "./types";
+import {
+  searchAlbumRequestSchema,
+  searchAlbumResponseSchema,
+  type SearchAlbumResponse,
+} from "./zod-schema";
 
 export async function searchAlbum(
   token: string,
@@ -7,10 +11,19 @@ export async function searchAlbum(
   artist: string,
   theme: string,
   accent: boolean
-): Promise<searchAlbumResponse> {
+): Promise<SearchAlbumResponse> {
+  // Validate input parameters
+  const requestData = searchAlbumRequestSchema.parse({
+    album_name: album,
+    artist_name: artist,
+    theme,
+    accent,
+    indexing: true,
+  });
+
   const response = await apiClient
     .extend({
-      timeout: 60000,
+      timeout: 30000,
       hooks: {
         beforeRequest: [
           (request) => {
@@ -19,16 +32,9 @@ export async function searchAlbum(
         ],
       },
     })
-    .post("generate_album_poster", {
-      json: {
-        album_name: album,
-        artist_name: artist,
-        theme,
-        indexing: true,
-        accent,
-      },
-    })
-    .json<searchAlbumResponse>();
+    .post("generate_album_poster", { json: requestData })
+    .json<unknown>();
 
-  return response;
+  // Validate and parse the response
+  return searchAlbumResponseSchema.parse(response);
 }

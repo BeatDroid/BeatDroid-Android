@@ -1,16 +1,16 @@
 import { useAuth } from "@/contexts/auth-context";
 import { useCustomMutation } from "@/hooks/useCustomMutation";
 import { searchTrack } from "./searchTrack";
-import { searchTrackParameter, searchTrackResponse } from "./types";
+import { SearchTrackRequest, SearchTrackResponse } from "./zod-schema";
 
 interface UseTrackSearchApiParams {
-  onSuccess: (data: searchTrackResponse) => void;
+  onSuccess: (data: SearchTrackResponse) => void;
   onError: (error: unknown) => void;
-  onMutate?: (variables: searchTrackParameter) => void;
+  onMutate?: (variables: SearchTrackRequest) => void;
 }
 
 export type UseTrackSearchApi = ReturnType<
-  typeof useCustomMutation<searchTrackResponse, searchTrackParameter>
+  typeof useCustomMutation<SearchTrackResponse, SearchTrackRequest>
 >;
 
 export function useTrackSearchApi({
@@ -26,7 +26,7 @@ export function useTrackSearchApi({
       artist_name = "",
       theme = "Dark",
       accent = false,
-    }: searchTrackParameter) =>
+    }: SearchTrackRequest) =>
       searchTrack(token!, track_name, artist_name, theme, accent),
     onSuccess,
     onError,

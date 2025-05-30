@@ -110,7 +110,7 @@ const AnimatedImage = ({
                   blurhash,
                 }
               : {
-                  uri: uri.startsWith("data:")
+                  uri: uri?.startsWith("data:")
                     ? uri
                     : `data:image/jpeg;base64,${uri}`,
                 }

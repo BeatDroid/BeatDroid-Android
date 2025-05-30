@@ -1,16 +1,16 @@
 import { useAuth } from "@/contexts/auth-context";
 import { useCustomMutation } from "@/hooks/useCustomMutation";
 import { searchAlbum } from "./searchAlbum";
-import { searchAlbumParameter, searchAlbumResponse } from "./types";
+import type { SearchAlbumRequest, SearchAlbumResponse } from "./zod-schema";
 
 interface UseAlbumSearchApiParams {
-  onSuccess: (data: searchAlbumResponse) => void;
+  onSuccess: (data: SearchAlbumResponse) => void;
   onError: (error: unknown) => void;
-  onMutate?: (variables: searchAlbumParameter) => void;
+  onMutate?: (variables: SearchAlbumRequest) => void;
 }
 
 export type UseAlbumSearchApi = ReturnType<
-  typeof useCustomMutation<searchAlbumResponse, searchAlbumParameter>
+  typeof useCustomMutation<SearchAlbumResponse, SearchAlbumRequest>
 >;
 
 export function useAlbumSearchApi({
@@ -21,13 +21,10 @@ export function useAlbumSearchApi({
   const { token } = useAuth();
   const searchAlbumApi = useCustomMutation({
     mutationKey: ["useAlbumSearchApi"],
-    mutationFn: async ({
-      album_name = "",
-      artist_name = "",
-      theme = "Dark",
-      accent = false,
-    }: searchAlbumParameter) =>
-      searchAlbum(token!, album_name, artist_name, theme, accent),
+    mutationFn: async (params: SearchAlbumRequest) => {
+      const { album_name, artist_name, theme, accent } = params;
+      return searchAlbum(token!, album_name, artist_name, theme, accent);
+    },
     onSuccess,
     onError,
     onMutate,
