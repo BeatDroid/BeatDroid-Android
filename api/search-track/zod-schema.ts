@@ -17,7 +17,7 @@ export const searchTrackRequestSchema = z.object({
   artist_name: z.string().min(1, 'Artist name is required'),
   theme: themeSchema.default('Dark'),
   accent: z.boolean().default(false),
-  indexing: z.boolean().default(true)
+  indexing: z.boolean().default(true).optional()
 });
 
 export const searchTrackResponseSchema = z.object({

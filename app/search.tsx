@@ -1,7 +1,7 @@
-import { searchAlbumResponse } from "@/api/search-album/types";
 import { useAlbumSearchApi } from "@/api/search-album/useAlbumSearchApi";
-import { searchTrackResponse } from "@/api/search-track/types";
+import { SearchAlbumResponse } from "@/api/search-album/zod-schema";
 import { useTrackSearchApi } from "@/api/search-track/useTrackSearchApi";
+import { SearchTrackResponse } from "@/api/search-track/zod-schema";
 import AnimatedCard from "@/components/ui-custom/animated-card";
 import AnimatedConfirmButton from "@/components/ui-custom/animated-confirm-button";
 import AnimatedHeader from "@/components/ui-custom/animated-header";
@@ -47,7 +47,7 @@ export default function Search() {
     setArtistName(selector.artistName);
   }, [searchType]);
 
-  const onSuccess = (data: searchAlbumResponse | searchTrackResponse) => {
+  const onSuccess = (data: SearchAlbumResponse | SearchTrackResponse) => {
     router.navigate({
       pathname: "/[posterPath]",
       params: { posterPath: data.filePath, blurhash: data.blurhash },
