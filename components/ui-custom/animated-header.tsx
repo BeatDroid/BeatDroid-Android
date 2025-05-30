@@ -43,11 +43,11 @@ const AnimatedHeader = ({
           rotateX: `${interpolate(
             headerPosition.value,
             [-offset, 0],
-            [90, 0]
+            [160, 0]
           )}deg`,
         },
       ],
-      opacity: interpolate(headerPosition.value, [-offset, 0], [0, 1]),
+      opacity: interpolate(headerPosition.value, [-offset*0.4, 0], [0, 1]),
     };
   });
 
