@@ -51,7 +51,7 @@ const AnimatedConfirmButton = ({
       <Button
         onPress={onPress}
         disabled={disabled || loading}
-        visiblyDisabled={false}
+        visiblyDisabled={false || loading}
         className="active:opacity-80"
       >
         {loading ? (
