@@ -19,8 +19,14 @@ export default function Result() {
   const posterApi = usePosterDownApi({ posterPath: posterPath! });
 
   useEffect(() => {
+    const startAnimations = async () => {
+      setTimeout(() => {
+        setIsLoaded(true);
+      }, 2000);
+    };
+
     if (!posterApi.isFetching) {
-      setIsLoaded(true);
+      startAnimations();
     }
   }, [posterApi.isFetching]);
 
