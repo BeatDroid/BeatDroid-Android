@@ -59,17 +59,19 @@ const buttonTextVariants = cva(
 );
 
 type ButtonProps = React.ComponentPropsWithoutRef<typeof Pressable> &
-  VariantProps<typeof buttonVariants>;
+  VariantProps<typeof buttonVariants> & {
+    visiblyDisabled?: boolean;
+  };
 
 const Button = React.forwardRef<React.ElementRef<typeof Pressable>, ButtonProps>(
-  ({ className, variant, size, ...props }, ref) => {
+  ({ className, variant, size, visiblyDisabled = true, ...props }, ref) => {
     return (
       <TextClassContext.Provider
         value={buttonTextVariants({ variant, size, className: 'web:pointer-events-none' })}
       >
         <Pressable
           className={cn(
-            props.disabled && 'opacity-50 web:pointer-events-none',
+            props.disabled && visiblyDisabled && 'opacity-50 web:pointer-events-none',
             buttonVariants({ variant, size, className })
           )}
           ref={ref}
