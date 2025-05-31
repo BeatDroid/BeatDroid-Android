@@ -12,7 +12,7 @@ import {
 import { PortalHost } from "@rn-primitives/portal";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { Stack } from "expo-router";
-import * as SystemUI from 'expo-system-ui';
+import * as SystemUI from "expo-system-ui";
 import * as React from "react";
 import { Platform } from "react-native";
 import { SystemBars } from "react-native-edge-to-edge";
@@ -70,10 +70,13 @@ function ProviderStack() {
         </AuthProvider>
         <Toaster
           richColors
-          position="top-center"
+          position="bottom-center"
           autoWiggleOnUpdate="toast-change"
           duration={7000}
-          offset={70}
+          offset={30}
+          toastOptions={{
+            style: { borderWidth: 3 },
+          }}
         />
       </GestureHandlerRootView>
     </ErrorBoundary>
@@ -81,8 +84,8 @@ function ProviderStack() {
 }
 
 function NavigationStack() {
-  SystemUI.setBackgroundColorAsync("#181715")
-  
+  SystemUI.setBackgroundColorAsync("#181715");
+
   return (
     <Stack screenOptions={{ headerShown: false }}>
       <Stack.Screen name="index" />

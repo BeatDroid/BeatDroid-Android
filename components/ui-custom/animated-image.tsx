@@ -8,7 +8,7 @@ import Animated, {
   useAnimatedStyle,
   useSharedValue,
   withSpring,
-  withTiming
+  withTiming,
 } from "react-native-reanimated";
 
 interface Props {
@@ -52,7 +52,7 @@ const AnimatedImage = ({
   );
 
   const tap = Gesture.Tap().onEnd(() => {
-    if (!loading) {
+    if (!loading && rotateX.value === "0deg" && rotateY.value === "0deg") {
       if (onPress) {
         runOnJS(onPress)();
       }
@@ -87,9 +87,11 @@ const AnimatedImage = ({
     transform: [
       { rotateY: rotateY.value },
       { rotateX: rotateX.value },
-      { scale: withTiming(isZoomed.value === 1 ? 1.1 : 0.9, { duration: 300 }) },
+      {
+        scale: withTiming(isZoomed.value === 1 ? 1.1 : 0.9, { duration: 300 }),
+      },
     ],
-    borderRadius: withTiming(loading ? 10 : 0, { duration: 300 })
+    borderRadius: withTiming(loading ? 10 : 0, { duration: 300 }),
   }));
 
   if (!isFocused) {
