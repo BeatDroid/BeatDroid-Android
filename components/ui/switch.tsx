@@ -70,7 +70,7 @@ const SwitchNative = React.forwardRef<SwitchPrimitives.RootRef, SwitchPrimitives
         <SwitchPrimitives.Root
           className={cn(
             'flex-row h-8 w-[46px] shrink-0 items-center rounded-full border-2 border-transparent',
-            props.checked ? 'bg-primary' : 'bg-background',
+            props.checked ? 'bg-primary' : 'bg-accent dark:bg-background',
             className
           )}
           {...props}

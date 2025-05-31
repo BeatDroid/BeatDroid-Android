@@ -93,9 +93,9 @@ const MiniPoster = ({
   return (
     <Animated.View
       style={backgroundStyle}
-      className="aspect-[7.3/10] h-full self-center pt-2"
+      className="aspect-[7.3/10] h-full self-center pt-2 rounded-lg overflow-hidden"
     >
-      <Animated.View style={posterStyle} className="flex-1 mx-2" />
+      <Animated.View style={posterStyle} className="flex-1 mx-2 rounded-sm" />
       <Animated.View
         style={textStyle}
         className="mt-2 h-3 w-[75%] mx-2 rounded-full"

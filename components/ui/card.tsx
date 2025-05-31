@@ -9,7 +9,7 @@ const Card = React.forwardRef<ViewRef, ViewProps>(({ className, ...props }, ref)
     ref={ref}
     pointerEvents='auto'
     className={cn(
-      'rounded-lg border border-border bg-card shadow-sm shadow-foreground/10',
+      'rounded-lg border-2 border-border dark:border-transparent bg-card shadow-sm shadow-foreground/10',
       className
     )}
     {...props}

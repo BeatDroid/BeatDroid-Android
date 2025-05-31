@@ -24,22 +24,34 @@ import { Switch } from "@/components/ui/switch";
 import { Text } from "@/components/ui/text";
 import { themes } from "@/lib/constants";
 import { SearchType, ThemeTypes } from "@/lib/types";
+import { useColorScheme } from "@/lib/useColorScheme";
 import { selectionHaptic } from "@/utils/haptic-utils";
 import { selectPoster } from "@/utils/poster-utils";
+import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import { router } from "expo-router";
+import { cssInterop } from "nativewind";
 import React, { useEffect, useState } from "react";
 import { ScrollView, View } from "react-native";
 import Animated, { FadeIn } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { toast } from "sonner-native";
 
+const ExpoMaterialCommunityIcons = cssInterop(MaterialCommunityIcons, {
+  className: {
+    target: "style",
+    nativeStyleToProp: { color: true },
+  },
+});
+
 export default function Search() {
   const insets = useSafeAreaInsets();
+  const { isDarkColorScheme, toggleColorScheme } = useColorScheme();
   const [searchType, setSearchType] = useState<SearchType>("Choose type");
   const [searchParam, setSearchParam] = useState("Abbey Road");
   const [artistName, setArtistName] = useState("The Beatles");
   const [theme, setTheme] = useState<ThemeTypes>("Dark");
   const [accentLine, setAccentLine] = useState(false);
+  const buttonVariant = isDarkColorScheme ? "outline" : "secondary";
 
   useEffect(() => {
     const selector = selectPoster(searchType);
@@ -84,14 +96,25 @@ export default function Search() {
         description="Search for your favorite music or albums"
       />
       <ScrollView className="flex-1">
-        <AnimatedCard className="border-0">
-          <CardHeader>
+        <AnimatedCard className="dark:border-transparent">
+          <CardHeader className="flex-row justify-between items-center">
             <Label>Search Type</Label>
+            <Button variant="ghost" onPress={() => toggleColorScheme()}>
+              <ExpoMaterialCommunityIcons
+                className="text-foreground"
+                size={23}
+                name={
+                  isDarkColorScheme
+                    ? "white-balance-sunny"
+                    : "moon-waning-crescent"
+                }
+              />
+            </Button>
           </CardHeader>
           <CardContent>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="outline">
+                <Button variant={buttonVariant}>
                   <Text className="font-bold">{searchType}</Text>
                 </Button>
               </DropdownMenuTrigger>
@@ -114,7 +137,7 @@ export default function Search() {
         </AnimatedCard>
         <AnimatedCard
           index={0}
-          className="mt-4 border-0"
+          className="mt-4 dark:border-transparent"
           disabled={searchType === "Choose type"}
         >
           <CardHeader>
@@ -148,7 +171,7 @@ export default function Search() {
           <View className="flex-1">
             <AnimatedCard
               index={1}
-              className="mt-4 border-0 flex-1"
+              className="mt-4 dark:border-transparent flex-1"
               disabled={searchType === "Choose type"}
             >
               <CardHeader>
@@ -157,7 +180,7 @@ export default function Search() {
               <CardContent className="flex-1 content-center justify-center">
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <Button variant="outline">
+                    <Button variant={buttonVariant}>
                       <Text className="font-bold">{theme}</Text>
                     </Button>
                   </DropdownMenuTrigger>
@@ -185,7 +208,7 @@ export default function Search() {
             </AnimatedCard>
             <AnimatedCard
               index={2}
-              className="mt-4 border-primary border-0 flex-1"
+              className="mt-4 dark:border-transparent flex-1"
               disabled={searchType === "Choose type"}
             >
               <CardHeader>

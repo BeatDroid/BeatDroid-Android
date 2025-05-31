@@ -107,7 +107,7 @@ export default function Welcome() {
 
   const onOnboardingComplete = () => {
     setOnboardingCompleted(true);
-    router.push("/search");
+    router.replace("/search");
   };
 
   return (
