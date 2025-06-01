@@ -1,3 +1,4 @@
+import { cn } from "@/lib/utils";
 import React, { ReactNode } from "react";
 import { Edge, SafeAreaView } from "react-native-safe-area-context";
 
@@ -8,14 +9,13 @@ interface Props {
 }
 
 const Background = ({
-  safeAreaEdges = ["bottom", "top"],
-  className = "",
+  className,
   children,
 }: Props) => {
   return (
     <SafeAreaView
-      className={`flex-1 p-4 bg-background ${className}`}
-      edges={safeAreaEdges}
+      className={cn(`flex-1 py-4 px-5 bg-background my-safe`, className)}
+      edges={[]}
     >
       {children}
     </SafeAreaView>

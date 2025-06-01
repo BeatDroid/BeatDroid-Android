@@ -65,19 +65,22 @@ function ProviderStack() {
               <SystemBars style={isDarkColorScheme ? "light" : "dark"} />
               <NavigationStack />
               <PortalHost />
+              <Toaster
+                richColors
+                position="bottom-center"
+                autoWiggleOnUpdate="toast-change"
+                duration={7000}
+                offset={30}
+                toastOptions={{
+                  style: {
+                    borderWidth: 3,
+                    borderRadius: 7,
+                  },
+                }}
+              />
             </QueryClientProvider>
           </ThemeProvider>
         </AuthProvider>
-        <Toaster
-          richColors
-          position="bottom-center"
-          autoWiggleOnUpdate="toast-change"
-          duration={7000}
-          offset={30}
-          toastOptions={{
-            style: { borderWidth: 3 },
-          }}
-        />
       </GestureHandlerRootView>
     </ErrorBoundary>
   );

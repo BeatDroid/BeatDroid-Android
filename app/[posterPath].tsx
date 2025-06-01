@@ -31,7 +31,7 @@ export default function Result() {
   }, [posterApi.isFetching]);
 
   return (
-    <Background className="items-center justify-center px-5 gap-2">
+    <Background>
       <AnimatedHeader
         duration={500}
         offset={50}
@@ -54,7 +54,6 @@ export default function Result() {
         />
       </View>
       <AnimatedConfirmButton
-        floating
         title="Download"
         disabled={!isLoaded}
         onPress={() => handleDownloadPoster(posterApi.data?.image!)}
