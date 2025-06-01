@@ -51,7 +51,7 @@ export default function Search() {
   const [artistName, setArtistName] = useState("The Beatles");
   const [theme, setTheme] = useState<ThemeTypes>("Dark");
   const [accentLine, setAccentLine] = useState(false);
-  const buttonVariant = isDarkColorScheme ? "outline" : "secondary";
+  const buttonVariant = isDarkColorScheme() ? "outline" : "secondary";
 
   useEffect(() => {
     const selector = selectPoster(searchType);
@@ -99,12 +99,12 @@ export default function Search() {
         <AnimatedCard className="dark:border-transparent">
           <CardHeader className="flex-row justify-between items-center">
             <Label>Search Type</Label>
-            <Button variant="ghost" onPress={() => toggleColorScheme()}>
+            <Button variant="ghost" onPress={toggleColorScheme}>
               <ExpoMaterialCommunityIcons
                 className="text-foreground"
                 size={23}
                 name={
-                  isDarkColorScheme
+                  isDarkColorScheme()
                     ? "white-balance-sunny"
                     : "moon-waning-crescent"
                 }

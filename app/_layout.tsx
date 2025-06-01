@@ -39,6 +39,10 @@ function ProviderStack() {
   const { isDarkColorScheme } = useColorScheme();
   const [isColorSchemeLoaded, setIsColorSchemeLoaded] = React.useState(false);
 
+  SystemUI.setBackgroundColorAsync(
+    isDarkColorScheme() ? NAV_THEME.dark.background : NAV_THEME.light.background
+  );
+
   useIsomorphicLayoutEffect(() => {
     if (hasMounted.current) {
       return;
@@ -60,9 +64,11 @@ function ProviderStack() {
     <ErrorBoundary>
       <GestureHandlerRootView>
         <AuthProvider>
-          <ThemeProvider value={isDarkColorScheme ? DARK_THEME : LIGHT_THEME}>
-            <QueryClientProvider client={queryClient}>
-              <SystemBars style={isDarkColorScheme ? "light" : "dark"} />
+          <QueryClientProvider client={queryClient}>
+            <ThemeProvider
+              value={isDarkColorScheme() ? DARK_THEME : LIGHT_THEME}
+            >
+              <SystemBars style={isDarkColorScheme() ? "light" : "dark"} />
               <NavigationStack />
               <PortalHost />
               <Toaster
@@ -78,8 +84,8 @@ function ProviderStack() {
                   },
                 }}
               />
-            </QueryClientProvider>
-          </ThemeProvider>
+            </ThemeProvider>
+          </QueryClientProvider>
         </AuthProvider>
       </GestureHandlerRootView>
     </ErrorBoundary>
@@ -87,8 +93,6 @@ function ProviderStack() {
 }
 
 function NavigationStack() {
-  SystemUI.setBackgroundColorAsync("#181715");
-
   return (
     <Stack screenOptions={{ headerShown: false }}>
       <Stack.Screen name="index" />
