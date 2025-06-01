@@ -37,15 +37,16 @@ export default function Welcome() {
     if (genTokenApi.isSuccess) {
       setToken(genTokenApi.data.access_token);
       SplashScreen.hide();
-      if (onboardingCompleted) {
-        router.replace("/search");
-        return;
-      } else setHasLoaded(true);
+      setHasLoaded(true);
     }
-  }, [genTokenApi.isSuccess, genTokenApi.data, setToken, onboardingCompleted]);
+  }, [genTokenApi.isSuccess, genTokenApi.data, setToken]);
 
   useEffect(() => {
     if (hasLoaded) {
+      if (onboardingCompleted) {
+        router.replace("/search");
+        return;
+      }
       // Start feature box animations after header/footer complete
       setTimeout(() => {
         featureBox1Position.value = withTiming(0, { duration });
@@ -78,6 +79,7 @@ export default function Welcome() {
     featureBox2Position,
     featureBox3Position,
     hasLoaded,
+    onboardingCompleted,
   ]);
 
   const animatedFeatureBox1Style = useAnimatedStyle(() => {
