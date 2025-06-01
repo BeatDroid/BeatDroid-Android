@@ -36,8 +36,8 @@ export default function Welcome() {
   useEffect(() => {
     if (genTokenApi.isSuccess) {
       setToken(genTokenApi.data.access_token);
-      SplashScreen.hide();
       setHasLoaded(true);
+      SplashScreen.hideAsync();
     }
   }, [genTokenApi.isSuccess, genTokenApi.data, setToken]);
 
