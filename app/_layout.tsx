@@ -1,8 +1,10 @@
 import "~/global.css";
 
 import { ErrorBoundary } from "@/components/error-boundary";
+import NetworkOverlay from "@/components/ui-custom/network-overlay";
 import queryClient from "@/config/queryClient";
 import { AuthProvider } from "@/contexts/auth-context";
+import { NetworkProvider } from "@/contexts/network-context";
 import {
   DarkTheme,
   DefaultTheme,
@@ -64,28 +66,31 @@ function ProviderStack() {
     <ErrorBoundary>
       <GestureHandlerRootView>
         <AuthProvider>
-          <QueryClientProvider client={queryClient}>
-            <ThemeProvider
-              value={isDarkColorScheme() ? DARK_THEME : LIGHT_THEME}
-            >
-              <SystemBars style={isDarkColorScheme() ? "light" : "dark"} />
-              <NavigationStack />
-              <PortalHost />
-              <Toaster
-                richColors
-                position="bottom-center"
-                autoWiggleOnUpdate="toast-change"
-                duration={7000}
-                offset={30}
-                toastOptions={{
-                  style: {
-                    borderWidth: 3,
-                    borderRadius: 7,
-                  },
-                }}
-              />
-            </ThemeProvider>
-          </QueryClientProvider>
+          <NetworkProvider>
+            <QueryClientProvider client={queryClient}>
+              <ThemeProvider
+                value={isDarkColorScheme() ? DARK_THEME : LIGHT_THEME}
+              >
+                <SystemBars style={isDarkColorScheme() ? "light" : "dark"} />
+                <NavigationStack />
+                <PortalHost />
+                <NetworkOverlay />
+                <Toaster
+                  richColors
+                  position="bottom-center"
+                  autoWiggleOnUpdate="toast-change"
+                  duration={7000}
+                  offset={30}
+                  toastOptions={{
+                    style: {
+                      borderWidth: 3,
+                      borderRadius: 7,
+                    },
+                  }}
+                />
+              </ThemeProvider>
+            </QueryClientProvider>
+          </NetworkProvider>
         </AuthProvider>
       </GestureHandlerRootView>
     </ErrorBoundary>
