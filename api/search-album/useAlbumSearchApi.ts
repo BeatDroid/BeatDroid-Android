@@ -4,7 +4,7 @@ import { searchAlbum } from "./searchAlbum";
 import type { SearchAlbumRequest, SearchAlbumResponse } from "./zod-schema";
 
 interface UseAlbumSearchApiParams {
-  onSuccess: (data: SearchAlbumResponse) => void;
+  onSuccess: (data: SearchAlbumResponse, variables: SearchAlbumRequest) => void;
   onError: (error: unknown) => void;
   onMutate?: (variables: SearchAlbumRequest) => void;
 }

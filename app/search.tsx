@@ -1,7 +1,13 @@
 import { useAlbumSearchApi } from "@/api/search-album/useAlbumSearchApi";
-import { SearchAlbumResponse } from "@/api/search-album/zod-schema";
+import {
+  SearchAlbumRequest,
+  SearchAlbumResponse,
+} from "@/api/search-album/zod-schema";
 import { useTrackSearchApi } from "@/api/search-track/useTrackSearchApi";
-import { SearchTrackResponse } from "@/api/search-track/zod-schema";
+import {
+  SearchTrackRequest,
+  SearchTrackResponse,
+} from "@/api/search-track/zod-schema";
 import AnimatedCard from "@/components/ui-custom/animated-card";
 import AnimatedConfirmButton from "@/components/ui-custom/animated-confirm-button";
 import AnimatedHeader from "@/components/ui-custom/animated-header";
@@ -64,8 +70,11 @@ export default function Search() {
     setArtistName(selector.artistName);
   }, [searchType]);
 
-  const onSuccess = (data: SearchAlbumResponse | SearchTrackResponse) => {
-    saveToDb();
+  const onSuccess = (
+    data: SearchAlbumResponse | SearchTrackResponse,
+    variables: SearchAlbumRequest | SearchTrackRequest
+  ) => {
+    saveToDb(variables);
     router.navigate({
       pathname: "/[posterPath]",
       params: { posterPath: data.filePath, blurhash: data.blurhash },
@@ -111,17 +120,15 @@ export default function Search() {
     }
   };
 
-  const saveToDb = async () => {
-    if (searchType !== "Choose type") {
-      await db.insert(searchHistoryTable).values({
-        searchType,
-        searchParam,
-        artistName,
-        theme,
-        accentLine,
-        createdAt: new Date(),
-      });
-    }
+  const saveToDb = async (data: SearchAlbumRequest | SearchTrackRequest) => {
+    await db.insert(searchHistoryTable).values({
+      searchType: "album_name" in data ? "Album" : "Track",
+      searchParam: "album_name" in data ? data.album_name : data.track_name,
+      artistName: data.artist_name,
+      theme: data.theme,
+      accentLine: data.accent,
+      createdAt: new Date(),
+    });
   };
 
   return (
@@ -148,7 +155,10 @@ export default function Search() {
                   }
                 />
               </Button>
-              <Button variant="ghost" onPress={() => router.push("/search-history")}>
+              <Button
+                variant="ghost"
+                onPress={() => router.push("/search-history")}
+              >
                 <ExpoMaterialCommunityIcons
                   className="text-foreground"
                   size={23}

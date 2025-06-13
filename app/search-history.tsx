@@ -98,7 +98,7 @@ export default function SearchHistoryView() {
 
   const renderListEmptyComponent = React.useCallback(() => {
     return (
-      <View className="h-full w-full items-center justify-center bg-accent">
+      <View className="h-full w-full items-center justify-center">
         <Text className="text-foreground text-center">
           No search history found
         </Text>
