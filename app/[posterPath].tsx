@@ -36,7 +36,7 @@ export default function Result() {
         duration={500}
         offset={50}
         disabled={!isLoaded}
-        title={`Your poster is ready!`}
+        title={`Your poster is ready! 🚀`}
         description="Tap to zoom in"
       />
       <View className="flex-1">

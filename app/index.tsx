@@ -4,6 +4,7 @@ import AnimatedHeader from "@/components/ui-custom/animated-header";
 import Background from "@/components/ui-custom/background";
 import InfoCard from "@/components/ui-custom/info-card";
 import { useAuth } from "@/contexts/auth-context";
+import useDatabase from "@/hooks/useDatabase";
 import { router } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import { useEffect, useState } from "react";
@@ -16,12 +17,11 @@ import Animated, {
   withTiming,
 } from "react-native-reanimated";
 
-SplashScreen.preventAutoHideAsync();
-
 const duration = 1000;
 const offset = 100;
 
 export default function Welcome() {
+  const { success } = useDatabase();
   const genTokenApi = useTokenGenApi();
   const { setToken } = useAuth();
   const [enableButton, setEnableButton] = useState(false);
@@ -34,12 +34,12 @@ export default function Welcome() {
   const featureBox3Position = useSharedValue(-offset);
 
   useEffect(() => {
-    if (genTokenApi.isSuccess) {
+    if (genTokenApi.isSuccess && success) {
       setToken(genTokenApi.data.access_token);
       setHasLoaded(true);
       SplashScreen.hideAsync();
     }
-  }, [genTokenApi.isSuccess, genTokenApi.data, setToken]);
+  }, [genTokenApi.isSuccess, genTokenApi.data, setToken, success]);
 
   useEffect(() => {
     if (hasLoaded) {

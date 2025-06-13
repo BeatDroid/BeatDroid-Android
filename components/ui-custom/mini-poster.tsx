@@ -11,11 +11,13 @@ import Animated, {
 interface MiniPosterProps {
   theme?: ThemeTypes;
   accentEnabled?: boolean;
+  microMode?: boolean;
 }
 
 const MiniPoster = ({
   theme = "Light",
   accentEnabled = false,
+  microMode = false,
 }: MiniPosterProps) => {
   const backgroundColor = useSharedValue(themes[theme].bg);
   const posterColor = useSharedValue(themes[theme].fg);
@@ -96,38 +98,42 @@ const MiniPoster = ({
       className="aspect-[7.3/10] h-full self-center pt-2 rounded-lg overflow-hidden"
     >
       <Animated.View style={posterStyle} className="flex-1 mx-2 rounded-sm" />
-      <Animated.View
-        style={textStyle}
-        className="mt-2 h-3 w-[75%] mx-2 rounded-full"
-      />
-      <View className="flex-row items-center justify-between mx-2">
-        <Animated.View
-          style={textStyle}
-          className="mt-1 h-1 w-[65%] rounded-full"
-        />
-        <View className="flex-row items-center">
+      {!microMode && (
+        <>
           <Animated.View
             style={textStyle}
-            className="mt-1 ml-1 aspect-[1] w-[5] rounded-full"
+            className="mt-2 h-3 w-[75%] mx-2 rounded-full"
           />
+          <View className="flex-row items-center justify-between mx-2">
+            <Animated.View
+              style={textStyle}
+              className="mt-1 h-1 w-[65%] rounded-full"
+            />
+            <View className="flex-row items-center">
+              <Animated.View
+                style={textStyle}
+                className="mt-1 ml-1 aspect-[1] w-[5] rounded-full"
+              />
+              <Animated.View
+                style={b1Style}
+                className="mt-1 ml-1 aspect-[1] w-[5] rounded-full"
+              />
+              <Animated.View
+                style={b2Style}
+                className="mt-1 ml-1 aspect-[1] w-[5] rounded-full"
+              />
+              <Animated.View
+                style={b3Style}
+                className="mt-1 ml-1 aspect-[1] w-[5] rounded-full"
+              />
+            </View>
+          </View>
           <Animated.View
-            style={b1Style}
-            className="mt-1 ml-1 aspect-[1] w-[5] rounded-full"
+            style={textStyle}
+            className="mt-2 mx-2 h-1.5 w-[45%] rounded-full"
           />
-          <Animated.View
-            style={b2Style}
-            className="mt-1 ml-1 aspect-[1] w-[5] rounded-full"
-          />
-          <Animated.View
-            style={b3Style}
-            className="mt-1 ml-1 aspect-[1] w-[5] rounded-full"
-          />
-        </View>
-      </View>
-      <Animated.View
-        style={textStyle}
-        className="mt-2 mx-2 h-1.5 w-[45%] rounded-full"
-      />
+        </>
+      )}
       <Animated.View
         style={textStyle}
         className="mt-1 mx-2 h-1.5 w-[60%] rounded-full"

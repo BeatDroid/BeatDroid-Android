@@ -22,6 +22,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Text } from "@/components/ui/text";
+import { searchHistoryTable } from "@/db/schema";
+import useDatabase from "@/hooks/useDatabase";
 import { themes } from "@/lib/constants";
 import { SearchType, ThemeTypes } from "@/lib/types";
 import { useColorScheme } from "@/lib/useColorScheme";
@@ -35,6 +37,7 @@ import { ScrollView, View } from "react-native";
 import Animated, { FadeIn } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { toast } from "sonner-native";
+import { useDrizzleStudio } from "expo-drizzle-studio-plugin";
 
 const ExpoMaterialCommunityIcons = cssInterop(MaterialCommunityIcons, {
   className: {
@@ -44,6 +47,8 @@ const ExpoMaterialCommunityIcons = cssInterop(MaterialCommunityIcons, {
 });
 
 export default function Search() {
+  const { db } = useDatabase();
+  useDrizzleStudio(db);
   const insets = useSafeAreaInsets();
   const { isDarkColorScheme, toggleColorScheme } = useColorScheme();
   const [searchType, setSearchType] = useState<SearchType>("Choose type");
@@ -60,6 +65,7 @@ export default function Search() {
   }, [searchType]);
 
   const onSuccess = (data: SearchAlbumResponse | SearchTrackResponse) => {
+    saveToDb();
     router.navigate({
       pathname: "/[posterPath]",
       params: { posterPath: data.filePath, blurhash: data.blurhash },
@@ -87,29 +93,69 @@ export default function Search() {
     onError,
   });
 
+  const search = () => {
+    if (searchType === "Track") {
+      searchTrackApi.mutate({
+        track_name: searchParam,
+        artist_name: artistName,
+        theme,
+        accent: accentLine,
+      });
+    } else {
+      searchAlbumApi.mutate({
+        album_name: searchParam,
+        artist_name: artistName,
+        theme,
+        accent: accentLine,
+      });
+    }
+  };
+
+  const saveToDb = async () => {
+    if (searchType !== "Choose type") {
+      await db.insert(searchHistoryTable).values({
+        searchType,
+        searchParam,
+        artistName,
+        theme,
+        accentLine,
+        createdAt: new Date(),
+      });
+    }
+  };
+
   return (
     <Background>
       <AnimatedHeader
         duration={500}
         offset={50}
-        title="Search 🔍"
+        title="Search 🌟"
         description="Search for your favorite music or albums"
       />
       <ScrollView className="flex-1">
         <AnimatedCard className="dark:border-transparent">
           <CardHeader className="flex-row justify-between items-center">
             <Label>Search Type</Label>
-            <Button variant="ghost" onPress={toggleColorScheme}>
-              <ExpoMaterialCommunityIcons
-                className="text-foreground"
-                size={23}
-                name={
-                  isDarkColorScheme()
-                    ? "white-balance-sunny"
-                    : "moon-waning-crescent"
-                }
-              />
-            </Button>
+            <View className="flex-row">
+              <Button variant="ghost" onPress={toggleColorScheme}>
+                <ExpoMaterialCommunityIcons
+                  className="text-foreground"
+                  size={23}
+                  name={
+                    isDarkColorScheme()
+                      ? "white-balance-sunny"
+                      : "moon-waning-crescent"
+                  }
+                />
+              </Button>
+              <Button variant="ghost" onPress={() => router.push("/search-history")}>
+                <ExpoMaterialCommunityIcons
+                  className="text-foreground"
+                  size={23}
+                  name={"history"}
+                />
+              </Button>
+            </View>
           </CardHeader>
           <CardContent>
             <DropdownMenu>
@@ -248,21 +294,7 @@ export default function Search() {
       <AnimatedConfirmButton
         title="Create"
         loading={searchAlbumApi.isPending || searchTrackApi.isPending}
-        onPress={() =>
-          searchType === "Track"
-            ? searchTrackApi.mutate({
-                track_name: searchParam,
-                artist_name: artistName,
-                theme,
-                accent: accentLine,
-              })
-            : searchAlbumApi.mutate({
-                album_name: searchParam,
-                artist_name: artistName,
-                theme,
-                accent: accentLine,
-              })
-        }
+        onPress={search}
         disabled={
           searchType === "Choose type" ||
           searchParam === "" ||

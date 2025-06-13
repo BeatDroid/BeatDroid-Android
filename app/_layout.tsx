@@ -14,14 +14,18 @@ import {
 import { PortalHost } from "@rn-primitives/portal";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { Stack } from "expo-router";
+import * as SplashScreen from "expo-splash-screen";
+import { SQLiteProvider } from "expo-sqlite";
 import * as SystemUI from "expo-system-ui";
 import * as React from "react";
-import { Platform } from "react-native";
+import { ActivityIndicator, Platform } from "react-native";
 import { SystemBars } from "react-native-edge-to-edge";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { Toaster } from "sonner-native";
 import { NAV_THEME } from "~/lib/constants";
 import { useColorScheme } from "~/lib/useColorScheme";
+
+SplashScreen.preventAutoHideAsync();
 
 const LIGHT_THEME: Theme = {
   ...DefaultTheme,
@@ -63,37 +67,43 @@ function ProviderStack() {
   }
 
   return (
-    <ErrorBoundary>
-      <GestureHandlerRootView>
-        <AuthProvider>
-          <NetworkProvider>
-            <QueryClientProvider client={queryClient}>
-              <ThemeProvider
-                value={isDarkColorScheme() ? DARK_THEME : LIGHT_THEME}
-              >
-                <SystemBars style={isDarkColorScheme() ? "light" : "dark"} />
-                <NavigationStack />
-                <PortalHost />
-                <NetworkOverlay />
-                <Toaster
-                  richColors
-                  position="bottom-center"
-                  autoWiggleOnUpdate="toast-change"
-                  duration={7000}
-                  offset={30}
-                  toastOptions={{
-                    style: {
-                      borderWidth: 3,
-                      borderRadius: 7,
-                    },
-                  }}
-                />
-              </ThemeProvider>
-            </QueryClientProvider>
-          </NetworkProvider>
-        </AuthProvider>
-      </GestureHandlerRootView>
-    </ErrorBoundary>
+    <React.Suspense fallback={<ActivityIndicator size="large" color="white" />}>
+      <SQLiteProvider databaseName="db.db" useSuspense>
+        <ErrorBoundary>
+          <GestureHandlerRootView>
+            <AuthProvider>
+              <NetworkProvider>
+                <QueryClientProvider client={queryClient}>
+                  <ThemeProvider
+                    value={isDarkColorScheme() ? DARK_THEME : LIGHT_THEME}
+                  >
+                    <SystemBars
+                      style={isDarkColorScheme() ? "light" : "dark"}
+                    />
+                    <NavigationStack />
+                    <PortalHost />
+                    <NetworkOverlay />
+                    <Toaster
+                      richColors
+                      position="bottom-center"
+                      autoWiggleOnUpdate="toast-change"
+                      duration={7000}
+                      offset={30}
+                      toastOptions={{
+                        style: {
+                          borderWidth: 3,
+                          borderRadius: 7,
+                        },
+                      }}
+                    />
+                  </ThemeProvider>
+                </QueryClientProvider>
+              </NetworkProvider>
+            </AuthProvider>
+          </GestureHandlerRootView>
+        </ErrorBoundary>
+      </SQLiteProvider>
+    </React.Suspense>
   );
 }
 
@@ -102,6 +112,7 @@ function NavigationStack() {
     <Stack screenOptions={{ headerShown: false }}>
       <Stack.Screen name="index" />
       <Stack.Screen name="search" />
+      <Stack.Screen name="search-history" />
       <Stack.Screen name="[posterPath]" />
     </Stack>
   );
