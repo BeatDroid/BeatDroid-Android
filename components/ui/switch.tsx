@@ -49,7 +49,7 @@ const RGB_COLORS = {
 const SwitchNative = React.forwardRef<SwitchPrimitives.RootRef, SwitchPrimitives.RootProps>(
   ({ className, ...props }, ref) => {
     const { colorScheme } = useColorScheme();
-    const translateX = useDerivedValue(() => (props.checked ? 18 : 0));
+    const translateX = useDerivedValue(() => (props.checked ? 22 : 3));
     const animatedRootStyle = useAnimatedStyle(() => {
       return {
         backgroundColor: interpolateColor(
@@ -69,7 +69,7 @@ const SwitchNative = React.forwardRef<SwitchPrimitives.RootRef, SwitchPrimitives
       >
         <SwitchPrimitives.Root
           className={cn(
-            'flex-row h-8 w-[46px] shrink-0 items-center rounded-full border-2 border-transparent',
+            'flex-row h-8 w-[46px] shrink-0 items-center rounded-full transparent',
             props.checked ? 'bg-primary' : 'bg-accent dark:bg-background',
             className
           )}
@@ -82,7 +82,7 @@ const SwitchNative = React.forwardRef<SwitchPrimitives.RootRef, SwitchPrimitives
         >
           <Animated.View style={animatedThumbStyle}>
             <SwitchPrimitives.Thumb
-              className={'h-7 w-7 rounded-full bg-card shadow-md shadow-foreground/25 ring-0'}
+              className={'h-6 w-6 rounded-full bg-card shadow-md shadow-foreground/25 ring-0'}
             />
           </Animated.View>
         </SwitchPrimitives.Root>
