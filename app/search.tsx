@@ -11,6 +11,7 @@ import {
 import AnimatedCard from "@/components/ui-custom/animated-card";
 import AnimatedConfirmButton from "@/components/ui-custom/animated-confirm-button";
 import AnimatedHeader from "@/components/ui-custom/animated-header";
+import AnimatedInput from "@/components/ui-custom/animated-input";
 import Background from "@/components/ui-custom/background";
 import MiniPoster from "@/components/ui-custom/mini-poster";
 import { Button } from "@/components/ui/button";
@@ -24,7 +25,6 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Text } from "@/components/ui/text";
@@ -36,6 +36,7 @@ import { useColorScheme } from "@/lib/useColorScheme";
 import { selectionHaptic } from "@/utils/haptic-utils";
 import { selectPoster } from "@/utils/poster-utils";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
+import { useDrizzleStudio } from "expo-drizzle-studio-plugin";
 import { router } from "expo-router";
 import { cssInterop } from "nativewind";
 import React, { useEffect, useState } from "react";
@@ -43,7 +44,6 @@ import { ScrollView, View } from "react-native";
 import Animated, { FadeIn } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { toast } from "sonner-native";
-import { useDrizzleStudio } from "expo-drizzle-studio-plugin";
 
 const ExpoMaterialCommunityIcons = cssInterop(MaterialCommunityIcons, {
   className: {
@@ -58,16 +58,22 @@ export default function Search() {
   const insets = useSafeAreaInsets();
   const { isDarkColorScheme, toggleColorScheme } = useColorScheme();
   const [searchType, setSearchType] = useState<SearchType>("Choose type");
-  const [searchParam, setSearchParam] = useState("Abbey Road");
-  const [artistName, setArtistName] = useState("The Beatles");
+  const [searchParam, setSearchParam] = useState<string | undefined>(undefined);
+  const [artistName, setArtistName] = useState<string | undefined>(undefined);
+  const [searchParamDefault, setSearchParamDefault] = useState<
+    string | undefined
+  >(undefined);
+  const [artistNameDefault, setArtistNameDefault] = useState<
+    string | undefined
+  >(undefined);
   const [theme, setTheme] = useState<ThemeTypes>("Dark");
   const [accentLine, setAccentLine] = useState(false);
   const buttonVariant = isDarkColorScheme() ? "outline" : "secondary";
 
   useEffect(() => {
     const selector = selectPoster(searchType);
-    setSearchParam(selector.searchParam);
-    setArtistName(selector.artistName);
+    setSearchParamDefault(selector.searchParam);
+    setArtistNameDefault(selector.artistName);
   }, [searchType]);
 
   const onSuccess = (
@@ -105,15 +111,15 @@ export default function Search() {
   const search = () => {
     if (searchType === "Track") {
       searchTrackApi.mutate({
-        track_name: searchParam,
-        artist_name: artistName,
+        track_name: searchParam!,
+        artist_name: artistName!,
         theme,
         accent: accentLine,
       });
     } else {
       searchAlbumApi.mutate({
-        album_name: searchParam,
-        artist_name: artistName,
+        album_name: searchParam!,
+        artist_name: artistName!,
         theme,
         accent: accentLine,
       });
@@ -139,7 +145,11 @@ export default function Search() {
         title="Search 🌟"
         description="Search for your favorite music or albums"
       />
-      <ScrollView className="flex-1">
+      <ScrollView
+        className="flex-1"
+        fadingEdgeLength={100}
+        showsVerticalScrollIndicator={false}
+      >
         <AnimatedCard className="dark:border-transparent">
           <CardHeader className="flex-row justify-between items-center">
             <Label>Search Type</Label>
@@ -200,26 +210,20 @@ export default function Search() {
             <Label className="">What are you looking for?</Label>
           </CardHeader>
           <CardContent>
-            <Input
+            <AnimatedInput
+              label={`${searchType} name`}
               editable={searchType !== "Choose type"}
-              placeholder={
-                searchType === "Choose type"
-                  ? "Select search type first"
-                  : `Enter ${searchType.toLowerCase()} name`
-              }
+              placeholder={searchParamDefault}
               value={searchParam}
               onChangeText={setSearchParam}
             />
-            <Input
-              className="mt-5"
+            <AnimatedInput
+              label="Artist name"
               editable={searchType !== "Choose type"}
-              placeholder={
-                searchType === "Choose type"
-                  ? "Select search type first"
-                  : `Enter artist name`
-              }
+              placeholder={artistNameDefault}
               value={artistName}
               onChangeText={setArtistName}
+              className="mt-4"
             />
           </CardContent>
         </AnimatedCard>
