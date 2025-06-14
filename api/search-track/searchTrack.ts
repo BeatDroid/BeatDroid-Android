@@ -20,21 +20,29 @@ export async function searchTrack(
     indexing: true,
   });
 
-  const response = await apiClient
-    .extend({
-      timeout: 30000,
-      hooks: {
-        beforeRequest: [
-          (request) => {
-            request.headers.append("Authorization", `Bearer ${token}`);
-          },
-        ],
-      },
-    })
-    .post("generate_track_poster", {
-      json: requestData,
-    })
-    .json<unknown>();
+  try {
+    const response = await apiClient
+      .extend({
+        timeout: 30000,
+        hooks: {
+          beforeRequest: [
+            (request) => {
+              request.headers.append("Authorization", `Bearer ${token}`);
+            },
+          ],
+        },
+      })
+      .post("generate_track_poster", {
+        json: requestData,
+      })
+      .json<unknown>();
 
-  return searchTrackResponseSchema.parse(response);
+    return searchTrackResponseSchema.parse(response);
+  } catch (error: any) {
+    if (error.name === "HTTPError") {
+      const errorJson = await error.response.json();
+      throw new Error(errorJson.message);
+    }
+    throw "Please try again";
+  }
 }

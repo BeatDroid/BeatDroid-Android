@@ -33,15 +33,17 @@ import useDatabase from "@/hooks/useDatabase";
 import { themes } from "@/lib/constants";
 import { SearchType, ThemeTypes } from "@/lib/types";
 import { useColorScheme } from "@/lib/useColorScheme";
-import { selectionHaptic } from "@/utils/haptic-utils";
+import { notificationHaptic, selectionHaptic } from "@/utils/haptic-utils";
 import { selectPoster } from "@/utils/poster-utils";
+import { searchRegex } from "@/utils/text-utls";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import { useDrizzleStudio } from "expo-drizzle-studio-plugin";
 import { router } from "expo-router";
 import { cssInterop } from "nativewind";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { ScrollView, View } from "react-native";
 import Animated, { FadeIn } from "react-native-reanimated";
+import type { AnimatedInputRef } from "@/components/ui-custom/animated-input";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { toast } from "sonner-native";
 
@@ -57,6 +59,8 @@ export default function Search() {
   useDrizzleStudio(db);
   const insets = useSafeAreaInsets();
   const { isDarkColorScheme, toggleColorScheme } = useColorScheme();
+  const searchParamRef = useRef<AnimatedInputRef>(null);
+  const artistNameRef = useRef<AnimatedInputRef>(null);
   const [searchType, setSearchType] = useState<SearchType>("Choose type");
   const [searchParam, setSearchParam] = useState<string | undefined>(undefined);
   const [artistName, setArtistName] = useState<string | undefined>(undefined);
@@ -80,7 +84,7 @@ export default function Search() {
     data: SearchAlbumResponse | SearchTrackResponse,
     variables: SearchAlbumRequest | SearchTrackRequest
   ) => {
-    saveToDb(variables);
+    saveToDb(data, variables);
     router.navigate({
       pathname: "/[posterPath]",
       params: { posterPath: data.filePath, blurhash: data.blurhash },
@@ -94,7 +98,7 @@ export default function Search() {
       description = String((error as { message?: unknown }).message);
     }
     toast.error("Search failed", {
-      description: __DEV__ ? description : "Please try again",
+      description,
     });
   };
 
@@ -109,6 +113,50 @@ export default function Search() {
   });
 
   const search = () => {
+    artistNameRef.current?.blur();
+    searchParamRef.current?.blur();
+    if (!searchParam) {
+      notificationHaptic();
+      searchParamRef.current?.shake();
+      toast.error("Missing search parameter", {
+        description: "Please enter a search parameter",
+      });
+      return;
+    }
+    if (!artistName) {
+      notificationHaptic();
+      artistNameRef.current?.shake();
+      toast.error("Missing artist name", {
+        description: "Please enter an artist name",
+      });
+      return;
+    }
+    const isSearchParamValid =
+      searchRegex.test(searchParam) &&
+      searchParam.length > 0 &&
+      searchParam.length <= 100;
+    const isArtistNameValid =
+      searchRegex.test(artistName) &&
+      artistName.length > 0 &&
+      artistName.length <= 100;
+    if (!isSearchParamValid) {
+      notificationHaptic();
+      searchParamRef.current?.shake();
+      toast.error("Invalid search parameter", {
+        description: "Please enter a valid search parameter",
+      });
+      return;
+    }
+    if (!isArtistNameValid) {
+      notificationHaptic();
+      artistNameRef.current?.shake();
+      toast.error("Invalid artist name", {
+        description: "Please enter a valid artist name",
+      });
+      return;
+    }
+    searchParamRef.current?.clearError();
+    artistNameRef.current?.clearError();
     if (searchType === "Track") {
       searchTrackApi.mutate({
         track_name: searchParam!,
@@ -126,13 +174,18 @@ export default function Search() {
     }
   };
 
-  const saveToDb = async (data: SearchAlbumRequest | SearchTrackRequest) => {
+  const saveToDb = async (
+    responeData: SearchAlbumResponse | SearchTrackResponse,
+    passedVariables: SearchAlbumRequest | SearchTrackRequest
+  ) => {
     await db.insert(searchHistoryTable).values({
-      searchType: "album_name" in data ? "Album" : "Track",
-      searchParam: "album_name" in data ? data.album_name : data.track_name,
-      artistName: data.artist_name,
-      theme: data.theme,
-      accentLine: data.accent,
+      searchType: "album_name" in passedVariables ? "Album" : "Track",
+      searchParam: "albumName" in responeData
+        ? responeData.albumName
+        : responeData.trackName,
+      artistName: responeData.artistName,
+      theme: passedVariables.theme,
+      accentLine: passedVariables.accent,
       createdAt: new Date(),
     });
   };
@@ -211,6 +264,7 @@ export default function Search() {
           </CardHeader>
           <CardContent>
             <AnimatedInput
+              ref={searchParamRef}
               label={`${searchType} name`}
               editable={searchType !== "Choose type"}
               placeholder={searchParamDefault}
@@ -218,6 +272,7 @@ export default function Search() {
               onChangeText={setSearchParam}
             />
             <AnimatedInput
+              ref={artistNameRef}
               label="Artist name"
               editable={searchType !== "Choose type"}
               placeholder={artistNameDefault}

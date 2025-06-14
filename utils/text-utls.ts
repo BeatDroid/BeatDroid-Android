@@ -8,3 +8,5 @@ export const parsePosterUrl = (url: string) => {
 export const parsePosterUrlWithApi = (url: string) => {
   return `${prefixUrl}/api/v1/${url}`;
 };
+
+export const searchRegex = /^[\w\s\-_.'()&!?,":;\[\]{}+=@#$%^*~/|\\<>À-ÿĀ-žА-я一-龯]+$/;

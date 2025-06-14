@@ -22,6 +22,8 @@ export const searchTrackRequestSchema = z.object({
 
 export const searchTrackResponseSchema = z.object({
   message: z.string(),
+  trackName: z.string(),
+  artistName: z.string(),
   filePath: z.string(),
   blurhash: z.string()
 });

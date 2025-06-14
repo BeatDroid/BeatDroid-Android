@@ -12,7 +12,6 @@ export async function searchAlbum(
   theme: string,
   accent: boolean
 ): Promise<SearchAlbumResponse> {
-  // Validate input parameters
   const requestData = searchAlbumRequestSchema.parse({
     album_name: album,
     artist_name: artist,
@@ -21,20 +20,27 @@ export async function searchAlbum(
     indexing: true,
   });
 
-  const response = await apiClient
-    .extend({
-      timeout: 30000,
-      hooks: {
-        beforeRequest: [
-          (request) => {
-            request.headers.append("Authorization", `Bearer ${token}`);
-          },
-        ],
-      },
-    })
-    .post("generate_album_poster", { json: requestData })
-    .json<unknown>();
+  try {
+    const response = await apiClient
+      .extend({
+        timeout: 30000,
+        hooks: {
+          beforeRequest: [
+            (request) => {
+              request.headers.append("Authorization", `Bearer ${token}`);
+            },
+          ],
+        },
+      })
+      .post("generate_album_poster", { json: requestData })
+      .json<unknown>();
 
-  // Validate and parse the response
-  return searchAlbumResponseSchema.parse(response);
+    return searchAlbumResponseSchema.parse(response);
+  } catch (error: any) {
+    if (error.name === "HTTPError") {
+      const errorJson = await error.response.json();
+      throw new Error(errorJson.message);
+    }
+    throw "Please try again";
+  }
 }
