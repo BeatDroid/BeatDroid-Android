@@ -37,7 +37,7 @@ export default function Result() {
         offset={50}
         disabled={!isLoaded}
         title={`Your poster is ready! 🚀`}
-        description="Tap to zoom in"
+        description="Your music, beautifully framed! ✨"
       />
       <View className="flex-1">
         <AnimatedImage

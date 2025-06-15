@@ -1,5 +1,6 @@
 import { themes } from "@/lib/constants";
 import { ThemeTypes } from "@/lib/types";
+import { cn } from "@/lib/utils";
 import React, { useEffect } from "react";
 import { View } from "react-native";
 import Animated, {
@@ -12,12 +13,14 @@ interface MiniPosterProps {
   theme?: ThemeTypes;
   accentEnabled?: boolean;
   microMode?: boolean;
+  className?: string;
 }
 
 const MiniPoster = ({
   theme = "Light",
   accentEnabled = false,
   microMode = false,
+  className = "",
 }: MiniPosterProps) => {
   const backgroundColor = useSharedValue(themes[theme].bg);
   const posterColor = useSharedValue(themes[theme].fg);
@@ -95,7 +98,10 @@ const MiniPoster = ({
   return (
     <Animated.View
       style={backgroundStyle}
-      className="aspect-[7.3/10] h-full self-center pt-2 rounded-lg overflow-hidden"
+      className={cn(
+        "aspect-[7.3/10] h-full self-center pt-2 rounded-lg overflow-hidden",
+        className
+      )}
     >
       <Animated.View style={posterStyle} className="flex-1 mx-2 rounded-sm" />
       {!microMode && (

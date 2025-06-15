@@ -46,6 +46,9 @@ import Animated, { FadeIn } from "react-native-reanimated";
 import type { AnimatedInputRef } from "@/components/ui-custom/animated-input";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { toast } from "sonner-native";
+import { KeyboardAwareScrollView } from "react-native-keyboard-controller";
+import { useResponsiveLayout } from "@/hooks/useResponsiveLayout";
+import { cn } from "@/lib/utils";
 
 const ExpoMaterialCommunityIcons = cssInterop(MaterialCommunityIcons, {
   className: {
@@ -58,6 +61,7 @@ export default function Search() {
   const { db } = useDatabase();
   useDrizzleStudio(db);
   const insets = useSafeAreaInsets();
+  const isNarrow = useResponsiveLayout(400);
   const { isDarkColorScheme, toggleColorScheme } = useColorScheme();
   const searchParamRef = useRef<AnimatedInputRef>(null);
   const artistNameRef = useRef<AnimatedInputRef>(null);
@@ -187,6 +191,7 @@ export default function Search() {
       artistName: responeData.artistName,
       theme: passedVariables.theme,
       accentLine: passedVariables.accent,
+      blurhash: responeData.blurhash,
       createdAt: new Date(),
     });
   };
@@ -199,8 +204,9 @@ export default function Search() {
         title="Search 🌟"
         description="Search for your favorite music or albums"
       />
-      <ScrollView
+      <KeyboardAwareScrollView
         className="flex-1"
+        bottomOffset={30}
         fadingEdgeLength={100}
         showsVerticalScrollIndicator={false}
       >
@@ -328,16 +334,16 @@ export default function Search() {
               disabled={searchType === "Choose type"}
             >
               <CardHeader>
-                <Label>Decor</Label>
+                <Label>{isNarrow ? "Accent Line" : "Decor"}</Label>
               </CardHeader>
               <CardContent>
-                <View className="flex-row items-center mt-1">
+                <View className={cn("items-center", isNarrow ? "flex-col" : "flex-row")}>
                   <Switch
                     checked={accentLine}
                     onCheckedChange={setAccentLine}
                     nativeID="accent-line"
                   />
-                  <Label
+                  {!isNarrow && <Label
                     className="ml-6 flex-1"
                     nativeID="accent-line"
                     onPress={() => {
@@ -346,7 +352,7 @@ export default function Search() {
                     }}
                   >
                     Accent line
-                  </Label>
+                  </Label>}
                 </View>
               </CardContent>
             </AnimatedCard>
@@ -360,7 +366,7 @@ export default function Search() {
             <MiniPoster theme={theme} accentEnabled={accentLine} />
           </AnimatedCard>
         </View>
-      </ScrollView>
+      </KeyboardAwareScrollView>
       <AnimatedConfirmButton
         title="Create Poster"
         loading={searchAlbumApi.isPending || searchTrackApi.isPending}

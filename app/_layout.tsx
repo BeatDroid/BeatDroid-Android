@@ -24,6 +24,7 @@ import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { Toaster } from "sonner-native";
 import { NAV_THEME } from "~/lib/constants";
 import { useColorScheme } from "~/lib/useColorScheme";
+import { KeyboardProvider } from "react-native-keyboard-controller";
 
 SplashScreen.preventAutoHideAsync();
 
@@ -71,36 +72,38 @@ function ProviderStack() {
       <SQLiteProvider databaseName="db.db" useSuspense>
         <ErrorBoundary>
           <GestureHandlerRootView>
-            <AuthProvider>
-              <NetworkProvider>
-                <QueryClientProvider client={queryClient}>
-                  <ThemeProvider
-                    value={isDarkColorScheme() ? DARK_THEME : LIGHT_THEME}
-                  >
-                    <SystemBars
-                      style={isDarkColorScheme() ? "light" : "dark"}
-                    />
-                    <NavigationStack />
-                    <PortalHost />
-                    <NetworkOverlay />
-                    <Toaster
-                      richColors
-                      position="bottom-center"
-                      autoWiggleOnUpdate="toast-change"
-                      duration={7000}
-                      offset={30}
-                      closeButton={true}
-                      toastOptions={{
-                        style: {
-                          borderWidth: 3,
-                          borderRadius: 7,
-                        },
-                      }}
-                    />
-                  </ThemeProvider>
-                </QueryClientProvider>
-              </NetworkProvider>
-            </AuthProvider>
+            <KeyboardProvider>
+              <AuthProvider>
+                <NetworkProvider>
+                  <QueryClientProvider client={queryClient}>
+                    <ThemeProvider
+                      value={isDarkColorScheme() ? DARK_THEME : LIGHT_THEME}
+                    >
+                      <SystemBars
+                        style={isDarkColorScheme() ? "light" : "dark"}
+                      />
+                      <NavigationStack />
+                      <PortalHost />
+                      <NetworkOverlay />
+                      <Toaster
+                        richColors
+                        position="bottom-center"
+                        autoWiggleOnUpdate="toast-change"
+                        duration={7000}
+                        offset={30}
+                        closeButton={true}
+                        toastOptions={{
+                          style: {
+                            borderWidth: 3,
+                            borderRadius: 7,
+                          },
+                        }}
+                      />
+                    </ThemeProvider>
+                  </QueryClientProvider>
+                </NetworkProvider>
+              </AuthProvider>
+            </KeyboardProvider>
           </GestureHandlerRootView>
         </ErrorBoundary>
       </SQLiteProvider>

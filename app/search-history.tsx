@@ -4,6 +4,7 @@ import MiniPoster from "@/components/ui-custom/mini-poster";
 import { Card, CardHeader } from "@/components/ui/card";
 import { SearchHistory, searchHistoryTable } from "@/db/schema";
 import useDatabase from "@/hooks/useDatabase";
+import { ImageBackground } from "expo-image";
 import React, { useEffect, useState } from "react";
 import { SectionList, SectionListData, Text, View } from "react-native";
 
@@ -66,31 +67,38 @@ export default function SearchHistoryView() {
 
   const renderItem = React.useCallback(
     ({ item }: { item: SearchHistory }) => (
-      <Card className="mb-4 mx-4">
-        <CardHeader className="flex-row justify-between items-center">
-          <View>
-            <Text className="text-foreground font-bold text-lg">
-              {item.searchParam}
-            </Text>
-            <Text className="text-foreground text-sm">{item.artistName}</Text>
-            <Text className="text-foreground text-sm">
-              {item.theme + (item.accentLine ? " with accent line" : "")}
-            </Text>
-            <Text className="text-foreground text-sm">
-              {item.createdAt.toLocaleString("en-US", {
-                dateStyle: "medium",
-                timeStyle: "short",
-              })}
-            </Text>
-          </View>
-          <View className="w-16 h-auto aspect-[7.3/10]">
-            <MiniPoster
-              microMode
-              theme={item.theme}
-              accentEnabled={item.accentLine}
-            />
-          </View>
-        </CardHeader>
+      <Card className="mb-4 mx-4 border-0 rounded overflow-hidden">
+        <ImageBackground
+          source={{ blurhash: item.blurhash || "" }}
+          className="flex-1"
+        >
+          <View className="absolute top-0 left-0 right-0 bottom-0 bg-background opacity-40 dark:opacity-20" />
+          <CardHeader className="flex-row justify-between items-center">
+            <View className="flex-1 pr-5">
+              <Text numberOfLines={1} className="text-foreground font-bold text-lg">
+                {item.searchParam}
+              </Text>
+              <Text numberOfLines={1} className="text-foreground text-sm">{item.artistName}</Text>
+              <Text numberOfLines={1} className="text-foreground text-sm">
+                {item.theme + (item.accentLine ? " with accent line" : "")}
+              </Text>
+              <Text numberOfLines={1} className="text-foreground text-sm">
+                {item.createdAt.toLocaleString("en-US", {
+                  dateStyle: "medium",
+                  timeStyle: "short",
+                })}
+              </Text>
+            </View>
+            <View className="w-16 h-auto aspect-[7.3/10]">
+              <MiniPoster
+                microMode
+                theme={item.theme}
+                accentEnabled={item.accentLine}
+                className="shadow-md"
+              />
+            </View>
+          </CardHeader>
+        </ImageBackground>
       </Card>
     ),
     []
@@ -120,7 +128,7 @@ export default function SearchHistoryView() {
         ListEmptyComponent={renderListEmptyComponent}
         renderSectionHeader={renderSectionHeader}
         renderItem={renderItem}
-        fadingEdgeLength={200}
+        fadingEdgeLength={100}
         showsVerticalScrollIndicator={false}
       />
     </Background>
