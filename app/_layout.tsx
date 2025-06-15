@@ -89,6 +89,7 @@ function ProviderStack() {
                       autoWiggleOnUpdate="toast-change"
                       duration={7000}
                       offset={30}
+                      closeButton={true}
                       toastOptions={{
                         style: {
                           borderWidth: 3,
