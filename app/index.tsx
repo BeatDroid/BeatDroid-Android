@@ -128,9 +128,9 @@ export default function Welcome() {
           <InfoCard
             title="✨ Features"
             highlights={[
-              "Seamless integration with Spotify",
-              "Customizable themes and layouts",
-              "Offline mode for creating posters anywhere",
+              "Create posters for any track or album on Spotify",
+              "Customize with beautiful themes and colors",
+              "Create high-resolution posters anywhere",
             ]}
           />
         </Animated.View>
@@ -142,9 +142,9 @@ export default function Welcome() {
           <InfoCard
             title="🚀 Quick Start"
             highlights={[
-              "Connect your Spotify account",
-              "Choose a track or album",
-              "Customize your poster and save it!",
+              "Start by picking a track or album",
+              "Search by name and artist",
+              "Style with themes & save your creation!",
             ]}
           />
         </Animated.View>

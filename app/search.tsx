@@ -180,9 +180,10 @@ export default function Search() {
   ) => {
     await db.insert(searchHistoryTable).values({
       searchType: "album_name" in passedVariables ? "Album" : "Track",
-      searchParam: "albumName" in responeData
-        ? responeData.albumName
-        : responeData.trackName,
+      searchParam:
+        "albumName" in responeData
+          ? responeData.albumName
+          : responeData.trackName,
       artistName: responeData.artistName,
       theme: passedVariables.theme,
       accentLine: passedVariables.accent,
@@ -304,10 +305,10 @@ export default function Search() {
                     insets={{ bottom: insets.bottom + 20 }}
                   >
                     <Animated.View entering={FadeIn.duration(300)}>
-                      <DropdownMenuSeparator />
                       <DropdownMenuLabel>
                         Choose a colour theme
                       </DropdownMenuLabel>
+                      <DropdownMenuSeparator />
                       {Object.keys(themes).map((theme) => (
                         <DropdownMenuItem
                           key={theme}
@@ -361,14 +362,10 @@ export default function Search() {
         </View>
       </ScrollView>
       <AnimatedConfirmButton
-        title="Create"
+        title="Create Poster"
         loading={searchAlbumApi.isPending || searchTrackApi.isPending}
         onPress={search}
-        disabled={
-          searchType === "Choose type" ||
-          searchParam === "" ||
-          artistName === ""
-        }
+        disabled={searchType === "Choose type"}
       />
     </Background>
   );

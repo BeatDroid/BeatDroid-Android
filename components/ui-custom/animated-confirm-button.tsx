@@ -57,7 +57,7 @@ const AnimatedConfirmButton = ({
         {loading ? (
           <ActivityIndicator size="small" color="#000" />
         ) : (
-          <Text className="text-center">{title}</Text>
+          <Text className="text-center font-bold">{title}</Text>
         )}
       </Button>
     </Animated.View>
