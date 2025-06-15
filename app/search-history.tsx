@@ -23,6 +23,7 @@ export default function SearchHistoryView() {
             (a, b) =>
               b.createdAt.getMilliseconds() - a.createdAt.getMilliseconds()
           )
+          .reverse()
       );
       setAlbumHistory(
         searchHistory
@@ -31,6 +32,7 @@ export default function SearchHistoryView() {
             (a, b) =>
               b.createdAt.getMilliseconds() - a.createdAt.getMilliseconds()
           )
+          .reverse()
       );
     };
     getSearchHistory();
@@ -75,10 +77,15 @@ export default function SearchHistoryView() {
           <View className="absolute top-0 left-0 right-0 bottom-0 bg-background opacity-40 dark:opacity-20" />
           <CardHeader className="flex-row justify-between items-center">
             <View className="flex-1 pr-5">
-              <Text numberOfLines={1} className="text-foreground font-bold text-lg">
+              <Text
+                numberOfLines={1}
+                className="text-foreground font-bold text-lg"
+              >
                 {item.searchParam}
               </Text>
-              <Text numberOfLines={1} className="text-foreground text-sm">{item.artistName}</Text>
+              <Text numberOfLines={1} className="text-foreground text-sm">
+                {item.artistName}
+              </Text>
               <Text numberOfLines={1} className="text-foreground text-sm">
                 {item.theme + (item.accentLine ? " with accent line" : "")}
               </Text>

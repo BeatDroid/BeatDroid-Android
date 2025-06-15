@@ -11,6 +11,7 @@ import {
 import AnimatedCard from "@/components/ui-custom/animated-card";
 import AnimatedConfirmButton from "@/components/ui-custom/animated-confirm-button";
 import AnimatedHeader from "@/components/ui-custom/animated-header";
+import type { AnimatedInputRef } from "@/components/ui-custom/animated-input";
 import AnimatedInput from "@/components/ui-custom/animated-input";
 import Background from "@/components/ui-custom/background";
 import MiniPoster from "@/components/ui-custom/mini-poster";
@@ -30,9 +31,11 @@ import { Switch } from "@/components/ui/switch";
 import { Text } from "@/components/ui/text";
 import { searchHistoryTable } from "@/db/schema";
 import useDatabase from "@/hooks/useDatabase";
+import { useResponsiveLayout } from "@/hooks/useResponsiveLayout";
 import { themes } from "@/lib/constants";
 import { SearchType, ThemeTypes } from "@/lib/types";
 import { useColorScheme } from "@/lib/useColorScheme";
+import { cn } from "@/lib/utils";
 import { notificationHaptic, selectionHaptic } from "@/utils/haptic-utils";
 import { selectPoster } from "@/utils/poster-utils";
 import { searchRegex } from "@/utils/text-utls";
@@ -41,14 +44,11 @@ import { useDrizzleStudio } from "expo-drizzle-studio-plugin";
 import { router } from "expo-router";
 import { cssInterop } from "nativewind";
 import React, { useEffect, useRef, useState } from "react";
-import { ScrollView, View } from "react-native";
+import { View } from "react-native";
+import { KeyboardAwareScrollView } from "react-native-keyboard-controller";
 import Animated, { FadeIn } from "react-native-reanimated";
-import type { AnimatedInputRef } from "@/components/ui-custom/animated-input";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { toast } from "sonner-native";
-import { KeyboardAwareScrollView } from "react-native-keyboard-controller";
-import { useResponsiveLayout } from "@/hooks/useResponsiveLayout";
-import { cn } from "@/lib/utils";
 
 const ExpoMaterialCommunityIcons = cssInterop(MaterialCommunityIcons, {
   className: {
@@ -102,7 +102,7 @@ export default function Search() {
       description = String((error as { message?: unknown }).message);
     }
     toast.error("Search failed", {
-      description,
+      description: description || "Please try again",
     });
   };
 
@@ -274,7 +274,7 @@ export default function Search() {
               ref={searchParamRef}
               label={`${searchType} name`}
               editable={searchType !== "Choose type"}
-              placeholder={searchParamDefault}
+              placeholder={`Eg. ${searchParamDefault}`}
               value={searchParam}
               onChangeText={setSearchParam}
             />
@@ -282,7 +282,7 @@ export default function Search() {
               ref={artistNameRef}
               label="Artist name"
               editable={searchType !== "Choose type"}
-              placeholder={artistNameDefault}
+              placeholder={`Eg. ${artistNameDefault}`}
               value={artistName}
               onChangeText={setArtistName}
               className="mt-4"

@@ -49,12 +49,11 @@ const AnimatedImage = ({ uri, blurhash, loading = true }: Props) => {
     }, [])
   );
 
-
   const spin = useCallback(() => {
     "worklet";
     rotateY.value = withSequence(
       withTiming(`${-45}deg`, { duration: 200 }),
-      withSpring(`${720}deg`, {stiffness: 50, damping: 20, mass: 5}),
+      withSpring(`${720}deg`, { stiffness: 50, damping: 20, mass: 5 }),
       withTiming(`0deg`, { duration: 0 })
     );
   }, [rotateY]);
