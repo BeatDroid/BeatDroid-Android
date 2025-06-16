@@ -120,7 +120,7 @@ export default function Welcome() {
         title="BeatDroid 🎷"
         description="Create eye-catching, Pinterest-style music posters effortlessly on Android! 🍀"
       />
-      <ScrollView className="flex-1 mt-5">
+      <ScrollView showsVerticalScrollIndicator={false} className="flex-1 mt-5">
         <Animated.View
           className={"w-full mb-6"}
           style={animatedFeatureBox1Style}

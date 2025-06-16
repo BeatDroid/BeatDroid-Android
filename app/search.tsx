@@ -117,18 +117,31 @@ export default function Search() {
   });
 
   const search = () => {
+    const sanitizedSearchParam = searchParam?.trim();
+    setSearchParam(
+      sanitizedSearchParam && sanitizedSearchParam.length > 0
+        ? sanitizedSearchParam
+        : undefined
+    );
+    const sanitizedArtistName = artistName?.trim();
+    setArtistName(
+      sanitizedArtistName && sanitizedArtistName.length > 0
+        ? sanitizedArtistName
+        : undefined
+    );
     artistNameRef.current?.blur();
     searchParamRef.current?.blur();
-    if (!searchParam) {
+    if (!sanitizedSearchParam) {
       notificationHaptic();
+      searchParamRef.current?.clear()
       searchParamRef.current?.shake();
       toast.error("Missing search parameter", {
         description: "Please enter a search parameter",
       });
-      return;
     }
-    if (!artistName) {
+    if (!sanitizedArtistName) {
       notificationHaptic();
+      artistNameRef.current?.clear()
       artistNameRef.current?.shake();
       toast.error("Missing artist name", {
         description: "Please enter an artist name",
@@ -136,20 +149,19 @@ export default function Search() {
       return;
     }
     const isSearchParamValid =
-      searchRegex.test(searchParam) &&
-      searchParam.length > 0 &&
-      searchParam.length <= 100;
+      searchRegex.test(sanitizedSearchParam!) &&
+      sanitizedSearchParam!.length > 0 &&
+      sanitizedSearchParam!.length <= 100;
     const isArtistNameValid =
-      searchRegex.test(artistName) &&
-      artistName.length > 0 &&
-      artistName.length <= 100;
+      searchRegex.test(sanitizedArtistName) &&
+      sanitizedArtistName.length > 0 &&
+      sanitizedArtistName.length <= 100;
     if (!isSearchParamValid) {
       notificationHaptic();
       searchParamRef.current?.shake();
       toast.error("Invalid search parameter", {
         description: "Please enter a valid search parameter",
       });
-      return;
     }
     if (!isArtistNameValid) {
       notificationHaptic();
@@ -163,15 +175,15 @@ export default function Search() {
     artistNameRef.current?.clearError();
     if (searchType === "Track") {
       searchTrackApi.mutate({
-        track_name: searchParam!,
-        artist_name: artistName!,
+        track_name: sanitizedSearchParam!,
+        artist_name: sanitizedArtistName!,
         theme,
         accent: accentLine,
       });
     } else {
       searchAlbumApi.mutate({
-        album_name: searchParam!,
-        artist_name: artistName!,
+        album_name: sanitizedSearchParam!,
+        artist_name: sanitizedArtistName!,
         theme,
         accent: accentLine,
       });
@@ -337,22 +349,29 @@ export default function Search() {
                 <Label>{isNarrow ? "Accent Line" : "Decor"}</Label>
               </CardHeader>
               <CardContent>
-                <View className={cn("items-center", isNarrow ? "flex-col" : "flex-row")}>
+                <View
+                  className={cn(
+                    "items-center",
+                    isNarrow ? "flex-col" : "flex-row"
+                  )}
+                >
                   <Switch
                     checked={accentLine}
                     onCheckedChange={setAccentLine}
                     nativeID="accent-line"
                   />
-                  {!isNarrow && <Label
-                    className="ml-6 flex-1"
-                    nativeID="accent-line"
-                    onPress={() => {
-                      setAccentLine((prev) => !prev);
-                      selectionHaptic();
-                    }}
-                  >
-                    Accent line
-                  </Label>}
+                  {!isNarrow && (
+                    <Label
+                      className="ml-6 flex-1"
+                      nativeID="accent-line"
+                      onPress={() => {
+                        setAccentLine((prev) => !prev);
+                        selectionHaptic();
+                      }}
+                    >
+                      Accent line
+                    </Label>
+                  )}
                 </View>
               </CardContent>
             </AnimatedCard>
