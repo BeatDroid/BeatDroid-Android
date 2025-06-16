@@ -22,7 +22,7 @@ import {
   DropdownMenuContent,
   DropdownMenuGroup,
   DropdownMenuItem,
-  DropdownMenuTrigger
+  DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
@@ -39,7 +39,7 @@ import { selectPoster } from "@/utils/poster-utils";
 import { searchRegex } from "@/utils/text-utls";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import { useDrizzleStudio } from "expo-drizzle-studio-plugin";
-import { router } from "expo-router";
+import { router, useLocalSearchParams } from "expo-router";
 import { cssInterop } from "nativewind";
 import React, { useEffect, useRef, useState } from "react";
 import { View } from "react-native";
@@ -56,6 +56,15 @@ const ExpoMaterialCommunityIcons = cssInterop(MaterialCommunityIcons, {
 });
 
 export default function Search() {
+  const { dbSearchParam, dbArtistName, dbSearchType, dbTheme, dbAccentLine } =
+    useLocalSearchParams<{
+      dbSearchParam: string;
+      dbArtistName: string;
+      dbSearchType: string;
+      dbTheme: string;
+      dbAccentLine: string;
+    }>();
+
   const { db } = useDatabase();
   useDrizzleStudio(db);
   const insets = useSafeAreaInsets();
@@ -75,6 +84,31 @@ export default function Search() {
   const [theme, setTheme] = useState<ThemeTypes>("Dark");
   const [accentLine, setAccentLine] = useState(false);
   const buttonVariant = isDarkColorScheme() ? "outline" : "secondary";
+
+  useEffect(() => {
+    if (dbSearchParam) {
+      setSearchParam(dbSearchParam);
+    }
+    if (dbArtistName) {
+      setArtistName(dbArtistName);
+    }
+    if (dbSearchType) {
+      setSearchType(dbSearchType as SearchType);
+    }
+    if (dbTheme) {
+      setTheme(dbTheme as ThemeTypes);
+    }
+    if (dbAccentLine) {
+      setAccentLine(dbAccentLine === "true");
+    }
+    router.setParams({
+      dbSearchParam: undefined,
+      dbArtistName: undefined,
+      dbSearchType: undefined,
+      dbTheme: undefined,
+      dbAccentLine: undefined,
+    });
+  }, [dbSearchParam, dbArtistName, dbSearchType, dbTheme, dbAccentLine]);
 
   useEffect(() => {
     const selector = selectPoster(searchType);

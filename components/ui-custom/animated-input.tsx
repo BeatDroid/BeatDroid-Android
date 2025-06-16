@@ -110,6 +110,14 @@ const AnimatedInput = forwardRef<AnimatedInputRef, AnimatedInputProps>(
       }
     }, [isInputFocused, setPlaceholderVisible]);
 
+    React.useEffect(() => {
+      if (props.value) {
+        setHasValue(true);
+      } else {
+        setHasValue(false);
+      }
+    }, [props]);
+
     const animatedContainerStyle = useAnimatedStyle(
       () => ({
         marginTop: focusedValue.value * 20,
@@ -141,14 +149,6 @@ const AnimatedInput = forwardRef<AnimatedInputRef, AnimatedInputProps>(
       (e: any) => {
         setIsInputFocused(false);
         props.onBlur?.(e);
-      },
-      [props]
-    );
-
-    const handleChangeText = useCallback(
-      (text: string) => {
-        setHasValue(Boolean(text));
-        props.onChangeText?.(text);
       },
       [props]
     );
@@ -237,7 +237,6 @@ const AnimatedInput = forwardRef<AnimatedInputRef, AnimatedInputProps>(
             )}
             onFocus={handleFocus}
             onBlur={handleBlur}
-            onChangeText={handleChangeText}
           />
         </Animated.View>
       </View>

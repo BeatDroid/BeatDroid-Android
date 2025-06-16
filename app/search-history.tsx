@@ -5,8 +5,15 @@ import { Card, CardHeader } from "@/components/ui/card";
 import { SearchHistory, searchHistoryTable } from "@/db/schema";
 import useDatabase from "@/hooks/useDatabase";
 import { ImageBackground } from "expo-image";
+import { router } from "expo-router";
 import React, { useEffect, useState } from "react";
-import { SectionList, SectionListData, Text, View } from "react-native";
+import {
+  Pressable,
+  SectionList,
+  SectionListData,
+  Text,
+  View,
+} from "react-native";
 
 export default function SearchHistoryView() {
   const { db } = useDatabase();
@@ -69,44 +76,59 @@ export default function SearchHistoryView() {
 
   const renderItem = React.useCallback(
     ({ item }: { item: SearchHistory }) => (
-      <Card className="mb-4 mx-4 border-0 rounded overflow-hidden">
-        <ImageBackground
-          source={{ blurhash: item.blurhash || "" }}
-          className="flex-1"
-        >
-          <View className="absolute top-0 left-0 right-0 bottom-0 bg-background opacity-40 dark:opacity-20" />
-          <CardHeader className="flex-row justify-between items-center">
-            <View className="flex-1 pr-5">
-              <Text
-                numberOfLines={1}
-                className="text-foreground font-bold text-lg"
-              >
-                {item.searchParam}
-              </Text>
-              <Text numberOfLines={1} className="text-foreground text-sm">
-                {item.artistName}
-              </Text>
-              <Text numberOfLines={1} className="text-foreground text-sm">
-                {item.theme + (item.accentLine ? " with accent line" : "")}
-              </Text>
-              <Text numberOfLines={1} className="text-foreground text-sm">
-                {item.createdAt.toLocaleString("en-US", {
-                  dateStyle: "medium",
-                  timeStyle: "short",
-                })}
-              </Text>
-            </View>
-            <View className="w-16 h-auto aspect-[7.3/10]">
-              <MiniPoster
-                microMode
-                theme={item.theme}
-                accentEnabled={item.accentLine}
-                className="shadow-md"
-              />
-            </View>
-          </CardHeader>
-        </ImageBackground>
-      </Card>
+      <Pressable
+        onPress={() =>
+          router.dismissTo({
+            pathname: "/search",
+            params: {
+              dbSearchParam: item.searchParam,
+              dbArtistName: item.artistName,
+              dbSearchType: item.searchType,
+              dbTheme: item.theme,
+              dbAccentLine: item.accentLine.toString(),
+            },
+          })
+        }
+      >
+        <Card className="mb-4 mx-4 border-0 rounded overflow-hidden">
+          <ImageBackground
+            source={{ blurhash: item.blurhash || "" }}
+            className="flex-1"
+          >
+            <View className="absolute top-0 left-0 right-0 bottom-0 bg-background opacity-40 dark:opacity-20" />
+            <CardHeader className="flex-row justify-between items-center">
+              <View className="flex-1 pr-5">
+                <Text
+                  numberOfLines={1}
+                  className="text-foreground font-bold text-lg"
+                >
+                  {item.searchParam}
+                </Text>
+                <Text numberOfLines={1} className="text-foreground text-sm">
+                  {item.artistName}
+                </Text>
+                <Text numberOfLines={1} className="text-foreground text-sm">
+                  {item.theme + (item.accentLine ? " with accent line" : "")}
+                </Text>
+                <Text numberOfLines={1} className="text-foreground text-sm">
+                  {item.createdAt.toLocaleString("en-US", {
+                    dateStyle: "medium",
+                    timeStyle: "short",
+                  })}
+                </Text>
+              </View>
+              <View className="w-16 h-auto aspect-[7.3/10]">
+                <MiniPoster
+                  microMode
+                  theme={item.theme}
+                  accentEnabled={item.accentLine}
+                  className="shadow-md"
+                />
+              </View>
+            </CardHeader>
+          </ImageBackground>
+        </Card>
+      </Pressable>
     ),
     []
   );
