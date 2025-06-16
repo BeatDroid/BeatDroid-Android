@@ -131,7 +131,7 @@ function NavigationStack() {
       <Stack.Screen name="index" />
       <Stack.Screen name="search" />
       <Stack.Screen name="search-history" />
-      <Stack.Screen name="[posterPath]" />
+      <Stack.Screen name="poster-view" />
     </Stack>
   );
 }

@@ -122,7 +122,7 @@ export default function Search() {
   ) => {
     saveToDb(data, variables);
     router.navigate({
-      pathname: "/[posterPath]",
+      pathname: "/poster-view",
       params: { posterPath: data.filePath, blurhash: data.blurhash },
     });
   };
