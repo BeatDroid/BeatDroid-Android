@@ -56,6 +56,12 @@ const MiniPoster = ({
     };
   });
 
+  const previewTextStyle = useAnimatedStyle(() => {
+    return {
+      color: backgroundColor.value,
+    };
+  });
+
   const backgroundStyle = useAnimatedStyle(() => {
     return {
       backgroundColor: backgroundColor.value,
@@ -103,7 +109,9 @@ const MiniPoster = ({
         className
       )}
     >
-      <Animated.View style={posterStyle} className="flex-1 mx-2 rounded-sm" />
+      <Animated.View style={posterStyle} className="flex-1 mx-2 rounded-sm items-center justify-center" >
+        {!microMode && <Animated.Text style={previewTextStyle} className="text-md font-bold uppercase text-center">{"T h e m e\nP r e v i e w"}</Animated.Text>}
+      </Animated.View>
       {!microMode && (
         <>
           <Animated.View
