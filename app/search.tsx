@@ -131,21 +131,26 @@ export default function Search() {
     );
     artistNameRef.current?.blur();
     searchParamRef.current?.blur();
+    let sanityCheckFailed = false;
     if (!sanitizedSearchParam) {
       notificationHaptic();
-      searchParamRef.current?.clear()
+      searchParamRef.current?.clear();
       searchParamRef.current?.shake();
       toast.error("Missing search parameter", {
         description: "Please enter a search parameter",
       });
+      sanityCheckFailed = true;
     }
     if (!sanitizedArtistName) {
       notificationHaptic();
-      artistNameRef.current?.clear()
+      artistNameRef.current?.clear();
       artistNameRef.current?.shake();
       toast.error("Missing artist name", {
         description: "Please enter an artist name",
       });
+      sanityCheckFailed = true;
+    }
+    if (sanityCheckFailed) {
       return;
     }
     const isSearchParamValid =
@@ -153,15 +158,16 @@ export default function Search() {
       sanitizedSearchParam!.length > 0 &&
       sanitizedSearchParam!.length <= 100;
     const isArtistNameValid =
-      searchRegex.test(sanitizedArtistName) &&
-      sanitizedArtistName.length > 0 &&
-      sanitizedArtistName.length <= 100;
+      searchRegex.test(sanitizedArtistName!) &&
+      sanitizedArtistName!.length > 0 &&
+      sanitizedArtistName!.length <= 100;
     if (!isSearchParamValid) {
       notificationHaptic();
       searchParamRef.current?.shake();
       toast.error("Invalid search parameter", {
         description: "Please enter a valid search parameter",
       });
+      sanityCheckFailed = true;
     }
     if (!isArtistNameValid) {
       notificationHaptic();
@@ -169,6 +175,9 @@ export default function Search() {
       toast.error("Invalid artist name", {
         description: "Please enter a valid artist name",
       });
+      sanityCheckFailed = true;
+    }
+    if (sanityCheckFailed) {
       return;
     }
     searchParamRef.current?.clearError();
