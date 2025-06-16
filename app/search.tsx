@@ -96,7 +96,7 @@ export default function Search() {
   };
 
   const onError = (error: unknown) => {
-    console.log(error);
+    console.log("Error: ", error);
     let description = "Unknown error";
     if (error && typeof error === "object" && "message" in error) {
       description = String((error as { message?: unknown }).message);

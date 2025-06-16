@@ -1,9 +1,7 @@
-import { useTokenGenApi } from "@/api/generate-token/useTokenGenApi";
 import AnimatedConfirmButton from "@/components/ui-custom/animated-confirm-button";
 import AnimatedHeader from "@/components/ui-custom/animated-header";
 import Background from "@/components/ui-custom/background";
 import InfoCard from "@/components/ui-custom/info-card";
-import { useAuth } from "@/contexts/auth-context";
 import useDatabase from "@/hooks/useDatabase";
 import { router } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
@@ -22,8 +20,6 @@ const offset = 100;
 
 export default function Welcome() {
   const { success } = useDatabase();
-  const genTokenApi = useTokenGenApi();
-  const { setToken } = useAuth();
   const [enableButton, setEnableButton] = useState(false);
   const [hasLoaded, setHasLoaded] = useState(false);
   const [onboardingCompleted, setOnboardingCompleted] = useMMKVBoolean(
@@ -39,16 +35,6 @@ export default function Welcome() {
       SplashScreen.hideAsync();
     }
   }, [success]);
-
-  useEffect(() => {
-    const setTokenAsync = async () => {
-      if (genTokenApi.isSuccess) {
-        await setToken(genTokenApi.data.access_token);
-      }
-    };
-
-    setTokenAsync();
-  }, [genTokenApi.isSuccess, genTokenApi.data, setToken]);
 
   useEffect(() => {
     if (hasLoaded) {

@@ -1,9 +1,10 @@
 import "~/global.css";
 
+import { useTokenGenApi } from "@/api/generate-token/useTokenGenApi";
 import { ErrorBoundary } from "@/components/error-boundary";
 import NetworkOverlay from "@/components/ui-custom/network-overlay";
 import queryClient from "@/config/queryClient";
-import { AuthProvider } from "@/contexts/auth-context";
+import { AuthProvider, useAuth } from "@/contexts/auth-context";
 import { NetworkProvider } from "@/contexts/network-context";
 import {
   DarkTheme,
@@ -21,10 +22,10 @@ import * as React from "react";
 import { ActivityIndicator, Platform } from "react-native";
 import { SystemBars } from "react-native-edge-to-edge";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
+import { KeyboardProvider } from "react-native-keyboard-controller";
 import { Toaster } from "sonner-native";
 import { NAV_THEME } from "~/lib/constants";
 import { useColorScheme } from "~/lib/useColorScheme";
-import { KeyboardProvider } from "react-native-keyboard-controller";
 
 SplashScreen.preventAutoHideAsync();
 
@@ -112,6 +113,19 @@ function ProviderStack() {
 }
 
 function NavigationStack() {
+  const genTokenApi = useTokenGenApi();
+  const { setToken } = useAuth();
+
+  React.useEffect(() => {
+    const setTokenAsync = async () => {
+      if (genTokenApi.isSuccess) {
+        setToken(genTokenApi.data.access_token);
+      }
+    };
+
+    setTokenAsync();
+  }, [genTokenApi.isSuccess, genTokenApi.data, setToken]);
+
   return (
     <Stack screenOptions={{ headerShown: false }}>
       <Stack.Screen name="index" />
