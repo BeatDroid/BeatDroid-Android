@@ -22,9 +22,7 @@ import {
   DropdownMenuContent,
   DropdownMenuGroup,
   DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
+  DropdownMenuTrigger
 } from "@/components/ui/dropdown-menu";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
@@ -267,8 +265,6 @@ export default function Search() {
               </DropdownMenuTrigger>
               <DropdownMenuContent className="w-64 native:w-72">
                 <Animated.View entering={FadeIn.duration(300)}>
-                  <DropdownMenuLabel>Select a search type</DropdownMenuLabel>
-                  <DropdownMenuSeparator />
                   <DropdownMenuGroup>
                     <DropdownMenuItem onPress={() => setSearchType("Track")}>
                       <Text>Track</Text>
@@ -332,10 +328,6 @@ export default function Search() {
                     insets={{ bottom: insets.bottom + 20 }}
                   >
                     <Animated.View entering={FadeIn.duration(300)}>
-                      <DropdownMenuLabel>
-                        Choose a colour theme
-                      </DropdownMenuLabel>
-                      <DropdownMenuSeparator />
                       {Object.keys(themes).map((theme) => (
                         <DropdownMenuItem
                           key={theme}
