@@ -15,7 +15,7 @@ export async function genToken(): Promise<GenTokenResponse> {
     
     const response = await apiClient
       .extend({
-        timeout: 30000,
+        timeout: 10000,
       })
       .post("auth/login", {
         json: requestData,

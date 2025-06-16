@@ -34,12 +34,21 @@ export default function Welcome() {
   const featureBox3Position = useSharedValue(-offset);
 
   useEffect(() => {
-    if (genTokenApi.isSuccess && success) {
-      setToken(genTokenApi.data.access_token);
+    if (success) {
       setHasLoaded(true);
       SplashScreen.hideAsync();
     }
-  }, [genTokenApi.isSuccess, genTokenApi.data, setToken, success]);
+  }, [success]);
+
+  useEffect(() => {
+    const setTokenAsync = async () => {
+      if (genTokenApi.isSuccess) {
+        await setToken(genTokenApi.data.access_token);
+      }
+    };
+
+    setTokenAsync();
+  }, [genTokenApi.isSuccess, genTokenApi.data, setToken]);
 
   useEffect(() => {
     if (hasLoaded) {
