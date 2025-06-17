@@ -22,6 +22,7 @@ const MiniPoster = ({
   microMode = false,
   className = "",
 }: MiniPosterProps) => {
+  const DURATION = microMode ? 0 : 500;
   const backgroundColor = useSharedValue(themes[theme].bg);
   const posterColor = useSharedValue(themes[theme].fg);
   const textColor = useSharedValue(themes[theme].text);
@@ -31,14 +32,19 @@ const MiniPoster = ({
   const accentLine = useSharedValue(accentEnabled ? 1 : 0);
 
   useEffect(() => {
-    accentLine.value = withTiming(accentEnabled ? 1 : 0, { duration: 500 });
-    backgroundColor.value = withTiming(themes[theme].bg, { duration: 500 });
-    posterColor.value = withTiming(themes[theme].fg, { duration: 500 });
-    textColor.value = withTiming(themes[theme].text, { duration: 500 });
-    b1color.value = withTiming(themes[theme].b1, { duration: 500 });
-    b2color.value = withTiming(themes[theme].b2, { duration: 500 });
-    b3color.value = withTiming(themes[theme].b3, { duration: 500 });
+    accentLine.value = withTiming(accentEnabled ? 1 : 0, {
+      duration: DURATION,
+    });
+    backgroundColor.value = withTiming(themes[theme].bg, {
+      duration: DURATION,
+    });
+    posterColor.value = withTiming(themes[theme].fg, { duration: DURATION });
+    textColor.value = withTiming(themes[theme].text, { duration: DURATION });
+    b1color.value = withTiming(themes[theme].b1, { duration: DURATION });
+    b2color.value = withTiming(themes[theme].b2, { duration: DURATION });
+    b3color.value = withTiming(themes[theme].b3, { duration: DURATION });
   }, [
+    DURATION,
     accentEnabled,
     accentLine,
     b1color,
@@ -96,7 +102,7 @@ const MiniPoster = ({
     return {
       backgroundColor: withTiming(
         accentEnabled ? posterColor.value : "transparent",
-        { duration: 300 }
+        { duration: microMode ? 0 : 200 }
       ),
     };
   });
@@ -109,8 +115,18 @@ const MiniPoster = ({
         className
       )}
     >
-      <Animated.View style={posterStyle} className="flex-1 mx-2 rounded-sm items-center justify-center" >
-        {!microMode && <Animated.Text style={previewTextStyle} className="text-md font-bold uppercase text-center">{"T h e m e\nP r e v i e w"}</Animated.Text>}
+      <Animated.View
+        style={posterStyle}
+        className="flex-1 mx-2 rounded-sm items-center justify-center"
+      >
+        {!microMode && (
+          <Animated.Text
+            style={previewTextStyle}
+            className="text-md font-bold uppercase text-center"
+          >
+            {"T h e m e\nP r e v i e w"}
+          </Animated.Text>
+        )}
       </Animated.View>
       {!microMode && (
         <>
