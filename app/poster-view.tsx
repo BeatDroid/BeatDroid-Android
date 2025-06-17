@@ -10,10 +10,15 @@ import { useEffect, useState } from "react";
 import { View } from "react-native";
 
 export default function Result() {
-  const { posterPath, blurhash } = useLocalSearchParams<{
-    posterPath: string;
-    blurhash: string;
-  }>();
+  const { posterPath, blurhash, searchParam, artistName, theme, accentLine } =
+    useLocalSearchParams<{
+      posterPath: string;
+      blurhash: string;
+      searchParam: string;
+      artistName: string;
+      theme: string;
+      accentLine: string;
+    }>();
   const [isLoaded, setIsLoaded] = useState(false);
 
   const posterApi = usePosterDownApi({ posterPath: posterPath! });
@@ -56,7 +61,7 @@ export default function Result() {
       <AnimatedConfirmButton
         title="Download"
         disabled={!isLoaded}
-        onPress={() => handleDownloadPoster(posterApi.data?.image!)}
+        onPress={() => handleDownloadPoster(posterApi.data?.image!, searchParam!, artistName!, theme!, accentLine!)}
       />
     </Background>
   );

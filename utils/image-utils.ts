@@ -9,7 +9,13 @@ import { toast } from "sonner-native";
  * @param onProgress Optional callback for progress updates
  * @returns Promise<boolean> Indicates if the download was successful
  */
-export async function handleDownloadPoster(uri: string): Promise<boolean> {
+export async function handleDownloadPoster(
+  uri: string,
+  searchParam: string,
+  artistName: string,
+  theme: string,
+  accentLine: string
+): Promise<boolean> {
   const toastId = toast("Downloading...");
 
   try {
@@ -25,7 +31,7 @@ export async function handleDownloadPoster(uri: string): Promise<boolean> {
     const localFileUri =
       await FileSystem.StorageAccessFramework.createFileAsync(
         userDirectory.directoryUri,
-        "poster.jpg",
+        `${searchParam} by ${artistName} - ${theme} ${accentLine === "true" ? "with accent line" : ""}.jpg`,
         "image/jpeg"
       );
 

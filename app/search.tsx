@@ -123,7 +123,17 @@ export default function Search() {
     saveToDb(data, variables);
     router.navigate({
       pathname: "/poster-view",
-      params: { posterPath: data.filePath, blurhash: data.blurhash },
+      params: {
+        posterPath: data.filePath,
+        blurhash: data.blurhash,
+        searchParam:
+          "track_name" in variables
+            ? variables.track_name
+            : variables.album_name,
+        artistName: variables.artist_name,
+        theme: variables.theme,
+        accentLine: variables.accent.toString(),
+      },
     });
   };
 
