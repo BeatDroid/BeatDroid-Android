@@ -15,8 +15,8 @@ import Animated, {
   withTiming,
 } from "react-native-reanimated";
 
-const duration = 1000;
-const offset = 100;
+const duration = 600;
+const offset = 50;
 
 export default function Welcome() {
   const { success } = useDatabase();
@@ -27,7 +27,6 @@ export default function Welcome() {
   );
   const featureBox1Position = useSharedValue(-offset);
   const featureBox2Position = useSharedValue(-offset);
-  const featureBox3Position = useSharedValue(-offset);
 
   useEffect(() => {
     if (success) {
@@ -42,24 +41,14 @@ export default function Welcome() {
         router.replace("/search");
         return;
       }
-      // Start feature box animations after header/footer complete
       setTimeout(() => {
         featureBox1Position.value = withTiming(0, { duration });
-
-        // Start second feature box after first completes
         setTimeout(() => {
           featureBox2Position.value = withTiming(0, { duration });
-
-          // Start third feature box after second completes
           setTimeout(() => {
-            featureBox3Position.value = withTiming(0, { duration });
-
-            // Start footer animation after third completes
-            setTimeout(() => {
-              setEnableButton(true);
-            }, duration);
-          }, duration / 3);
-        }, duration / 3);
+            setEnableButton(true);
+          }, duration);
+        }, duration);
       }, duration);
     }
 
@@ -67,34 +56,25 @@ export default function Welcome() {
       setEnableButton(false);
       featureBox1Position.value = -offset;
       featureBox2Position.value = -offset;
-      featureBox3Position.value = -offset;
     };
   }, [
     featureBox1Position,
     featureBox2Position,
-    featureBox3Position,
     hasLoaded,
     onboardingCompleted,
   ]);
 
   const animatedFeatureBox1Style = useAnimatedStyle(() => {
     return {
-      transform: [{ translateX: featureBox1Position.value }],
+      transform: [{ translateY: -featureBox1Position.value }],
       opacity: interpolate(featureBox1Position.value, [-offset, 0], [0, 1]),
     };
   });
 
   const animatedFeatureBox2Style = useAnimatedStyle(() => {
     return {
-      transform: [{ translateX: -featureBox2Position.value }],
+      transform: [{ translateY: -featureBox2Position.value }],
       opacity: interpolate(featureBox2Position.value, [-offset, 0], [0, 1]),
-    };
-  });
-
-  const animatedFeatureBox3Style = useAnimatedStyle(() => {
-    return {
-      transform: [{ translateX: featureBox3Position.value }],
-      opacity: interpolate(featureBox3Position.value, [-offset, 0], [0, 1]),
     };
   });
 
@@ -113,7 +93,7 @@ export default function Welcome() {
         offset={100}
         duration={1000}
         title="BeatDroid 🎷"
-        description="Create eye-catching, Pinterest-style music posters effortlessly on Android! 🍀"
+        // description="Create eye-catching, Pinterest-style music posters effortlessly on Android! 🍀"
       />
       <ScrollView showsVerticalScrollIndicator={false} className="flex-1 mt-5">
         <Animated.View
@@ -140,20 +120,6 @@ export default function Welcome() {
               "Start by picking a track or album",
               "Search by name and artist",
               "Style with themes & save your creation!",
-            ]}
-          />
-        </Animated.View>
-
-        <Animated.View
-          className={"w-full mb-6"}
-          style={animatedFeatureBox3Style}
-        >
-          <InfoCard
-            title="🖼️ Save & Share"
-            highlights={[
-              "Download posters to your device",
-              "Print out your favorite designs",
-              "Frame and display your music art",
             ]}
           />
         </Animated.View>

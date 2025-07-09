@@ -9,7 +9,7 @@ import { Text } from "../ui/text";
 
 interface AnimatedHeaderProps {
   title: string;
-  description: string;
+  description?: string;
   disabled?: boolean;
   duration?: number;
   offset?: number;
@@ -38,7 +38,7 @@ const AnimatedHeader = ({
     return {
       transform: [
         { translateY: headerPosition.value },
-        {scale: interpolate(headerPosition.value, [-offset, 0], [0.8, 1])},
+        { scale: interpolate(headerPosition.value, [-offset, 0], [0.8, 1]) },
         {
           rotateX: `${interpolate(
             headerPosition.value,
@@ -47,7 +47,7 @@ const AnimatedHeader = ({
           )}deg`,
         },
       ],
-      opacity: interpolate(headerPosition.value, [-offset*0.4, 0], [0, 1]),
+      opacity: interpolate(headerPosition.value, [-offset * 0.4, 0], [0, 1]),
     };
   });
 
@@ -57,7 +57,9 @@ const AnimatedHeader = ({
       className="h-[100] items-center justify-center"
     >
       <Text className="text-2xl font-bold mb-3 text-center">{title}</Text>
-      <Text className="text-base text-center">{description}</Text>
+      {description && (
+        <Text className="text-base text-center">{description}</Text>
+      )}
     </Animated.View>
   );
 };
