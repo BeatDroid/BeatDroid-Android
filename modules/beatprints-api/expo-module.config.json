@@ -1,0 +1,9 @@
+{
+  "platforms": ["apple", "android", "web"],
+  "apple": {
+    "modules": ["BeatprintsApiModule"]
+  },
+  "android": {
+    "modules": ["com.beatdroid.beatprintsapi.BeatprintsApiModule"]
+  }
+}

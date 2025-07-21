@@ -15,6 +15,8 @@ import Animated, {
   withTiming,
 } from "react-native-reanimated";
 
+import BeatprintsApi from "@/modules/beatprints-api";
+
 const duration = 1000;
 const offset = 100;
 
@@ -33,6 +35,7 @@ export default function Welcome() {
     if (success) {
       setHasLoaded(true);
       SplashScreen.hideAsync();
+      console.log(BeatprintsApi.hello());
     }
   }, [success]);
 

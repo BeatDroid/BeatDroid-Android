@@ -37,6 +37,7 @@ yarn-error.*
 
 # editor
 .cursor
+.idea
 
 # prebuild
 android/
