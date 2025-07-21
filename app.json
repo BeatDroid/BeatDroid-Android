@@ -52,7 +52,15 @@
       ],
       "expo-font",
       "expo-web-browser",
-      "expo-sqlite"
+      "expo-sqlite",
+      [
+        "./modules/beatprints-api/plugin/withChaquopy.js",
+        {
+          "version": "16.1.0",
+          "pythonVersion": "3.11",
+          "buildPython": "/usr/bin/python3"
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true
