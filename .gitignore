@@ -40,8 +40,8 @@ yarn-error.*
 .idea
 
 # prebuild
-android/
-ios/
+/android
+/ios
 
 # env
 .env*
