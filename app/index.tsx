@@ -35,7 +35,8 @@ export default function Welcome() {
     if (success) {
       setHasLoaded(true);
       SplashScreen.hideAsync();
-      console.log(BeatprintsApi.hello());
+      console.log(BeatprintsApi.pythonVersion());
+      console.log(BeatprintsApi.testCall());
     }
   }, [success]);
 

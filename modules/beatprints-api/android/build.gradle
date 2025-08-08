@@ -2,7 +2,7 @@ apply plugin: 'com.android.library'
 apply plugin: 'com.chaquo.python'
 
 group = 'com.beatdroid.beatprintsapi'
-version = '0.7.2'
+version = '0.0.1'
 
 def expoModulesCorePlugin = new File(project(":expo-modules-core").projectDir.absolutePath, "ExpoModulesCorePlugin.gradle")
 apply from: expoModulesCorePlugin
@@ -37,9 +37,44 @@ if (useManagedAndroidSdkVersions) {
 
 android {
   namespace "com.beatdroid.beatprintsapi"
+  
+  sourceSets {
+    main {
+      python.srcDirs = ["src/main/python"]
+    }
+  }
+  
   defaultConfig {
     versionCode 1
-    versionName "0.7.2"
+    versionName "0.0.1"
+    python {
+      pip {
+        options "--only-binary=all"
+        install "-r", "src/main/python/requirements.txt"
+        // Install numpy that Chaquopy supports
+        install "numpy"  // Let Chaquopy choose the version
+//        install "meson"
+
+        // Then install BeatPrints ignoring version conflicts
+//        options "--force-reinstall", "--no-deps"
+        install "src/main/python/beatprints-1.1.5-0-cp313-cp313-android_24_arm64_v8a.whl"
+
+        // Install other dependencies manually
+//        install "async_timeout"
+//        install "urllib3"
+//        install "idna"
+//        install "certifi"
+//        install "requests"
+//        install "Pillow==9.5.0"
+//        install "toml"
+//        install "rich"
+//        install "redis"
+//        install "spotipy"
+//        install "questionary"
+//        install "fonttools"
+//        install "lrclibapi"
+      }
+    }
   }
   lintOptions {
     abortOnError false
@@ -48,7 +83,7 @@ android {
 
 chaquopy {
   defaultConfig {
-    version "3.11"
+    version "3.13"
     buildPython "/usr/bin/python3"
   }
 }

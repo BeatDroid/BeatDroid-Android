@@ -4,7 +4,8 @@ import { BeatprintsApiModuleEvents } from './BeatprintsApi.types';
 
 declare class BeatprintsApiModule extends NativeModule<BeatprintsApiModuleEvents> {
   PI: number;
-  hello(): string;
+  pythonVersion(): string;
+  testCall(): string;
   setValueAsync(value: string): Promise<void>;
 }
 

@@ -1,0 +1,43 @@
+syntax = 'proto3';
+
+import "google/protobuf/struct.proto";
+
+package mason.blueprint;
+
+message Port {
+  string name = 1;
+  string value = 2;
+  string format = 3;
+  string label = 4;
+  string type = 5;
+  string direction = 6;
+}
+
+message Connection {
+  string source = 1;
+  google.protobuf.ListValue targets = 2;
+}
+
+message Node {
+  string uid = 1;
+  string label = 2;
+  string type = 3;
+
+  map<string, Port> ports = 4;
+  map<string, Node> nodes = 5;
+  repeated string signals = 6;
+  repeated string slots = 7;
+
+  map<string, string> set = 8;
+  map<string, string> types = 9;
+  map<string, google.protobuf.ListValue> connect = 10;
+}
+
+message Blueprint {
+  string uid = 1;
+  string label = 2;
+  string type = 3;
+  string version = 4;
+
+  map<string, Node> nodes = 5;
+}

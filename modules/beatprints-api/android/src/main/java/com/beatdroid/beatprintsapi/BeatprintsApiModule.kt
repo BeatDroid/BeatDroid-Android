@@ -26,23 +26,68 @@ class BeatprintsApiModule : Module() {
     Events("onChange")
 
     // Defines a JavaScript synchronous function that runs the native code on the JavaScript thread.
-    Function("hello") {
-      try {
-        // Initialize Python if not already initialized
-        if (!Python.isStarted()) {
-          Python.start(AndroidPlatform(appContext.reactContext!!))
+    fun startPython() {
+      // Initialize Python if not already initialized
+        try {
+            if (!Python.isStarted()) {
+              Python.start(AndroidPlatform(appContext.reactContext!!))
+            }
+        } catch (e: Exception) {
+          throw Exception("Error starting Python: ${e.message}")
         }
-        
+    }
+
+    Function("pythonVersion") {
+      try {
+        startPython()
+
         // Get Python instance and execute Python code to get version
         val python = Python.getInstance()
         val sys = python.getModule("sys")
         val version = sys["version"].toString()
-        
-        Toast.makeText(appContext.reactContext, "Python version: $version", Toast.LENGTH_LONG).show()
 
         "Python version: $version 🐍"
       } catch (e: Exception) {
+        Toast.makeText(appContext.reactContext, e.message, Toast.LENGTH_LONG).show()
         "Error getting Python version: ${e.message} ❌"
+      }
+    }
+
+    Function("testCall") {
+      try {
+        startPython()
+
+        // Get Python instance
+        val py = Python.getInstance()
+        
+        // Try to add the Python source path manually
+        val sys = py.getModule("sys")
+        val path = sys["path"]
+        
+        // Add potential paths where our Python files might be
+        val potentialPaths = listOf(
+          "/android_asset/python",
+          "python",
+          ".",
+          "src/main/python"
+        )
+        
+        for (pythonPath in potentialPaths) {
+          try {
+            path?.callAttr("insert", 0, pythonPath)
+          } catch (e: Exception) {
+            // Ignore path insertion errors
+          }
+        }
+        
+        // Now try to import the module
+        val testModule = py.getModule("beatdroid.beatprintsapi.modules")
+        val result = testModule.callAttr("test_beatprints_setup")
+        
+        result.toString()
+      } catch (e: Exception) {
+        Toast.makeText(appContext.reactContext, e.message, Toast.LENGTH_LONG).show()
+        "Error calling test_beatprints_setup: ${e.message} ❌"
       }
     }
 

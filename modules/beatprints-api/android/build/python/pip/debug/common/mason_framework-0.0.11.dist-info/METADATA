@@ -1,0 +1,19 @@
+Metadata-Version: 2.1
+Name: mason-framework
+Version: 0.0.11
+Summary: Node based building blocks.
+Author: Eric Hulser
+Author-email: eric.hulser@gmail.com
+Requires-Python: >=3.7,<4.0
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.7
+Classifier: Programming Language :: Python :: 3.8
+Provides-Extra: aiohttp
+Provides-Extra: sanic
+Requires-Dist: aiohttp (>=3.7.4,<4.0.0); extra == "aiohttp"
+Requires-Dist: aiohttp_cors (>=0.7.0,<0.8.0); extra == "aiohttp"
+Requires-Dist: click (>=7.1.2,<8.0.0)
+Requires-Dist: protobuf (>=3.13.0,<4.0.0)
+Requires-Dist: pyyaml (>=5.3.1,<6.0.0)
+Requires-Dist: sanic (>=20.3.0,<21.0.0); extra == "sanic"
+Requires-Dist: sanic-cors (>=0.10.0,<0.11.0); extra == "sanic"
