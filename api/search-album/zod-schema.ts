@@ -21,11 +21,17 @@ export const searchAlbumRequestSchema = z.object({
 });
 
 export const searchAlbumResponseSchema = z.object({
+  data: z.object({
+    filePath: z.string(),
+    thumbhash: z.string(),
+    type: z.string(),
+    albumName: z.string(),
+    artistName: z.string(),
+  }).optional(),
   message: z.string(),
-  albumName: z.string(),
-  artistName: z.string(),
-  filePath: z.string(),
-  blurhash: z.string()
+  success: z.boolean(),
+  error: z.string().optional(),
+  details: z.string().optional(),
 });
 
 export type SearchAlbumRequest = z.infer<typeof searchAlbumRequestSchema>;

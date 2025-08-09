@@ -118,8 +118,8 @@ function NavigationStack() {
 
   React.useEffect(() => {
     const setTokenAsync = async () => {
-      if (genTokenApi.isSuccess) {
-        setToken(genTokenApi.data.access_token);
+      if (genTokenApi.isSuccess && genTokenApi.data.success) {
+        setToken(genTokenApi.data.data!.access_token);
       }
     };
 

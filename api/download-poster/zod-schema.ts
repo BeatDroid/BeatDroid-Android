@@ -5,7 +5,14 @@ export const getPosterRequestSchema = z.object({
 });
 
 export const getPosterResponseSchema = z.object({
-  image: z.string().min(1, "Image data is required"),
+  success: z.boolean(),
+  message: z.string(),
+  data: z.object({
+    image: z.string(),
+    filename: z.string(),
+  }).optional(),
+  error: z.string().optional(),
+  details: z.string().optional(),
 });
 
 export type GetPosterRequest = z.infer<typeof getPosterRequestSchema>;

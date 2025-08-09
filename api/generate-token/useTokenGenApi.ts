@@ -10,7 +10,7 @@ export function useTokenGenApi(): UseTokenGenApi {
   const genTokenApi = useCustomQuery({
     queryKey: ["genTokenApi"],
     queryFn: genToken,
-    retry: 2,
+    retry: 3,
     staleTime: 1000 * 60 * 30, // 30 minutes
   });
   

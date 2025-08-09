@@ -27,7 +27,7 @@ import {
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Text } from "@/components/ui/text";
-import { searchHistoryTable } from "@/db/schema";
+import { searchHistoryTable, type NewSearchHistory } from "@/db/schema";
 import useDatabase from "@/hooks/useDatabase";
 import { useResponsiveLayout } from "@/hooks/useResponsiveLayout";
 import { themes } from "@/lib/constants";
@@ -124,13 +124,13 @@ export default function Search() {
     router.navigate({
       pathname: "/poster-view",
       params: {
-        posterPath: data.filePath,
-        blurhash: data.blurhash,
+        posterPath: data.data?.filePath,
+        blurhash: data.data?.thumbhash,
         searchParam:
-          "track_name" in variables
-            ? variables.track_name
-            : variables.album_name,
-        artistName: variables.artist_name,
+          "trackName" in data.data!
+            ? data.data!.trackName
+            : data.data!.albumName,
+        artistName: data.data!.artistName,
         theme: variables.theme,
         accentLine: variables.accent.toString(),
       },
@@ -245,18 +245,19 @@ export default function Search() {
     responeData: SearchAlbumResponse | SearchTrackResponse,
     passedVariables: SearchAlbumRequest | SearchTrackRequest
   ) => {
-    await db.insert(searchHistoryTable).values({
-      searchType: "album_name" in passedVariables ? "Album" : "Track",
-      searchParam:
-        "albumName" in responeData
-          ? responeData.albumName
-          : responeData.trackName,
-      artistName: responeData.artistName,
+    const insertData: NewSearchHistory = {
+      searchType: "albumName" in responeData.data! ? "Album" : "Track",
+      searchParam: "trackName" in responeData.data!
+            ? responeData.data!.trackName
+            : responeData.data!.albumName,
+      artistName: responeData.data!.artistName,
       theme: passedVariables.theme,
       accentLine: passedVariables.accent,
-      blurhash: responeData.blurhash,
+      blurhash: responeData.data!.thumbhash,
       createdAt: new Date(),
-    });
+    };
+    
+    await db.insert(searchHistoryTable).values(insertData);
   };
 
   return (

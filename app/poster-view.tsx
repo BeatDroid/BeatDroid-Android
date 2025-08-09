@@ -47,7 +47,7 @@ export default function Result() {
       <View className="flex-1">
         <AnimatedImage
           loading={posterApi.isFetching}
-          uri={posterApi.data?.image!}
+          uri={posterApi.data?.data?.image!}
           blurhash={blurhash!}
           onPress={() => {
             setIsLoaded(true);
@@ -61,7 +61,7 @@ export default function Result() {
       <AnimatedConfirmButton
         title="Download"
         disabled={!isLoaded}
-        onPress={() => handleDownloadPoster(posterApi.data?.image!, searchParam!, artistName!, theme!, accentLine!)}
+        onPress={() => handleDownloadPoster(posterApi.data?.data?.image!, searchParam!, artistName!, theme!, accentLine!)}
       />
     </Background>
   );

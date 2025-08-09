@@ -21,11 +21,17 @@ export const searchTrackRequestSchema = z.object({
 });
 
 export const searchTrackResponseSchema = z.object({
+  data: z.object({
+    filePath: z.string(),
+    thumbhash: z.string(),
+    type: z.string(),
+    trackName: z.string(),
+    artistName: z.string(),
+  }).optional(),
   message: z.string(),
-  trackName: z.string(),
-  artistName: z.string(),
-  filePath: z.string(),
-  blurhash: z.string()
+  success: z.boolean(),
+  error: z.string().optional(),
+  details: z.string().optional(),
 });
 
 export type SearchTrackRequest = z.infer<typeof searchTrackRequestSchema>;

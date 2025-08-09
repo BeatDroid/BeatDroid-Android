@@ -5,7 +5,14 @@ export const genTokenRequestSchema = z.object({
 });
 
 export const genTokenResponseSchema = z.object({
-  access_token: z.string().min(1, "Access token is required"),
+  data: z.object({
+    access_token: z.string().min(1, "Access token is required"),
+    device_id: z.string().min(1, "Device ID is required"),
+    is_new_device: z.boolean(),
+  }).optional(),
+  message: z.string(),
+  success: z.boolean(),
+  error: z.string().optional(),
 });
 
 export type GenTokenRequest = z.infer<typeof genTokenRequestSchema>;
