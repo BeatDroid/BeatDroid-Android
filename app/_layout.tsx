@@ -115,12 +115,12 @@ function ProviderStack() {
 function NavigationStack() {
   const genTokenApi = useTokenGenApi();
   const { setToken } = useAuth();
-  
+
   React.useEffect(() => {
-    const id = toast("Fetching token.", {
-      duration: 1000,
-    });
     const setTokenAsync = async () => {
+      const id = toast("Fetching token.", {
+        duration: 1000,
+      });
       if (genTokenApi.isSuccess && genTokenApi.data.success) {
         setToken(genTokenApi.data.data!.access_token);
         toast.success("App initialized successfully", {
@@ -131,7 +131,8 @@ function NavigationStack() {
       } else if (genTokenApi.isError) {
         toast.error("Cannot initialize app", {
           id,
-          description: genTokenApi.error?.message + "\nRestart app to try again",
+          description:
+            genTokenApi.error?.message + "\nRestart app to try again",
           duration: Infinity,
           dismissible: false,
         });
@@ -139,7 +140,13 @@ function NavigationStack() {
     };
 
     setTokenAsync();
-  }, [genTokenApi.isSuccess, genTokenApi.data, genTokenApi.isError, genTokenApi.error, setToken]);
+  }, [
+    genTokenApi.isSuccess,
+    genTokenApi.data,
+    genTokenApi.isError,
+    genTokenApi.error,
+    setToken,
+  ]);
 
   return (
     <Stack screenOptions={{ headerShown: false }}>
