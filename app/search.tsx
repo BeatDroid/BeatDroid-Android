@@ -125,7 +125,7 @@ export default function Search() {
       pathname: "/poster-view",
       params: {
         posterPath: data.data?.filePath,
-        blurhash: data.data?.thumbhash,
+        blurhash: data.data?.blurhash,
         searchParam:
           "trackName" in data.data!
             ? data.data!.trackName
@@ -253,7 +253,7 @@ export default function Search() {
       artistName: responeData.data!.artistName,
       theme: passedVariables.theme,
       accentLine: passedVariables.accent,
-      blurhash: responeData.data!.thumbhash,
+      blurhash: responeData.data!.blurhash,
       createdAt: new Date(),
     };
     

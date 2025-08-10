@@ -23,7 +23,7 @@ export const searchAlbumRequestSchema = z.object({
 export const searchAlbumResponseSchema = z.object({
   data: z.object({
     filePath: z.string(),
-    thumbhash: z.string(),
+    blurhash: z.string(),
     type: z.string(),
     albumName: z.string(),
     artistName: z.string(),

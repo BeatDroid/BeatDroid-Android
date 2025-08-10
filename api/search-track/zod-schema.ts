@@ -23,7 +23,7 @@ export const searchTrackRequestSchema = z.object({
 export const searchTrackResponseSchema = z.object({
   data: z.object({
     filePath: z.string(),
-    thumbhash: z.string(),
+    blurhash: z.string(),
     type: z.string(),
     trackName: z.string(),
     artistName: z.string(),
