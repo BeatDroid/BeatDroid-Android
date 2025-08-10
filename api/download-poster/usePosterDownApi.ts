@@ -4,7 +4,7 @@ import { getPoster } from "./getPoster";
 import { GetPosterResponse } from "./zod-schema";
 
 export type UsePosterDownApi = ReturnType<
-  typeof useCustomQuery<GetPosterResponse>
+  typeof useCustomQuery<GetPosterResponse, GetPosterResponse>
 >;
 
 export function usePosterDownApi({
@@ -13,7 +13,7 @@ export function usePosterDownApi({
   posterPath: string;
 }): UsePosterDownApi {
   const { token } = useAuth();
-  const getPosterApi = useCustomQuery({
+  const getPosterApi = useCustomQuery<GetPosterResponse, GetPosterResponse>({
     queryKey: ["usePosterDownApi"],
     queryFn: () => getPoster(token, posterPath),
   });

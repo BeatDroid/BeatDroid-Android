@@ -3,11 +3,11 @@ import { genToken } from "./genToken";
 import type { GenTokenResponse } from "./zod-schema";
 
 export type UseTokenGenApi = ReturnType<
-  typeof useCustomQuery<GenTokenResponse>
+  typeof useCustomQuery<GenTokenResponse, GenTokenResponse>
 >;
 
 export function useTokenGenApi(): UseTokenGenApi {
-  const genTokenApi = useCustomQuery({
+  const genTokenApi = useCustomQuery<GenTokenResponse, GenTokenResponse>({
     queryKey: ["genTokenApi"],
     queryFn: genToken,
     retry: 3,
