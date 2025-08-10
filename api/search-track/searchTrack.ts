@@ -42,7 +42,8 @@ export async function searchTrack(
     if (error.name === "HTTPError") {
       const errorJson = await error.response.json();
       throw new Error(errorJson.message);
-    }
-    throw "Please try again";
+    } else if (__DEV__) {
+      throw error;
+    } else throw "Please try again";
   }
 }
