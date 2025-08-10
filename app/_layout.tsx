@@ -23,7 +23,7 @@ import { ActivityIndicator, Platform } from "react-native";
 import { SystemBars } from "react-native-edge-to-edge";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { KeyboardProvider } from "react-native-keyboard-controller";
-import { Toaster } from "sonner-native";
+import { toast, Toaster } from "sonner-native";
 import { NAV_THEME } from "~/lib/constants";
 import { useColorScheme } from "~/lib/useColorScheme";
 
@@ -115,16 +115,22 @@ function ProviderStack() {
 function NavigationStack() {
   const genTokenApi = useTokenGenApi();
   const { setToken } = useAuth();
-
+  
   React.useEffect(() => {
+    const id = toast("Fetching token.");
     const setTokenAsync = async () => {
       if (genTokenApi.isSuccess && genTokenApi.data.success) {
         setToken(genTokenApi.data.data!.access_token);
+      } else if (genTokenApi.isError) {
+        toast.error("Cannot initialize app", {
+          id,
+          description: genTokenApi.error?.message + "\nRestart app to try again",
+        });
       }
     };
 
     setTokenAsync();
-  }, [genTokenApi.isSuccess, genTokenApi.data, setToken]);
+  }, [genTokenApi.isSuccess, genTokenApi.data, genTokenApi.isError, genTokenApi.error, setToken]);
 
   return (
     <Stack screenOptions={{ headerShown: false }}>
