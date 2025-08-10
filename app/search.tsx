@@ -144,7 +144,10 @@ export default function Search() {
       description = String((error as { message?: unknown }).message);
     }
     toast.error("Search failed", {
-      description: description || "Please try again",
+      description:
+        description === ""
+          ? "An error occurred. Please try again."
+          : description,
     });
   };
 
@@ -247,16 +250,17 @@ export default function Search() {
   ) => {
     const insertData: NewSearchHistory = {
       searchType: "albumName" in responeData.data! ? "Album" : "Track",
-      searchParam: "trackName" in responeData.data!
-            ? responeData.data!.trackName
-            : responeData.data!.albumName,
+      searchParam:
+        "trackName" in responeData.data!
+          ? responeData.data!.trackName
+          : responeData.data!.albumName,
       artistName: responeData.data!.artistName,
       theme: passedVariables.theme,
       accentLine: passedVariables.accent,
       blurhash: responeData.data!.blurhash,
       createdAt: new Date(),
     };
-    
+
     await db.insert(searchHistoryTable).values(insertData);
   };
 
