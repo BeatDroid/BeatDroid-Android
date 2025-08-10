@@ -117,14 +117,23 @@ function NavigationStack() {
   const { setToken } = useAuth();
   
   React.useEffect(() => {
-    const id = toast("Fetching token.");
+    const id = toast("Fetching token.", {
+      duration: 1000,
+    });
     const setTokenAsync = async () => {
       if (genTokenApi.isSuccess && genTokenApi.data.success) {
         setToken(genTokenApi.data.data!.access_token);
+        toast.success("App initialized successfully", {
+          id,
+          description: "Enjoy your posters!",
+          duration: 2000,
+        });
       } else if (genTokenApi.isError) {
         toast.error("Cannot initialize app", {
           id,
           description: genTokenApi.error?.message + "\nRestart app to try again",
+          duration: Infinity,
+          dismissible: false,
         });
       }
     };
