@@ -26,6 +26,31 @@ import { KeyboardProvider } from "react-native-keyboard-controller";
 import { toast, Toaster } from "sonner-native";
 import { NAV_THEME } from "~/lib/constants";
 import { useColorScheme } from "~/lib/useColorScheme";
+import * as Sentry from "@sentry/react-native";
+
+const navigationIntegration = Sentry.reactNavigationIntegration({
+  enableTimeToInitialDisplay: true,
+});
+
+Sentry.init({
+  dsn: "https://9fdfe8adf7d5878863ddfb6c6c9d8307@o4509837047037952.ingest.de.sentry.io/4509837060341840",
+
+  // Adds more context data to events (IP address, cookies, user, etc.)
+  // For more information, visit: https://docs.sentry.io/platforms/react-native/data-management/data-collected/
+  sendDefaultPii: true,
+
+  // Configure Session Replay
+  replaysSessionSampleRate: 0.1,
+  replaysOnErrorSampleRate: 1,
+  integrations: [
+    navigationIntegration,
+    Sentry.mobileReplayIntegration(),
+    Sentry.feedbackIntegration(),
+  ],
+
+  // uncomment the line below to enable Spotlight (https://spotlightjs.com)
+  // spotlight: __DEV__,
+});
 
 SplashScreen.preventAutoHideAsync();
 
@@ -38,9 +63,9 @@ const DARK_THEME: Theme = {
   colors: NAV_THEME.dark,
 };
 
-export default function RootLayout() {
+export default Sentry.wrap(function RootLayout() {
   return <ProviderStack />;
-}
+});
 
 function ProviderStack() {
   const hasMounted = React.useRef(false);
