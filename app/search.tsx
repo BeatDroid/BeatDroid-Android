@@ -38,6 +38,7 @@ import { notificationHaptic, selectionHaptic } from "@/utils/haptic-utils";
 import { selectPoster } from "@/utils/poster-utils";
 import { searchRegex } from "@/utils/text-utls";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
+import * as Sentry from "@sentry/react-native";
 import { useDrizzleStudio } from "expo-drizzle-studio-plugin";
 import { router, useLocalSearchParams } from "expo-router";
 import { cssInterop } from "nativewind";
@@ -116,6 +117,20 @@ export default function Search() {
     setArtistNameDefault(selector.artistName);
   }, [searchType]);
 
+  const onMutate = (variables: SearchAlbumRequest | SearchTrackRequest) => {
+    const searchParam = 'track_name' in variables 
+      ? variables.track_name 
+      : variables.album_name;
+  
+    Sentry.setContext("Search Input", {
+      searchType,
+      searchParam,
+      artistName: variables.artist_name,
+      theme: variables.theme,
+      accentLine: variables.accent,
+    });
+  };
+
   const onSuccess = (
     data: SearchAlbumResponse | SearchTrackResponse,
     variables: SearchAlbumRequest | SearchTrackRequest
@@ -152,11 +167,13 @@ export default function Search() {
   };
 
   const searchAlbumApi = useAlbumSearchApi({
+    onMutate,
     onSuccess,
     onError,
   });
 
   const searchTrackApi = useTrackSearchApi({
+    onMutate,
     onSuccess,
     onError,
   });

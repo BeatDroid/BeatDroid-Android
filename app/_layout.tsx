@@ -14,7 +14,7 @@ import {
 } from "@react-navigation/native";
 import { PortalHost } from "@rn-primitives/portal";
 import { QueryClientProvider } from "@tanstack/react-query";
-import { Stack } from "expo-router";
+import { Stack, useNavigationContainerRef } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import { SQLiteProvider } from "expo-sqlite";
 import * as SystemUI from "expo-system-ui";
@@ -32,25 +32,27 @@ const navigationIntegration = Sentry.reactNavigationIntegration({
   enableTimeToInitialDisplay: true,
 });
 
-Sentry.init({
-  dsn: "https://9fdfe8adf7d5878863ddfb6c6c9d8307@o4509837047037952.ingest.de.sentry.io/4509837060341840",
+if (!__DEV__) {
+  Sentry.init({
+    dsn: "https://9fdfe8adf7d5878863ddfb6c6c9d8307@o4509837047037952.ingest.de.sentry.io/4509837060341840",
+    sendDefaultPii: true,
+    tracesSampleRate: 1,
+    profilesSampleRate: 1,
+    replaysSessionSampleRate: 0.1,
+    replaysOnErrorSampleRate: 1,
+    integrations: [
+      navigationIntegration,
+      Sentry.mobileReplayIntegration(),
+      Sentry.feedbackIntegration(),
+      Sentry.hermesProfilingIntegration({
+        platformProfilers: false,
+      }),
+    ],
+  });
 
-  // Adds more context data to events (IP address, cookies, user, etc.)
-  // For more information, visit: https://docs.sentry.io/platforms/react-native/data-management/data-collected/
-  sendDefaultPii: true,
-
-  // Configure Session Replay
-  replaysSessionSampleRate: 0.1,
-  replaysOnErrorSampleRate: 1,
-  integrations: [
-    navigationIntegration,
-    Sentry.mobileReplayIntegration(),
-    Sentry.feedbackIntegration(),
-  ],
-
-  // uncomment the line below to enable Spotlight (https://spotlightjs.com)
-  // spotlight: __DEV__,
-});
+  // I dont want your ip address
+  Sentry.setUser({ ip_address: "0.0.0.0" });
+}
 
 SplashScreen.preventAutoHideAsync();
 
@@ -64,6 +66,13 @@ const DARK_THEME: Theme = {
 };
 
 export default Sentry.wrap(function RootLayout() {
+  const ref = useNavigationContainerRef();
+  React.useEffect(() => {
+    if (ref) {
+      navigationIntegration.registerNavigationContainer(ref);
+    }
+  }, [ref]);
+
   return <ProviderStack />;
 });
 

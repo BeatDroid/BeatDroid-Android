@@ -1,3 +1,4 @@
+import * as Sentry from "@sentry/react-native";
 import { Image } from "expo-image";
 import { useFocusEffect } from "expo-router";
 import { cssInterop } from "nativewind";
@@ -123,4 +124,4 @@ const AnimatedImage = ({ uri, blurhash, loading = true }: Props) => {
   );
 };
 
-export default AnimatedImage;
+export default Sentry.withProfiler(AnimatedImage);
