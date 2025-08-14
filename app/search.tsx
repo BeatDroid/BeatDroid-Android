@@ -27,6 +27,7 @@ import {
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Text } from "@/components/ui/text";
+import { useAuth } from "@/contexts/auth-context";
 import { searchHistoryTable, type NewSearchHistory } from "@/db/schema";
 import useDatabase from "@/hooks/useDatabase";
 import { useResponsiveLayout } from "@/hooks/useResponsiveLayout";
@@ -67,6 +68,7 @@ export default function Search() {
     }>();
 
   const { db } = useDatabase();
+  const { isTokenSet } = useAuth();
   useDrizzleStudio(db);
   const insets = useSafeAreaInsets();
   const isNarrow = useResponsiveLayout(400);
@@ -118,10 +120,9 @@ export default function Search() {
   }, [searchType]);
 
   const onMutate = (variables: SearchAlbumRequest | SearchTrackRequest) => {
-    const searchParam = 'track_name' in variables 
-      ? variables.track_name 
-      : variables.album_name;
-  
+    const searchParam =
+      "track_name" in variables ? variables.track_name : variables.album_name;
+
     Sentry.setContext("Search Input", {
       searchType,
       searchParam,
@@ -454,8 +455,8 @@ export default function Search() {
         </View>
       </KeyboardAwareScrollView>
       <AnimatedConfirmButton
-        title="Create Poster"
-        loading={searchAlbumApi.isPending || searchTrackApi.isPending}
+        title={"Create Poster"}
+        loading={searchAlbumApi.isPending || searchTrackApi.isPending || !isTokenSet}
         onPress={search}
         disabled={searchType === "Choose type"}
       />

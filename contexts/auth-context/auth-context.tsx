@@ -16,6 +16,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const value = {
     token,
+    isTokenSet: token !== "",
     setToken,
     clearToken,
   };

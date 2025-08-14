@@ -27,6 +27,10 @@ import { toast, Toaster } from "sonner-native";
 import { NAV_THEME } from "~/lib/constants";
 import { useColorScheme } from "~/lib/useColorScheme";
 import * as Sentry from "@sentry/react-native";
+import { Button } from "@/components/ui/button";
+import { Text } from "@/components/ui/text";
+import FontAwesome from "@expo/vector-icons/FontAwesome";
+import { useRef } from "react";
 
 const navigationIntegration = Sentry.reactNavigationIntegration({
   enableTimeToInitialDisplay: true,
@@ -149,36 +153,52 @@ function ProviderStack() {
 function NavigationStack() {
   const genTokenApi = useTokenGenApi();
   const { setToken } = useAuth();
+  const id = useRef<string | number>("");
+
+  React.useEffect(() => {
+    id.current = toast.loading("Fetching token.", {
+      duration: 1000,
+    });
+  }, [])
 
   React.useEffect(() => {
     const setTokenAsync = async () => {
-      const id = toast("Fetching token.", {
-        duration: 1000,
-      });
       if (genTokenApi.isSuccess && genTokenApi.data.success) {
         setToken(genTokenApi.data.data!.access_token);
         toast.success("App initialized successfully", {
-          id,
+          id: id.current,
           description: "Enjoy your posters!",
           duration: 2000,
         });
       } else if (genTokenApi.isError) {
         toast.error("Cannot initialize app", {
-          id,
+          id: id.current,
           description:
             genTokenApi.error?.message + "\nRestart app to try again",
           duration: Infinity,
-          dismissible: false,
+          dismissible: __DEV__,
+          action: (
+            <Button
+              size="sm"
+              variant="outline"
+              onPress={() => {
+                toast.dismiss(id.current);
+                genTokenApi.refetch();
+              }}
+              className="flex-row items-center gap-3"
+            >
+              <Text>Try again</Text>
+              <FontAwesome name="repeat" size={16} color="white" />
+            </Button>
+          ),
         });
+        toast.wiggle(id.current);
       }
     };
 
     setTokenAsync();
   }, [
-    genTokenApi.isSuccess,
-    genTokenApi.data,
-    genTokenApi.isError,
-    genTokenApi.error,
+    genTokenApi,
     setToken,
   ]);
 
