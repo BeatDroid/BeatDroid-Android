@@ -1,6 +1,17 @@
+import { Text } from "@/components/ui/text";
+import FontAwesome from "@expo/vector-icons/FontAwesome";
 import NetInfo from "@react-native-community/netinfo";
 import { onlineManager } from "@tanstack/react-query";
-import React, { createContext, useContext, useState, useEffect } from "react";
+import { cssInterop } from "nativewind";
+import React, { createContext, useContext, useEffect, useState } from "react";
+import { useDialog } from "../dialog-context/dialog-context";
+
+const FontawesomeIcon = cssInterop(FontAwesome, {
+  className: {
+    target: "style",
+    nativeStyleToProp: { color: true },
+  },
+});
 
 interface NetworkContextType {
   isOnline: boolean;
@@ -10,18 +21,19 @@ const NetworkContext = createContext<NetworkContextType | null>(null);
 
 export function NetworkProvider({ children }: { children: React.ReactNode }) {
   const [isOnline, setIsOnline] = useState<boolean>(true);
+  const { setVisible, setContent } = useDialog();
 
   useEffect(() => {
     // Initial check
-    NetInfo.fetch().then(state => {
-      const isConnected = !!state.isConnected;
+    NetInfo.fetch().then((state) => {
+      const isConnected = !!state.isInternetReachable;
       setIsOnline(isConnected);
       onlineManager.setOnline(isConnected);
     });
 
     // Subscribe to updates
     const unsubscribeNetInfo = NetInfo.addEventListener((state) => {
-      const isConnected = !!state.isConnected;
+      const isConnected = !!state.isInternetReachable;
       setIsOnline(isConnected);
       onlineManager.setOnline(isConnected);
     });
@@ -31,14 +43,43 @@ export function NetworkProvider({ children }: { children: React.ReactNode }) {
     };
   }, []);
 
-  const value = React.useMemo(() => ({
-    isOnline
-  }), [isOnline]);
+  useEffect(() => {
+    if (!isOnline) {
+      setVisible(true);
+      setContent({
+        content: (
+          <>
+            <Text className="mt-5 text-2xl font-bold text-center text-foreground">
+              No internet connection
+            </Text>
+            <Text className="text-base text-center text-foreground">
+              Please check your internet connection and try again. This app
+              requires an active internet connection to function properly.
+            </Text>
+          </>
+        ),
+        icon: (
+          <FontawesomeIcon
+            className="text-destructive"
+            name="chain-broken"
+            size={50}
+          />
+        ),
+      });
+    } else {
+      setVisible(false);
+    }
+  }, [isOnline, setContent, setVisible]);
+
+  const value = React.useMemo(
+    () => ({
+      isOnline,
+    }),
+    [isOnline]
+  );
 
   return (
-    <NetworkContext.Provider value={value}>
-      {children}
-    </NetworkContext.Provider>
+    <NetworkContext.Provider value={value}>{children}</NetworkContext.Provider>
   );
 }
 

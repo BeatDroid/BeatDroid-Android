@@ -1,32 +1,31 @@
-import { useNetwork } from "@/contexts/network-context";
-import FontAwesome from "@expo/vector-icons/FontAwesome";
-import { cssInterop } from "nativewind";
 import React, { useEffect } from "react";
-import { Text } from "react-native";
 import Animated, {
-  Easing,
-  Extrapolation,
-  interpolate,
-  runOnJS,
-  useAnimatedStyle,
-  useSharedValue,
-  withSequence,
-  withTiming,
+    Easing,
+    Extrapolation,
+    interpolate,
+    runOnJS,
+    useAnimatedStyle,
+    useSharedValue,
+    withSequence,
+    withTiming,
 } from "react-native-reanimated";
 
-const FontawesomeIcon = cssInterop(FontAwesome, {
-  className: {
-    target: "style",
-    nativeStyleToProp: { color: true },
-  },
-});
+interface AnimatedOverlayProps {
+  visible: boolean;
+  onClose: () => void;
+  icon?: React.ReactNode;
+  content?: React.ReactNode;
+}
 
-const NetworkOverlay = () => {
-  const isOnline = useNetwork();
-  const [isVisible, setIsVisible] = React.useState(false);
-
+const AnimatedOverlay = ({
+  visible = false,
+  onClose,
+  icon = null,
+  content = null,
+}: AnimatedOverlayProps) => {
+  const [isDialogVisible, setIsDialogVisible] = React.useState(false);
   const fadeAnim = useSharedValue(0);
-  const slideAnim = useSharedValue(50);
+  const slideAnim = useSharedValue(-50);
   const rotateAnim = useSharedValue(0);
   const isMounted = useSharedValue(false);
 
@@ -39,7 +38,12 @@ const NetworkOverlay = () => {
   const animatedContainerStyle = useAnimatedStyle(() => {
     return {
       transform: [{ translateY: slideAnim.value }],
-      opacity: interpolate(slideAnim.value, [0, 50], [1, 0], Extrapolation.CLAMP),
+      opacity: interpolate(
+        slideAnim.value,
+        [0, 50],
+        [1, 0],
+        Extrapolation.CLAMP
+      ),
     };
   });
 
@@ -50,8 +54,8 @@ const NetworkOverlay = () => {
   });
 
   useEffect(() => {
-    if (!isOnline) {
-      setIsVisible(true);
+    if (visible) {
+      setIsDialogVisible(true);
       isMounted.value = true;
 
       fadeAnim.value = withTiming(0.7, {
@@ -91,14 +95,21 @@ const NetworkOverlay = () => {
           easing: Easing.in(Easing.quad),
         },
         () => {
-          runOnJS(setIsVisible)(false);
+          runOnJS(setIsDialogVisible)(false);
+          runOnJS(onClose)();
           isMounted.value = false;
         }
       );
     }
-  }, [fadeAnim, isMounted, isOnline, rotateAnim, slideAnim]);
+  }, [fadeAnim, isMounted, rotateAnim, slideAnim, onClose, visible]);
 
-  if (!isVisible) {
+  useEffect(() => {
+    if (!visible && !isDialogVisible) {
+      slideAnim.value = -50;
+    }
+  }, [visible, isDialogVisible, slideAnim]);
+
+  if (!isDialogVisible) {
     return null;
   }
 
@@ -125,23 +136,13 @@ const NetworkOverlay = () => {
           },
         ]}
       >
-        <Animated.View style={animatedIconStyle}>
-          <FontawesomeIcon
-            className="text-destructive"
-            name="chain-broken"
-            size={50}
-          />
-        </Animated.View>
-        <Text className="mt-5 text-2xl font-bold text-center text-foreground">
-          No internet connection
-        </Text>
-        <Text className="text-base text-center text-foreground">
-          Please check your internet connection and try again. This app requires
-          an active internet connection to function properly.
-        </Text>
+        {icon && (
+          <Animated.View style={animatedIconStyle}>{icon}</Animated.View>
+        )}
+        {content}
       </Animated.View>
     </>
   );
 };
 
-export default NetworkOverlay;
+export default AnimatedOverlay;

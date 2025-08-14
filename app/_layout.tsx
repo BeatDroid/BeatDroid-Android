@@ -2,10 +2,13 @@ import "~/global.css";
 
 import { useTokenGenApi } from "@/api/generate-token/useTokenGenApi";
 import { ErrorBoundary } from "@/components/error-boundary";
-import NetworkOverlay from "@/components/ui-custom/network-overlay";
+import { Button } from "@/components/ui/button";
+import { Text } from "@/components/ui/text";
 import queryClient from "@/config/queryClient";
 import { AuthProvider, useAuth } from "@/contexts/auth-context";
+import { DialogProvider } from "@/contexts/dialog-context/dialog-context";
 import { NetworkProvider } from "@/contexts/network-context";
+import FontAwesome from "@expo/vector-icons/FontAwesome";
 import {
   DarkTheme,
   DefaultTheme,
@@ -13,12 +16,14 @@ import {
   ThemeProvider,
 } from "@react-navigation/native";
 import { PortalHost } from "@rn-primitives/portal";
+import * as Sentry from "@sentry/react-native";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { Stack, useNavigationContainerRef } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import { SQLiteProvider } from "expo-sqlite";
 import * as SystemUI from "expo-system-ui";
 import * as React from "react";
+import { useRef } from "react";
 import { ActivityIndicator, Platform } from "react-native";
 import { SystemBars } from "react-native-edge-to-edge";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
@@ -26,11 +31,6 @@ import { KeyboardProvider } from "react-native-keyboard-controller";
 import { toast, Toaster } from "sonner-native";
 import { NAV_THEME } from "~/lib/constants";
 import { useColorScheme } from "~/lib/useColorScheme";
-import * as Sentry from "@sentry/react-native";
-import { Button } from "@/components/ui/button";
-import { Text } from "@/components/ui/text";
-import FontAwesome from "@expo/vector-icons/FontAwesome";
-import { useRef } from "react";
 
 const navigationIntegration = Sentry.reactNavigationIntegration({
   enableTimeToInitialDisplay: true,
@@ -113,34 +113,35 @@ function ProviderStack() {
           <GestureHandlerRootView>
             <KeyboardProvider>
               <AuthProvider>
-                <NetworkProvider>
-                  <QueryClientProvider client={queryClient}>
-                    <ThemeProvider
-                      value={isDarkColorScheme() ? DARK_THEME : LIGHT_THEME}
-                    >
-                      <SystemBars
-                        style={isDarkColorScheme() ? "light" : "dark"}
-                      />
-                      <NavigationStack />
-                      <PortalHost />
-                      <NetworkOverlay />
-                      <Toaster
-                        richColors
-                        position="bottom-center"
-                        autoWiggleOnUpdate="toast-change"
-                        duration={7000}
-                        offset={30}
-                        closeButton={true}
-                        toastOptions={{
-                          style: {
-                            borderWidth: 3,
-                            borderRadius: 7,
-                          },
-                        }}
-                      />
-                    </ThemeProvider>
-                  </QueryClientProvider>
-                </NetworkProvider>
+                <DialogProvider>
+                  <NetworkProvider>
+                    <QueryClientProvider client={queryClient}>
+                      <ThemeProvider
+                        value={isDarkColorScheme() ? DARK_THEME : LIGHT_THEME}
+                      >
+                        <SystemBars
+                          style={isDarkColorScheme() ? "light" : "dark"}
+                        />
+                        <NavigationStack />
+                        <PortalHost />
+                        <Toaster
+                          richColors
+                          position="bottom-center"
+                          autoWiggleOnUpdate="toast-change"
+                          duration={7000}
+                          offset={30}
+                          closeButton={true}
+                          toastOptions={{
+                            style: {
+                              borderWidth: 3,
+                              borderRadius: 7,
+                            },
+                          }}
+                        />
+                      </ThemeProvider>
+                    </QueryClientProvider>
+                  </NetworkProvider>
+                </DialogProvider>
               </AuthProvider>
             </KeyboardProvider>
           </GestureHandlerRootView>
@@ -159,7 +160,7 @@ function NavigationStack() {
     id.current = toast.loading("Fetching token.", {
       duration: 1000,
     });
-  }, [])
+  }, []);
 
   React.useEffect(() => {
     const setTokenAsync = async () => {
@@ -197,10 +198,7 @@ function NavigationStack() {
     };
 
     setTokenAsync();
-  }, [
-    genTokenApi,
-    setToken,
-  ]);
+  }, [genTokenApi, setToken]);
 
   return (
     <Stack screenOptions={{ headerShown: false }}>
