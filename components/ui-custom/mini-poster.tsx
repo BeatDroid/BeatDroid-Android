@@ -1,6 +1,7 @@
 import { themes } from "@/lib/constants";
 import { ThemeTypes } from "@/lib/types";
 import { cn } from "@/lib/utils";
+import * as Sentry from "@sentry/react-native";
 import React, { useEffect } from "react";
 import { View } from "react-native";
 import Animated, {
@@ -177,4 +178,4 @@ const MiniPoster = ({
   );
 };
 
-export default MiniPoster;
+export default Sentry.withProfiler(MiniPoster);
