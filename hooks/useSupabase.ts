@@ -4,27 +4,14 @@ import { useCallback, useState } from "react";
 import { NewSearchHistory, searchHistoryTable } from "@/db/schema";
 import { eq } from "drizzle-orm";
 import { supabase } from "@/config/supabase";
-import { ThemeTypes } from "@/lib/types";
 import {
   GoogleSignin,
   isErrorWithCode,
   isSuccessResponse,
-  statusCodes,
+  statusCodes
 } from "@react-native-google-signin/google-signin";
-
-interface SupabaseRecord {
-  id: number;
-  search_type: "Track" | "Album";
-  search_param: string;
-  artist_name: string;
-  theme: ThemeTypes;
-  accent_line: boolean;
-  created_at: number;
-  blurhash: string | null;
-  synced: boolean;
-  local_id: number;
-  user_id: string;
-}
+import { SupabaseRecord } from "@/lib/types";
+import * as Sentry from "@sentry/react-native";
 
 export default function useSupabase() {
   const network = useNetwork();
@@ -45,6 +32,14 @@ export default function useSupabase() {
         .where(eq(searchHistoryTable.synced, false));
 
       if (unsyncedRecords.length === 0) return;
+
+      Sentry.addBreadcrumb({
+        type: "debug",
+        category: "Supabase push",
+        level: "info",
+        message: `Pushing ${unsyncedRecords.length} local database entries to supabase`,
+        timestamp: Date.now(),
+      });
 
       const { data: authData } = await supabase.auth.getUser();
       const { error } = await supabase.from("search_history").upsert(
@@ -73,16 +68,36 @@ export default function useSupabase() {
         .where(eq(searchHistoryTable.synced, false));
     } catch (e) {
       console.log("Error syncing to Supabase:", e);
+      Sentry.captureException(e, {
+        tags: {
+          operation: "syncToSupabase",
+        },
+        contexts: {
+          database: {
+            operation: "sync_to_supabase",
+            table: "search_history",
+          },
+        },
+      });
     }
   }, [db, network]);
 
   const syncFromSupabase = useCallback(async () => {
+    if (!network) return;
     try {
       const { error, data } = await supabase.from("search_history").select("*");
 
       if (error) throw error;
 
       if (data.length === 0) return;
+
+      Sentry.addBreadcrumb({
+        type: "debug",
+        category: "Supabase pull",
+        level: "info",
+        message: `Pulling ${data.length} entries from supabase to local database`,
+        timestamp: Date.now(),
+      });
 
       if (data) {
         const newRecords = data.map(
@@ -106,13 +121,32 @@ export default function useSupabase() {
       }
     } catch (e) {
       console.log("Error syncing from Supabase:", e);
+      Sentry.captureException(e, {
+        tags: {
+          operation: "syncFromSupabase",
+        },
+        contexts: {
+          database: {
+            operation: "sync_from_supabase",
+            table: "search_history",
+          },
+        },
+      });
     }
-  }, [db]);
+  }, [db, network]);
 
   const supabaseLogin = useCallback(async () => {
+    if (!network) return;
     setLoading(true);
     try {
       await GoogleSignin.hasPlayServices();
+      Sentry.addBreadcrumb({
+        type: "debug",
+        category: "Google sign in",
+        level: "info",
+        message: `Play services available, attempting to sign in with Google`,
+        timestamp: Date.now(),
+      });
       setLoading(true);
       const response = await GoogleSignin.signIn();
       if (isSuccessResponse(response)) {
@@ -120,7 +154,16 @@ export default function useSupabase() {
           provider: "google",
           token: response.data.idToken!,
         });
-        if (error) throw { ...error, source: "supabase" };
+        if (error) {
+          Sentry.addBreadcrumb({
+            type: "error",
+            category: "Google sign in",
+            level: "error",
+            message: `Error caused by Supabase: ${error.message}`,
+            timestamp: Date.now(),
+          });
+          throw { ...error, source: "supabase" };
+        }
         setIsLoggedIn(true);
         await syncFromSupabase();
       } else {
@@ -140,6 +183,16 @@ export default function useSupabase() {
           default:
             // some other error happened
             console.log("Error signing in with Google:", error.message);
+            Sentry.captureException(error, {
+              tags: {
+                operation: "supabaseLogin",
+              },
+              contexts: {
+                tags: {
+                  operation: "google_sign_in_failure",
+                },
+              },
+            });
         }
       } else {
         console.log("Error signing in:", error);
@@ -148,22 +201,47 @@ export default function useSupabase() {
     } finally {
       setLoading(false);
     }
-  }, [syncFromSupabase]);
+  }, [network, syncFromSupabase]);
 
   const supabaseLoginCheck = async () => {
     const { data: authData } = await supabase.auth.getUser();
-    if (authData?.user !== null) setIsLoggedIn(true);
-    else setIsLoggedIn(false);
+    if (authData?.user !== null) {
+      setIsLoggedIn(true);
+      Sentry.addBreadcrumb({
+        type: "debug",
+        category: "Supabase login check",
+        level: "info",
+        message: `User is logged in with Supabase`,
+        timestamp: Date.now(),
+      });
+    } else {
+      setIsLoggedIn(false);
+      Sentry.addBreadcrumb({
+        type: "debug",
+        category: "Supabase login check",
+        level: "info",
+        message: `User is not logged in with Supabase`,
+        timestamp: Date.now(),
+      });
+    }
     setLoading(false);
   };
 
   const supabaseLogout = useCallback(async () => {
+    if (!network) return;
     setLoading(true);
     await supabase.auth.signOut();
     await GoogleSignin.signOut();
     await supabaseLoginCheck();
     setLoading(false);
-  }, []);
+    Sentry.addBreadcrumb({
+      type: "debug",
+      category: "Supabase login check",
+      level: "info",
+      message: `User has logged out of Supabase`,
+      timestamp: Date.now(),
+    });
+  }, [network]);
 
   return {
     syncToSupabase,
