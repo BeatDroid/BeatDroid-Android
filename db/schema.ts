@@ -27,19 +27,17 @@ export const searchHistoryTable = sqliteTable(
     accentLine: integer("accent_line", { mode: "boolean" })
       .notNull()
       .default(false),
-
-    artworkUrl: text("artwork_url"),
-    artworkSha256: text("artwork_sha256"),
     blurhash: text("blurhash"),
     createdAt: integer("created_at", { mode: "timestamp" })
       .notNull()
       .default(sql`(strftime('%s', 'now'))`),
+    synced: integer("synced", { mode: "boolean" }).notNull().default(false),
   },
   (table) => ({
     searchTypeIdx: index("search_type_idx").on(table.searchType),
     artistNameIdx: index("artist_name_idx").on(table.artistName),
     createdAtIdx: index("created_at_idx").on(table.createdAt),
-  })
+  }),
 );
 
 export type SearchHistory = typeof searchHistoryTable.$inferSelect;

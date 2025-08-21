@@ -1,13 +1,7 @@
 import { useAlbumSearchApi } from "@/api/search-album/useAlbumSearchApi";
-import {
-  SearchAlbumRequest,
-  SearchAlbumResponse,
-} from "@/api/search-album/zod-schema";
+import { SearchAlbumRequest, SearchAlbumResponse } from "@/api/search-album/zod-schema";
 import { useTrackSearchApi } from "@/api/search-track/useTrackSearchApi";
-import {
-  SearchTrackRequest,
-  SearchTrackResponse,
-} from "@/api/search-track/zod-schema";
+import { SearchTrackRequest, SearchTrackResponse } from "@/api/search-track/zod-schema";
 import AnimatedCard from "@/components/ui-custom/animated-card";
 import AnimatedConfirmButton from "@/components/ui-custom/animated-confirm-button";
 import AnimatedHeader from "@/components/ui-custom/animated-header";
@@ -22,13 +16,13 @@ import {
   DropdownMenuContent,
   DropdownMenuGroup,
   DropdownMenuItem,
-  DropdownMenuTrigger,
+  DropdownMenuTrigger
 } from "@/components/ui/dropdown-menu";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Text } from "@/components/ui/text";
 import { useAuth } from "@/contexts/auth-context";
-import { searchHistoryTable, type NewSearchHistory } from "@/db/schema";
+import { type NewSearchHistory, searchHistoryTable } from "@/db/schema";
 import useDatabase from "@/hooks/useDatabase";
 import { useResponsiveLayout } from "@/hooks/useResponsiveLayout";
 import { themes } from "@/lib/constants";
@@ -40,7 +34,6 @@ import { selectPoster } from "@/utils/poster-utils";
 import { searchRegex } from "@/utils/text-utls";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import * as Sentry from "@sentry/react-native";
-import { useDrizzleStudio } from "expo-drizzle-studio-plugin";
 import { router, useLocalSearchParams } from "expo-router";
 import { cssInterop } from "nativewind";
 import React, { useEffect, useRef, useState } from "react";
@@ -49,6 +42,7 @@ import { KeyboardAwareScrollView } from "react-native-keyboard-controller";
 import Animated, { FadeIn } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { toast } from "sonner-native";
+import useSupabase from "@/hooks/useSupabase";
 
 const ExpoMaterialCommunityIcons = cssInterop(MaterialCommunityIcons, {
   className: {
@@ -68,11 +62,11 @@ export default function Search() {
     }>();
 
   const { db } = useDatabase();
+  const { syncToSupabase } = useSupabase();
   const { isTokenSet } = useAuth();
-  useDrizzleStudio(db);
   const insets = useSafeAreaInsets();
   const isNarrow = useResponsiveLayout(400);
-  const { isDarkColorScheme, toggleColorScheme } = useColorScheme();
+  const { isDarkColorScheme } = useColorScheme();
   const searchParamRef = useRef<AnimatedInputRef>(null);
   const artistNameRef = useRef<AnimatedInputRef>(null);
   const [searchType, setSearchType] = useState<SearchType>("Choose type");
@@ -134,7 +128,7 @@ export default function Search() {
 
   const onSuccess = (
     data: SearchAlbumResponse | SearchTrackResponse,
-    variables: SearchAlbumRequest | SearchTrackRequest
+    variables: SearchAlbumRequest | SearchTrackRequest,
   ) => {
     saveToDb(data, variables);
     router.navigate({
@@ -184,13 +178,13 @@ export default function Search() {
     setSearchParam(
       sanitizedSearchParam && sanitizedSearchParam.length > 0
         ? sanitizedSearchParam
-        : undefined
+        : undefined,
     );
     const sanitizedArtistName = artistName?.trim();
     setArtistName(
       sanitizedArtistName && sanitizedArtistName.length > 0
         ? sanitizedArtistName
-        : undefined
+        : undefined,
     );
     artistNameRef.current?.blur();
     searchParamRef.current?.blur();
@@ -263,23 +257,25 @@ export default function Search() {
   };
 
   const saveToDb = async (
-    responeData: SearchAlbumResponse | SearchTrackResponse,
-    passedVariables: SearchAlbumRequest | SearchTrackRequest
+    responseData: SearchAlbumResponse | SearchTrackResponse,
+    passedVariables: SearchAlbumRequest | SearchTrackRequest,
   ) => {
     const insertData: NewSearchHistory = {
-      searchType: "albumName" in responeData.data! ? "Album" : "Track",
+      searchType: "albumName" in responseData.data! ? "Album" : "Track",
       searchParam:
-        "trackName" in responeData.data!
-          ? responeData.data!.trackName
-          : responeData.data!.albumName,
-      artistName: responeData.data!.artistName,
+        "trackName" in responseData.data!
+          ? responseData.data!.trackName
+          : responseData.data!.albumName,
+      artistName: responseData.data!.artistName,
       theme: passedVariables.theme,
       accentLine: passedVariables.accent,
-      blurhash: responeData.data!.blurhash,
+      blurhash: responseData.data!.blurhash,
       createdAt: new Date(),
     };
 
     await db.insert(searchHistoryTable).values(insertData);
+
+    await syncToSupabase();
   };
 
   return (
@@ -300,15 +296,11 @@ export default function Search() {
           <CardHeader className="flex-row justify-between items-center">
             <Label>Search Type</Label>
             <View className="flex-row">
-              <Button variant="ghost" onPress={toggleColorScheme}>
+              <Button variant="ghost" onPress={() => router.push("/Settings")}>
                 <ExpoMaterialCommunityIcons
                   className="text-foreground"
                   size={23}
-                  name={
-                    isDarkColorScheme()
-                      ? "white-balance-sunny"
-                      : "moon-waning-crescent"
-                  }
+                  name={"cog-outline"}
                 />
               </Button>
               <Button
@@ -420,7 +412,7 @@ export default function Search() {
                 <View
                   className={cn(
                     "items-center",
-                    isNarrow ? "flex-col" : "flex-row"
+                    isNarrow ? "flex-col" : "flex-row",
                   )}
                 >
                   <Switch
@@ -456,7 +448,9 @@ export default function Search() {
       </KeyboardAwareScrollView>
       <AnimatedConfirmButton
         title={"Create Poster"}
-        loading={searchAlbumApi.isPending || searchTrackApi.isPending || !isTokenSet}
+        loading={
+          searchAlbumApi.isPending || searchTrackApi.isPending || !isTokenSet
+        }
         onPress={search}
         disabled={searchType === "Choose type"}
       />

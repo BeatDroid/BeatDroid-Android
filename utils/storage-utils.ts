@@ -4,20 +4,24 @@ export const storage = new MMKV({
   id: `beatdroid`,
 });
 
-export const set = (
-  key: string,
-  value: string | number | boolean | ArrayBuffer
-) => storage.set(key, value);
+export class MmkvStorage {
+  setItem(key: string, value: string | number | boolean | ArrayBuffer): void {
+    storage.set(key, value);
+  }
 
-export const get = (key: string): string | undefined => {
-  const value = storage.getString(key);
-  if (value === null) return undefined;
-  return value;
-};
+  getItem(key: string): string | null {
+    const value = storage.getString(key);
+    return value === undefined ? null : value;
+  }
 
-export const clear = (key: string) => storage.delete(key);
+  removeItem(key: string): void {
+    storage.delete(key);
+  }
 
-export const clearAll = () => {
-  storage.clearAll();
-  return true;
-};
+  clearAll(): boolean {
+    storage.clearAll();
+    return true;
+  }
+}
+
+export const mmkvStorage = new MmkvStorage();

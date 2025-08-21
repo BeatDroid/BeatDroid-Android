@@ -8,6 +8,13 @@
       "when": 1749490407402,
       "tag": "0000_open_vargas",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "6",
+      "when": 1755805192896,
+      "tag": "0001_loud_senator_kelly",
+      "breakpoints": true
     }
   ]
 }

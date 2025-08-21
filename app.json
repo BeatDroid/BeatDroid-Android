@@ -60,7 +60,8 @@
           "project": "react-native",
           "organization": "dedm8-inc"
         }
-      ]
+      ],
+      "@react-native-google-signin/google-signin"
     ],
     "experiments": {
       "typedRoutes": true
