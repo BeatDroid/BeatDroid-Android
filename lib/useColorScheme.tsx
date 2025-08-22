@@ -21,7 +21,7 @@ export function useColorScheme() {
   const isDarkColorScheme = useCallback(() => theme === "dark", [theme]);
 
   return {
-    colorScheme: theme,
+    colorScheme: theme!,
     isDarkColorScheme,
     setColorScheme: setSavedColorScheme,
     toggleColorScheme,
