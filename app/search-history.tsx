@@ -30,6 +30,8 @@ export default function SearchHistoryView() {
   const [isLoadingTracks, setIsLoadingTracks] = useState(false);
   const [hasMoreTracks, setHasMoreTracks] = useState(true);
 
+  // TODO - Cleanup useless calls and fix pagination properly
+
   const incrementallyLoadAlbums = useCallback(async () => {
     if (isLoadingAlbums || !hasMoreAlbums) return;
 
@@ -282,7 +284,7 @@ export default function SearchHistoryView() {
             data={albumHistory}
             keyExtractor={(item) => item.id.toString()}
             onEndReached={incrementallyLoadAlbums}
-            onEndReachedThreshold={0.5}
+            onEndReachedThreshold={0.7}
             ListEmptyComponent={renderListEmptyComponent}
             contentContainerClassName={"mx-2 pb-[85]"}
             renderItem={renderItem}
@@ -295,7 +297,7 @@ export default function SearchHistoryView() {
             data={trackHistory}
             keyExtractor={(item) => item.id.toString()}
             onEndReached={incrementallyLoadTracks}
-            onEndReachedThreshold={0.5}
+            onEndReachedThreshold={0.7}
             ListEmptyComponent={renderListEmptyComponent}
             contentContainerClassName={"mx-2 pb-[85]"}
             renderItem={renderItem}

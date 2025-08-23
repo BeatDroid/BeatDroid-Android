@@ -13,17 +13,16 @@ import Animated, {
 interface MiniPosterProps {
   theme?: ThemeTypes;
   accentEnabled?: boolean;
-  microMode?: boolean;
   className?: string;
 }
+
+const DURATION = 500;
 
 const MiniPoster = ({
   theme = "Light",
   accentEnabled = false,
-  microMode = false,
   className = "",
 }: MiniPosterProps) => {
-  const DURATION = microMode ? 0 : 500;
   const backgroundColor = useSharedValue(themes[theme].bg);
   const posterColor = useSharedValue(themes[theme].fg);
   const textColor = useSharedValue(themes[theme].text);
@@ -45,7 +44,6 @@ const MiniPoster = ({
     b2color.value = withTiming(themes[theme].b2, { duration: DURATION });
     b3color.value = withTiming(themes[theme].b3, { duration: DURATION });
   }, [
-    DURATION,
     accentEnabled,
     accentLine,
     b1color,
@@ -103,7 +101,7 @@ const MiniPoster = ({
     return {
       backgroundColor: withTiming(
         accentEnabled ? posterColor.value : "transparent",
-        { duration: microMode ? 0 : 200 }
+        { duration: 200 },
       ),
     };
   });
@@ -113,58 +111,52 @@ const MiniPoster = ({
       style={backgroundStyle}
       className={cn(
         "aspect-[7.3/10] h-full self-center pt-2 rounded-lg overflow-hidden",
-        className
+        className,
       )}
     >
       <Animated.View
         style={posterStyle}
         className="flex-1 mx-2 rounded-sm items-center justify-center"
       >
-        {!microMode && (
-          <Animated.Text
-            style={previewTextStyle}
-            className="text-md font-bold uppercase text-center"
-          >
-            {"T h e m e\nP r e v i e w"}
-          </Animated.Text>
-        )}
+        <Animated.Text
+          style={previewTextStyle}
+          className="text-md font-bold uppercase text-center"
+        >
+          {"T h e m e\nP r e v i e w"}
+        </Animated.Text>
       </Animated.View>
-      {!microMode && (
-        <>
+      <Animated.View
+        style={textStyle}
+        className="mt-2 h-3 w-[75%] mx-2 rounded-full"
+      />
+      <View className="flex-row items-center justify-between mx-2">
+        <Animated.View
+          style={textStyle}
+          className="mt-1 h-1 w-[65%] rounded-full"
+        />
+        <View className="flex-row items-center">
           <Animated.View
             style={textStyle}
-            className="mt-2 h-3 w-[75%] mx-2 rounded-full"
+            className="mt-1 ml-1 aspect-[1] w-[5] rounded-full"
           />
-          <View className="flex-row items-center justify-between mx-2">
-            <Animated.View
-              style={textStyle}
-              className="mt-1 h-1 w-[65%] rounded-full"
-            />
-            <View className="flex-row items-center">
-              <Animated.View
-                style={textStyle}
-                className="mt-1 ml-1 aspect-[1] w-[5] rounded-full"
-              />
-              <Animated.View
-                style={b1Style}
-                className="mt-1 ml-1 aspect-[1] w-[5] rounded-full"
-              />
-              <Animated.View
-                style={b2Style}
-                className="mt-1 ml-1 aspect-[1] w-[5] rounded-full"
-              />
-              <Animated.View
-                style={b3Style}
-                className="mt-1 ml-1 aspect-[1] w-[5] rounded-full"
-              />
-            </View>
-          </View>
           <Animated.View
-            style={textStyle}
-            className="mt-2 mx-2 h-1.5 w-[45%] rounded-full"
+            style={b1Style}
+            className="mt-1 ml-1 aspect-[1] w-[5] rounded-full"
           />
-        </>
-      )}
+          <Animated.View
+            style={b2Style}
+            className="mt-1 ml-1 aspect-[1] w-[5] rounded-full"
+          />
+          <Animated.View
+            style={b3Style}
+            className="mt-1 ml-1 aspect-[1] w-[5] rounded-full"
+          />
+        </View>
+      </View>
+      <Animated.View
+        style={textStyle}
+        className="mt-2 mx-2 h-1.5 w-[45%] rounded-full"
+      />
       <Animated.View
         style={textStyle}
         className="mt-1 mx-2 h-1.5 w-[60%] rounded-full"

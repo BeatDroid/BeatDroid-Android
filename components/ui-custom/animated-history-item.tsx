@@ -1,4 +1,4 @@
-import MiniPoster from "@/components/ui-custom/mini-poster";
+import { MicroPoster } from "@/components/ui-custom/micro-poster";
 import { SearchHistory } from "@/db/schema";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import { ImageBackground } from "expo-image";
@@ -72,8 +72,7 @@ const AnimatedHistoryItem = ({
         <View className="flex-row">
           <View className="flex-1 justify-between items-center p-4">
             <View className="w-16 h-auto aspect-[7.3/10] mt-2 mb-3">
-              <MiniPoster
-                microMode
+              <MicroPoster
                 theme={item.theme}
                 accentEnabled={item.accentLine}
                 className="shadow-md"
