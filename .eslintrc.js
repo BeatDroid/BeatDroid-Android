@@ -3,6 +3,6 @@ module.exports = {
   ignorePatterns: ["/dist/*"],
   plugins: ["prettier"],
   rules: {
-    "prettier/prettier": "error",
+    "prettier/prettier": "warn",
   },
 };

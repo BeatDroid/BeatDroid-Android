@@ -70,8 +70,8 @@ const AnimatedHistoryItem = ({
       >
         <View className="absolute top-0 left-0 right-0 bottom-0 bg-background opacity-40 dark:opacity-20" />
         <View className="flex-row">
-          <View className="flex-1 justify-between items-center p-3">
-            <View className="w-16 h-auto aspect-[7.3/10] mb-3">
+          <View className="flex-1 justify-between items-center p-4">
+            <View className="w-16 h-auto aspect-[7.3/10] mt-2 mb-3">
               <MiniPoster
                 microMode
                 theme={item.theme}
@@ -82,21 +82,21 @@ const AnimatedHistoryItem = ({
             <View className="flex-1 w-full">
               <Text
                 numberOfLines={2}
-                className="text-foreground font-bold text-lg"
+                className="text-foreground font-bold text-lg text-center"
               >
                 {item.searchParam}
               </Text>
-              <Text numberOfLines={1} className="text-foreground text-sm">
+              <Text
+                numberOfLines={1}
+                className="text-foreground text-sm text-center"
+              >
                 {item.artistName}
               </Text>
-              <Text numberOfLines={2} className="text-foreground text-sm">
-                {item.theme + (item.accentLine ? " with accent line" : "")}
-              </Text>
-              <Text numberOfLines={1} className="text-foreground text-sm">
-                {item.createdAt.toLocaleString("en-US", {
-                  dateStyle: "medium",
-                  timeStyle: "short",
-                })}
+              <Text
+                numberOfLines={2}
+                className="text-foreground text-sm text-center"
+              >
+                {item.theme + (item.accentLine ? `\nAccent line` : "")}
               </Text>
             </View>
           </View>
@@ -107,7 +107,6 @@ const AnimatedHistoryItem = ({
     item.accentLine,
     item.artistName,
     item.blurhash,
-    item.createdAt,
     item.searchParam,
     item.theme,
   ]);

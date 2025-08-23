@@ -1,33 +1,102 @@
 import AnimatedHeader from "@/components/ui-custom/animated-header";
 import AnimatedHistoryItem from "@/components/ui-custom/animated-history-item";
 import Background from "@/components/ui-custom/background";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Text } from "@/components/ui/text";
 import { SearchHistory, searchHistoryTable } from "@/db/schema";
 import useDatabase from "@/hooks/useDatabase";
 import * as Sentry from "@sentry/react-native";
 import { FlashList } from "@shopify/flash-list";
-import { eq } from "drizzle-orm";
-import React, { useEffect, useState } from "react";
-import { Text, View } from "react-native";
+import { and, desc, eq } from "drizzle-orm";
+import { lt } from "drizzle-orm/sql/expressions/conditions";
+import React, { useCallback, useEffect, useState } from "react";
+import { View } from "react-native";
+
+const preloadItems = 10;
 
 export default function SearchHistoryView() {
   const { db } = useDatabase();
-  const [searchHistoryData, setSearchHistoryData] = useState<SearchHistory[]>(
-    [],
-  );
-  const [trackHistory, setTrackHistory] = useState<SearchHistory[]>([]);
+  const [currentTab, setCurrentTab] = useState("albums");
+
+  // Albums
   const [albumHistory, setAlbumHistory] = useState<SearchHistory[]>([]);
+  const [albumPointer, setAlbumPointer] = useState<number>(0);
+  const [isLoadingAlbums, setIsLoadingAlbums] = useState(false);
+  const [hasMoreAlbums, setHasMoreAlbums] = useState(true);
+
+  // Tracks
+  const [trackHistory, setTrackHistory] = useState<SearchHistory[]>([]);
+  const [trackPointer, setTrackPointer] = useState<number>(0);
+  const [isLoadingTracks, setIsLoadingTracks] = useState(false);
+  const [hasMoreTracks, setHasMoreTracks] = useState(true);
+
+  const incrementallyLoadAlbums = useCallback(async () => {
+    if (isLoadingAlbums || !hasMoreAlbums) return;
+
+    setIsLoadingAlbums(true);
+    // For descending order, use lt(pointer) to fetch older items
+    const baseWhere = eq(searchHistoryTable.searchType, "Album");
+
+    const paginatedData = await db
+      .select()
+      .from(searchHistoryTable)
+      .where(
+        albumPointer > 0
+          ? and(baseWhere, lt(searchHistoryTable.id, albumPointer))
+          : baseWhere,
+      )
+      .orderBy(desc(searchHistoryTable.id))
+      .limit(preloadItems);
+
+    if (paginatedData.length === 0) {
+      setHasMoreAlbums(false);
+      setIsLoadingAlbums(false);
+      return;
+    }
+
+    // With desc order, the next pointer is the smallest id from this page
+    const nextPointer = paginatedData[paginatedData.length - 1].id;
+    setAlbumPointer(nextPointer);
+    setAlbumHistory((prevHistory) => [...prevHistory, ...paginatedData]);
+    setIsLoadingAlbums(false);
+  }, [albumPointer, db, hasMoreAlbums, isLoadingAlbums]);
+
+  const incrementallyLoadTracks = useCallback(async () => {
+    if (isLoadingTracks || !hasMoreTracks) return;
+
+    setIsLoadingTracks(true);
+    // For descending order, use lt(pointer) to fetch older items
+    const baseWhere = eq(searchHistoryTable.searchType, "Track");
+
+    const paginatedData = await db
+      .select()
+      .from(searchHistoryTable)
+      .where(
+        trackPointer > 0
+          ? and(baseWhere, lt(searchHistoryTable.id, trackPointer))
+          : baseWhere,
+      )
+      .orderBy(desc(searchHistoryTable.id))
+      .limit(preloadItems);
+
+    if (paginatedData.length === 0) {
+      setHasMoreTracks(false);
+      setIsLoadingAlbums(false);
+      return;
+    }
+
+    // With desc order, the next pointer is the smallest id from this page
+    const nextPointer = paginatedData[paginatedData.length - 1].id;
+    setTrackPointer(nextPointer);
+    setTrackHistory((prevHistory) => [...prevHistory, ...paginatedData]);
+    setIsLoadingTracks(false);
+  }, [db, hasMoreTracks, isLoadingTracks, trackPointer]);
 
   const getSearchHistory = React.useCallback(async () => {
     const startTime = Date.now();
 
     try {
       const searchHistory = await db.select().from(searchHistoryTable);
-      setSearchHistoryData(
-        searchHistory.sort(
-          (a, b) =>
-            b.createdAt.getMilliseconds() - a.createdAt.getMilliseconds(),
-        ),
-      );
       const tracks = searchHistory
         .filter((item) => item.searchType === "Track")
         .sort(
@@ -99,16 +168,11 @@ export default function SearchHistoryView() {
       category: "ui",
       level: "info",
     });
-
-    getSearchHistory().catch((error) => {
-      Sentry.captureException(error, {
-        tags: {
-          lifecycle: "useEffect",
-          component: "SearchHistoryView",
-        },
-      });
-    });
-  }, [db, getSearchHistory]);
+    // Initial load once on mount
+    incrementallyLoadAlbums();
+    incrementallyLoadTracks();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const renderItem = React.useCallback(
     ({ item }: { item: SearchHistory }) => {
@@ -206,15 +270,46 @@ export default function SearchHistoryView() {
         title="Search History 📜"
         description="Tracks and albums you couldn't get enough of"
       />
-      <FlashList
-        masonry
-        numColumns={2}
-        data={searchHistoryData}
-        keyExtractor={(item) => item.id.toString()}
-        ListEmptyComponent={renderListEmptyComponent}
-        contentContainerClassName={"mx-2"}
-        renderItem={renderItem}
-      />
+      <Tabs
+        value={currentTab}
+        onValueChange={setCurrentTab}
+        className="flex-1 px-4"
+      >
+        <TabsContent value="albums" className="flex-1">
+          <FlashList
+            masonry
+            numColumns={2}
+            data={albumHistory}
+            keyExtractor={(item) => item.id.toString()}
+            onEndReached={incrementallyLoadAlbums}
+            onEndReachedThreshold={0.5}
+            ListEmptyComponent={renderListEmptyComponent}
+            contentContainerClassName={"mx-2 pb-[85]"}
+            renderItem={renderItem}
+          />
+        </TabsContent>
+        <TabsContent value="tracks" className="flex-1">
+          <FlashList
+            masonry
+            numColumns={2}
+            data={trackHistory}
+            keyExtractor={(item) => item.id.toString()}
+            onEndReached={incrementallyLoadTracks}
+            onEndReachedThreshold={0.5}
+            ListEmptyComponent={renderListEmptyComponent}
+            contentContainerClassName={"mx-2 pb-[85]"}
+            renderItem={renderItem}
+          />
+        </TabsContent>
+        <TabsList className="absolute rounded-full bottom-5 w-[80%] self-center p-1 h-[7%]">
+          <TabsTrigger className={"flex-1 h-full rounded-full"} value="albums">
+            <Text>Albums</Text>
+          </TabsTrigger>
+          <TabsTrigger className={"flex-1 h-full rounded-full"} value="tracks">
+            <Text>Tracks</Text>
+          </TabsTrigger>
+        </TabsList>
+      </Tabs>
     </Background>
   );
 }
