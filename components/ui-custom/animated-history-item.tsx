@@ -4,7 +4,7 @@ import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import { ImageBackground } from "expo-image";
 import { router } from "expo-router";
 import { cssInterop } from "nativewind";
-import React from "react";
+import React, { useCallback } from "react";
 import { Pressable, Text, View } from "react-native";
 import { Gesture, GestureDetector } from "react-native-gesture-handler";
 import Animated, {
@@ -24,7 +24,13 @@ const ExpoMaterialCommunityIcons = cssInterop(MaterialCommunityIcons, {
   },
 });
 
-const AnimatedHistoryItem = ({ item, onDelete }: { item: SearchHistory, onDelete: () => void }) => {
+const AnimatedHistoryItem = ({
+  item,
+  onDelete,
+}: {
+  item: SearchHistory;
+  onDelete: () => void;
+}) => {
   const swipeOffset = useSharedValue(0);
   const currentOffset = useSharedValue(0);
 
@@ -56,6 +62,56 @@ const AnimatedHistoryItem = ({ item, onDelete }: { item: SearchHistory, onDelete
       }
     });
 
+  const getHistoryDetails = useCallback(() => {
+    return (
+      <ImageBackground
+        source={{ blurhash: item.blurhash || "L69HLn?wI9jF_3t5M_t7H?%1-=R*" }}
+        className="flex-1"
+      >
+        <View className="absolute top-0 left-0 right-0 bottom-0 bg-background opacity-40 dark:opacity-20" />
+        <View className="flex-row">
+          <View className="flex-1 justify-between items-center p-3">
+            <View className="w-16 h-auto aspect-[7.3/10] mb-3">
+              <MiniPoster
+                microMode
+                theme={item.theme}
+                accentEnabled={item.accentLine}
+                className="shadow-md"
+              />
+            </View>
+            <View className="flex-1 w-full">
+              <Text
+                numberOfLines={2}
+                className="text-foreground font-bold text-lg"
+              >
+                {item.searchParam}
+              </Text>
+              <Text numberOfLines={1} className="text-foreground text-sm">
+                {item.artistName}
+              </Text>
+              <Text numberOfLines={2} className="text-foreground text-sm">
+                {item.theme + (item.accentLine ? " with accent line" : "")}
+              </Text>
+              <Text numberOfLines={1} className="text-foreground text-sm">
+                {item.createdAt.toLocaleString("en-US", {
+                  dateStyle: "medium",
+                  timeStyle: "short",
+                })}
+              </Text>
+            </View>
+          </View>
+        </View>
+      </ImageBackground>
+    );
+  }, [
+    item.accentLine,
+    item.artistName,
+    item.blurhash,
+    item.createdAt,
+    item.searchParam,
+    item.theme,
+  ]);
+
   return (
     <GestureDetector gesture={gesture}>
       <Pressable
@@ -72,49 +128,14 @@ const AnimatedHistoryItem = ({ item, onDelete }: { item: SearchHistory, onDelete
           })
         }
       >
-        <View className="mb-4 mx-4 border-0 rounded overflow-hidden">
+        <View className="border-0 rounded-xl m-3 overflow-hidden">
           <Animated.View style={itemAnimatedStyle} className="bg-background">
-            <ImageBackground
-              source={{ blurhash: item.blurhash || "" }}
-              className="flex-1"
-            >
-              <View className="absolute top-0 left-0 right-0 bottom-0 bg-background opacity-40 dark:opacity-20" />
-              <View className="flex-row">
-                <View className="flex-1 flex-row justify-between items-center p-5">
-                  <View className="flex-1 pr-5">
-                    <Text
-                      numberOfLines={1}
-                      className="text-foreground font-bold text-lg"
-                    >
-                      {item.searchParam}
-                    </Text>
-                    <Text numberOfLines={1} className="text-foreground text-sm">
-                      {item.artistName}
-                    </Text>
-                    <Text numberOfLines={1} className="text-foreground text-sm">
-                      {item.theme +
-                        (item.accentLine ? " with accent line" : "")}
-                    </Text>
-                    <Text numberOfLines={1} className="text-foreground text-sm">
-                      {item.createdAt.toLocaleString("en-US", {
-                        dateStyle: "medium",
-                        timeStyle: "short",
-                      })}
-                    </Text>
-                  </View>
-                  <View className="w-16 h-auto aspect-[7.3/10]">
-                    <MiniPoster
-                      microMode
-                      theme={item.theme}
-                      accentEnabled={item.accentLine}
-                      className="shadow-md"
-                    />
-                  </View>
-                </View>
-              </View>
-            </ImageBackground>
+            {getHistoryDetails()}
           </Animated.View>
-          <Pressable onPress={onDelete} className="absolute right-0 w-[40] h-full bg-destructive z-[-1] items-center justify-center">
+          <Pressable
+            onPress={onDelete}
+            className="absolute right-0 w-[40] h-full bg-destructive z-[-1] items-center justify-center"
+          >
             <ExpoMaterialCommunityIcons
               name="delete"
               size={24}
