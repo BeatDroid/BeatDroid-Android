@@ -273,7 +273,7 @@ export default function SearchHistoryView() {
       <Tabs
         value={currentTab}
         onValueChange={setCurrentTab}
-        className="flex-1 px-4"
+        className="flex-1 px-0"
       >
         <TabsContent value="albums" className="flex-1">
           <FlashList
