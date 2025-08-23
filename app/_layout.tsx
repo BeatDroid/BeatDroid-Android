@@ -9,12 +9,7 @@ import { AuthProvider, useAuth } from "@/contexts/auth-context";
 import { DialogProvider } from "@/contexts/dialog-context/dialog-context";
 import { NetworkProvider } from "@/contexts/network-context";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
-import {
-  DarkTheme,
-  DefaultTheme,
-  Theme,
-  ThemeProvider,
-} from "@react-navigation/native";
+import { DarkTheme, DefaultTheme, Theme, ThemeProvider } from "@react-navigation/native";
 import { PortalHost } from "@rn-primitives/portal";
 import * as Sentry from "@sentry/react-native";
 import { QueryClientProvider } from "@tanstack/react-query";
@@ -38,7 +33,7 @@ const navigationIntegration = Sentry.reactNavigationIntegration({
 
 if (!__DEV__) {
   Sentry.init({
-    dsn: "https://9fdfe8adf7d5878863ddfb6c6c9d8307@o4509837047037952.ingest.de.sentry.io/4509837060341840",
+    dsn: process.env.EXPO_PUBLIC_SENTRY_DSN,
     sendDefaultPii: true,
     tracesSampleRate: 1,
     profilesSampleRate: 1,
@@ -86,7 +81,9 @@ function ProviderStack() {
   const [isColorSchemeLoaded, setIsColorSchemeLoaded] = React.useState(false);
 
   SystemUI.setBackgroundColorAsync(
-    isDarkColorScheme() ? NAV_THEME.dark.background : NAV_THEME.light.background
+    isDarkColorScheme()
+      ? NAV_THEME.dark.background
+      : NAV_THEME.light.background,
   );
 
   useIsomorphicLayoutEffect(() => {
