@@ -58,7 +58,7 @@
         {
           "url": "https://sentry.io/",
           "project": "react-native",
-          "organization": "dedm8-inc"
+          "organization": "beatdroid"
         }
       ],
       "@react-native-google-signin/google-signin"
