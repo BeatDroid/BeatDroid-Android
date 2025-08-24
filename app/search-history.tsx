@@ -30,139 +30,107 @@ export default function SearchHistoryView() {
   const [isLoadingTracks, setIsLoadingTracks] = useState(false);
   const [hasMoreTracks, setHasMoreTracks] = useState(true);
 
-  // TODO - Cleanup useless calls and fix pagination properly
-
   const incrementallyLoadAlbums = useCallback(async () => {
-    if (isLoadingAlbums || !hasMoreAlbums) return;
-
-    setIsLoadingAlbums(true);
-    // For descending order, use lt(pointer) to fetch older items
-    const baseWhere = eq(searchHistoryTable.searchType, "Album");
-
-    const paginatedData = await db
-      .select()
-      .from(searchHistoryTable)
-      .where(
-        albumPointer > 0
-          ? and(baseWhere, lt(searchHistoryTable.id, albumPointer))
-          : baseWhere,
-      )
-      .orderBy(desc(searchHistoryTable.id))
-      .limit(preloadItems);
-
-    if (paginatedData.length === 0) {
-      setHasMoreAlbums(false);
-      setIsLoadingAlbums(false);
-      return;
-    }
-
-    // With desc order, the next pointer is the smallest id from this page
-    const nextPointer = paginatedData[paginatedData.length - 1].id;
-    setAlbumPointer(nextPointer);
-    setAlbumHistory((prevHistory) => [...prevHistory, ...paginatedData]);
-    setIsLoadingAlbums(false);
-  }, [albumPointer, db, hasMoreAlbums, isLoadingAlbums]);
-
-  const incrementallyLoadTracks = useCallback(async () => {
-    if (isLoadingTracks || !hasMoreTracks) return;
-
-    setIsLoadingTracks(true);
-    // For descending order, use lt(pointer) to fetch older items
-    const baseWhere = eq(searchHistoryTable.searchType, "Track");
-
-    const paginatedData = await db
-      .select()
-      .from(searchHistoryTable)
-      .where(
-        trackPointer > 0
-          ? and(baseWhere, lt(searchHistoryTable.id, trackPointer))
-          : baseWhere,
-      )
-      .orderBy(desc(searchHistoryTable.id))
-      .limit(preloadItems);
-
-    if (paginatedData.length === 0) {
-      setHasMoreTracks(false);
-      setIsLoadingAlbums(false);
-      return;
-    }
-
-    // With desc order, the next pointer is the smallest id from this page
-    const nextPointer = paginatedData[paginatedData.length - 1].id;
-    setTrackPointer(nextPointer);
-    setTrackHistory((prevHistory) => [...prevHistory, ...paginatedData]);
-    setIsLoadingTracks(false);
-  }, [db, hasMoreTracks, isLoadingTracks, trackPointer]);
-
-  const getSearchHistory = React.useCallback(async () => {
-    const startTime = Date.now();
-
     try {
-      const searchHistory = await db.select().from(searchHistoryTable);
-      const tracks = searchHistory
-        .filter((item) => item.searchType === "Track")
-        .sort(
-          (a, b) =>
-            b.createdAt.getMilliseconds() - a.createdAt.getMilliseconds(),
+      if (isLoadingAlbums || !hasMoreAlbums) return;
+
+      setIsLoadingAlbums(true);
+      // For descending order, use lt(pointer) to fetch older items
+      const baseWhere = eq(searchHistoryTable.searchType, "Album");
+
+      const paginatedData = await db
+        .select()
+        .from(searchHistoryTable)
+        .where(
+          albumPointer > 0
+            ? and(baseWhere, lt(searchHistoryTable.id, albumPointer))
+            : baseWhere,
         )
-        .reverse();
+        .orderBy(desc(searchHistoryTable.id))
+        .limit(preloadItems);
 
-      const albums = searchHistory
-        .filter((item) => item.searchType === "Album")
-        .sort(
-          (a, b) =>
-            b.createdAt.getMilliseconds() - a.createdAt.getMilliseconds(),
-        )
-        .reverse();
+      if (paginatedData.length === 0) {
+        setHasMoreAlbums(false);
+        setIsLoadingAlbums(false);
+        return;
+      }
 
-      setTrackHistory(tracks);
-      setAlbumHistory(albums);
-
-      const queryTime = Date.now() - startTime;
-
-      // Log performance metrics
-      Sentry.addBreadcrumb({
-        message: "Search history loaded",
-        category: "data",
-        level: "info",
-        data: {
-          totalItems: searchHistory.length,
-          trackCount: tracks.length,
-          albumCount: albums.length,
-          combinedCount: tracks.length + albums.length,
-          dbQueryTime: queryTime,
-        },
-      });
-
-      // Set custom tags for filtering in Sentry
-      Sentry.setTag("search_history_loaded", true);
-      Sentry.setContext("search_history_stats", {
-        tracks: tracks.length,
-        albums: albums.length,
-        total: searchHistory.length,
-        combined: tracks.length + albums.length,
-        queryDuration: queryTime,
-      });
-
-      // Track performance metric
-      Sentry.metrics.timing("search_history.query_time", queryTime);
+      // With desc order, the next pointer is the smallest id from this page
+      const nextPointer = paginatedData[paginatedData.length - 1].id;
+      setAlbumPointer(nextPointer);
+      setAlbumHistory((prevHistory) => [...prevHistory, ...paginatedData]);
+      setIsLoadingAlbums(false);
     } catch (error) {
       Sentry.captureException(error, {
         tags: {
-          operation: "getSearchHistory",
+          operation: "incrementallyLoadAlbums",
           component: "SearchHistoryView",
         },
         contexts: {
           database: {
-            operation: "select_search_history",
+            operation: "incremental_album_load",
             table: "searchHistoryTable",
+            where: {
+              searchType: "Album",
+              pointer: albumPointer,
+              loadedLength: albumHistory.length,
+            },
           },
         },
       });
-
-      throw error;
     }
-  }, [db]);
+  }, [albumHistory.length, albumPointer, db, hasMoreAlbums, isLoadingAlbums]);
+
+  const incrementallyLoadTracks = useCallback(async () => {
+    try {
+      if (isLoadingTracks || !hasMoreTracks) return;
+
+      setIsLoadingTracks(true);
+      // For descending order, use lt(pointer) to fetch older items
+      const baseWhere = eq(searchHistoryTable.searchType, "Track");
+
+      const paginatedData = await db
+        .select()
+        .from(searchHistoryTable)
+        .where(
+          trackPointer > 0
+            ? and(baseWhere, lt(searchHistoryTable.id, trackPointer))
+            : baseWhere,
+        )
+        .orderBy(desc(searchHistoryTable.id))
+        .limit(preloadItems);
+
+      if (paginatedData.length === 0) {
+        setHasMoreTracks(false);
+        setIsLoadingAlbums(false);
+        return;
+      }
+
+      // With desc order, the next pointer is the smallest id from this page
+      const nextPointer = paginatedData[paginatedData.length - 1].id;
+      setTrackPointer(nextPointer);
+      setTrackHistory((prevHistory) => [...prevHistory, ...paginatedData]);
+      setIsLoadingTracks(false);
+    } catch (error) {
+      Sentry.captureException(error, {
+        tags: {
+          operation: "incrementallyLoadTracks",
+          component: "SearchHistoryView",
+        },
+        contexts: {
+          database: {
+            operation: "incremental_track_load",
+            table: "searchHistoryTable",
+            where: {
+              searchType: "Track",
+              pointer: trackPointer,
+              loadedLength: trackHistory.length,
+            },
+          },
+        },
+      });
+    }
+  }, [db, hasMoreTracks, isLoadingTracks, trackHistory.length, trackPointer]);
 
   useEffect(() => {
     Sentry.addBreadcrumb({
@@ -185,7 +153,15 @@ export default function SearchHistoryView() {
           await db
             .delete(searchHistoryTable)
             .where(eq(searchHistoryTable.id, item.id));
-          await getSearchHistory();
+          if (currentTab === "albums") {
+            setAlbumHistory((prevHistory) =>
+              prevHistory.filter((historyItem) => historyItem.id !== item.id),
+            );
+          } else {
+            setTrackHistory((prevHistory) =>
+              prevHistory.filter((historyItem) => historyItem.id !== item.id),
+            );
+          }
 
           const deleteTime = Date.now() - startTime;
 
@@ -235,7 +211,7 @@ export default function SearchHistoryView() {
         />
       );
     },
-    [db, getSearchHistory],
+    [currentTab, db],
   );
 
   const renderListEmptyComponent = React.useCallback(() => {
@@ -289,6 +265,7 @@ export default function SearchHistoryView() {
             contentContainerClassName={"mx-2 pb-[85]"}
             renderItem={renderItem}
             showsVerticalScrollIndicator={false}
+            fadingEdgeLength={70}
           />
         </TabsContent>
         <TabsContent value="tracks" className="flex-1">
@@ -303,6 +280,7 @@ export default function SearchHistoryView() {
             contentContainerClassName={"mx-2 pb-[85]"}
             renderItem={renderItem}
             showsVerticalScrollIndicator={false}
+            fadingEdgeLength={70}
           />
         </TabsContent>
         <TabsList className="absolute rounded-full bottom-5 w-[80%] self-center p-1 h-[7%]">
