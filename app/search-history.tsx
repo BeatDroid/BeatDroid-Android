@@ -288,6 +288,7 @@ export default function SearchHistoryView() {
             ListEmptyComponent={renderListEmptyComponent}
             contentContainerClassName={"mx-2 pb-[85]"}
             renderItem={renderItem}
+            showsVerticalScrollIndicator={false}
           />
         </TabsContent>
         <TabsContent value="tracks" className="flex-1">
@@ -301,6 +302,7 @@ export default function SearchHistoryView() {
             ListEmptyComponent={renderListEmptyComponent}
             contentContainerClassName={"mx-2 pb-[85]"}
             renderItem={renderItem}
+            showsVerticalScrollIndicator={false}
           />
         </TabsContent>
         <TabsList className="absolute rounded-full bottom-5 w-[80%] self-center p-1 h-[7%]">
