@@ -1,5 +1,6 @@
 import { TextClassContext } from "@/components/ui/text";
 import { cn } from "@/lib/utils";
+import { selectionHaptic } from "@/utils/haptic-utils";
 import * as TabsPrimitive from "@rn-primitives/tabs";
 import { Platform } from "react-native";
 
@@ -55,6 +56,10 @@ function TabsTrigger({
           className,
         )}
         {...props}
+        onPress={(e) => {
+          selectionHaptic();
+          props.onPress?.(e);
+        }}
       />
     </TextClassContext.Provider>
   );
