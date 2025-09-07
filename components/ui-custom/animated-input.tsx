@@ -1,5 +1,5 @@
+import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
-import { Label } from "@rn-primitives/dropdown-menu";
 import React, {
   forwardRef,
   useCallback,
@@ -52,7 +52,7 @@ const AnimatedInput = forwardRef<AnimatedInputRef, AnimatedInputProps>(
       labelClassName,
       ...props
     },
-    ref
+    ref,
   ) => {
     const inputRef = useRef<TextInput>(null);
     const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -62,7 +62,7 @@ const AnimatedInput = forwardRef<AnimatedInputRef, AnimatedInputProps>(
 
     const [isInputFocused, setIsInputFocused] = useState(false);
     const [hasValue, setHasValue] = useState(
-      Boolean(props.value || props.defaultValue)
+      Boolean(props.value || props.defaultValue),
     );
     const [showPlaceholder, setShowPlaceholder] = useState(false);
     const [hasError, setHasError] = useState(false);
@@ -80,10 +80,10 @@ const AnimatedInput = forwardRef<AnimatedInputRef, AnimatedInputProps>(
         "worklet";
         focusedValue.value = withTiming(
           focused || value ? 1 : 0,
-          ANIMATION_CONFIG
+          ANIMATION_CONFIG,
         );
       },
-      [focusedValue]
+      [focusedValue],
     );
 
     React.useEffect(() => {
@@ -123,7 +123,7 @@ const AnimatedInput = forwardRef<AnimatedInputRef, AnimatedInputProps>(
         marginTop: focusedValue.value * 20,
         transform: [{ translateX: shakeAnimation.value }],
       }),
-      []
+      [],
     );
 
     const animatedLabelStyle = useAnimatedStyle(
@@ -133,7 +133,7 @@ const AnimatedInput = forwardRef<AnimatedInputRef, AnimatedInputProps>(
           { translateX: focusedValue.value * -10 },
         ],
       }),
-      []
+      [],
     );
 
     const handleFocus = useCallback(
@@ -142,7 +142,7 @@ const AnimatedInput = forwardRef<AnimatedInputRef, AnimatedInputProps>(
         setIsInputFocused(true);
         props.onFocus?.(e);
       },
-      [props]
+      [props],
     );
 
     const handleBlur = useCallback(
@@ -150,7 +150,7 @@ const AnimatedInput = forwardRef<AnimatedInputRef, AnimatedInputProps>(
         setIsInputFocused(false);
         props.onBlur?.(e);
       },
-      [props]
+      [props],
     );
 
     const shake = useCallback(() => {
@@ -161,7 +161,7 @@ const AnimatedInput = forwardRef<AnimatedInputRef, AnimatedInputProps>(
         withTiming(-SHAKE_DISTANCE, SHAKE_CONFIG),
         withTiming(SHAKE_DISTANCE / 2, SHAKE_CONFIG),
         withTiming(-SHAKE_DISTANCE / 2, SHAKE_CONFIG),
-        withTiming(0, SHAKE_CONFIG)
+        withTiming(0, SHAKE_CONFIG),
       );
     }, [shakeAnimation]);
 
@@ -192,17 +192,17 @@ const AnimatedInput = forwardRef<AnimatedInputRef, AnimatedInputProps>(
         clear,
         clearError,
       }),
-      [shake, focus, blur, clear, clearError]
+      [shake, focus, blur, clear, clearError],
     );
 
     const currentPlaceholder = useMemo(
       () => (showPlaceholder ? placeholder : ""),
-      [showPlaceholder, placeholder]
+      [showPlaceholder, placeholder],
     );
 
     const labelClasses = useMemo(
       () => cn("text-muted-foreground", labelClassName),
-      [labelClassName]
+      [labelClassName],
     );
 
     return (
@@ -218,7 +218,7 @@ const AnimatedInput = forwardRef<AnimatedInputRef, AnimatedInputProps>(
               <Label
                 className={cn(
                   labelClasses,
-                  hasError ? "text-red-700 dark:text-red-500" : ""
+                  hasError ? "text-red-700 dark:text-red-500" : "",
                 )}
               >
                 {label}
@@ -233,7 +233,7 @@ const AnimatedInput = forwardRef<AnimatedInputRef, AnimatedInputProps>(
               textInputClassName,
               hasError
                 ? "border-2 dark:border rounded border-red-500 dark:border-red-500"
-                : ""
+                : "",
             )}
             onFocus={handleFocus}
             onBlur={handleBlur}
@@ -241,7 +241,7 @@ const AnimatedInput = forwardRef<AnimatedInputRef, AnimatedInputProps>(
         </Animated.View>
       </View>
     );
-  }
+  },
 );
 
 AnimatedInput.displayName = "AnimatedInput";
