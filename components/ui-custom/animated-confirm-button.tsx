@@ -1,9 +1,11 @@
-import React, { useEffect } from "react";
+import { cn } from "@/lib/utils";
+import React, { useEffect, useState } from "react";
 import { ActivityIndicator, Text } from "react-native";
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
   withTiming,
+  runOnJS,
 } from "react-native-reanimated";
 import { Button } from "../ui/button";
 
@@ -14,6 +16,7 @@ interface AnimatedConfirmButtonProps {
   floating?: boolean;
   duration?: number;
   loading?: boolean;
+  buttonClassName?: string;
 }
 
 const AnimatedConfirmButton = ({
@@ -23,14 +26,21 @@ const AnimatedConfirmButton = ({
   floating = false,
   duration = 500,
   loading = false,
+  buttonClassName = "",
 }: AnimatedConfirmButtonProps) => {
   const opacity = useSharedValue(0);
+  const [hideComponent, setHideComponent] = useState(false);
 
   useEffect(() => {
     if (!disabled) {
+      setHideComponent(false);
       opacity.value = withTiming(1, { duration });
     } else {
-      opacity.value = withTiming(0, { duration });
+      opacity.value = withTiming(0, { duration }, (finished) => {
+        if (finished) {
+          runOnJS(setHideComponent)(true);
+        }
+      });
     }
   }, [disabled, duration, opacity]);
 
@@ -39,6 +49,8 @@ const AnimatedConfirmButton = ({
       opacity: opacity.value,
     };
   });
+
+  if (hideComponent) return null;
 
   return (
     <Animated.View
@@ -51,8 +63,8 @@ const AnimatedConfirmButton = ({
       <Button
         onPress={onPress}
         disabled={disabled || loading}
-        visiblyDisabled={false || loading}
-        className="active:opacity-80"
+        visiblyDisabled={loading}
+        className={cn("active:opacity-80", buttonClassName)}
       >
         {loading ? (
           <ActivityIndicator size="small" color="#000" />

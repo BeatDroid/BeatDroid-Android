@@ -1,17 +1,17 @@
-import { useNetwork } from "@/contexts/network-context";
-import useDatabase from "@/hooks/useDatabase";
-import { useCallback, useState } from "react";
-import { NewSearchHistory, searchHistoryTable } from "@/db/schema";
-import { eq } from "drizzle-orm";
 import { supabase } from "@/config/supabase";
+import { useNetwork } from "@/contexts/network-context";
+import { NewSearchHistory, searchHistoryTable } from "@/db/schema";
+import useDatabase from "@/hooks/useDatabase";
+import { SupabaseRecord } from "@/lib/types";
 import {
   GoogleSignin,
   isErrorWithCode,
   isSuccessResponse,
-  statusCodes
+  statusCodes,
 } from "@react-native-google-signin/google-signin";
-import { SupabaseRecord } from "@/lib/types";
 import * as Sentry from "@sentry/react-native";
+import { eq, sql } from "drizzle-orm";
+import { useCallback, useState } from "react";
 
 export default function useSupabase() {
   const network = useNetwork();
@@ -24,7 +24,7 @@ export default function useSupabase() {
   });
 
   const syncToSupabase = useCallback(async () => {
-    if (!network) return;
+    if (!network && !isLoggedIn) return;
     try {
       const unsyncedRecords = await db
         .select()
@@ -80,10 +80,10 @@ export default function useSupabase() {
         },
       });
     }
-  }, [db, network]);
+  }, [db, isLoggedIn, network]);
 
   const syncFromSupabase = useCallback(async () => {
-    if (!network) return;
+    if (!network && !isLoggedIn) return;
     try {
       const { error, data } = await supabase.from("search_history").select("*");
 
@@ -117,7 +117,19 @@ export default function useSupabase() {
         await db
           .insert(searchHistoryTable)
           .values(newRecords)
-          .onConflictDoNothing();
+          .onConflictDoUpdate({
+            target: searchHistoryTable.id,
+            set: {
+              searchType: sql`excluded.search_type`,
+              searchParam: sql`excluded.search_param`,
+              artistName: sql`excluded.artist_name`,
+              theme: sql`excluded.theme`,
+              accentLine: sql`excluded.accent_line`,
+              blurhash: sql`excluded.blurhash`,
+              createdAt: sql`excluded.created_at`,
+              synced: true,
+            },
+          });
       }
     } catch (e) {
       console.log("Error syncing from Supabase:", e);
@@ -133,7 +145,7 @@ export default function useSupabase() {
         },
       });
     }
-  }, [db, network]);
+  }, [db, isLoggedIn, network]);
 
   const supabaseLogin = useCallback(async () => {
     if (!network) return;
@@ -225,6 +237,7 @@ export default function useSupabase() {
       });
     }
     setLoading(false);
+    return authData?.user !== null;
   };
 
   const supabaseLogout = useCallback(async () => {

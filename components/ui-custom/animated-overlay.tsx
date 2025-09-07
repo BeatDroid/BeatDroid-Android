@@ -1,13 +1,13 @@
 import React, { useEffect } from "react";
 import Animated, {
-    Easing,
-    Extrapolation,
-    interpolate,
-    runOnJS,
-    useAnimatedStyle,
-    useSharedValue,
-    withSequence,
-    withTiming,
+  Easing,
+  Extrapolation,
+  interpolate,
+  runOnJS,
+  useAnimatedStyle,
+  useSharedValue,
+  withSequence,
+  withTiming,
 } from "react-native-reanimated";
 
 interface AnimatedOverlayProps {
@@ -42,7 +42,7 @@ const AnimatedOverlay = ({
         slideAnim.value,
         [0, 50],
         [1, 0],
-        Extrapolation.CLAMP
+        Extrapolation.CLAMP,
       ),
     };
   });
@@ -78,9 +78,9 @@ const AnimatedOverlay = ({
               easing: Easing.inOut(Easing.quad),
             }),
             withTiming(25, { duration: 80, easing: Easing.inOut(Easing.quad) }),
-            withTiming(0, { duration: 80, easing: Easing.in(Easing.quad) })
+            withTiming(0, { duration: 80, easing: Easing.in(Easing.quad) }),
           );
-        }
+        },
       );
     } else if (isMounted.value) {
       fadeAnim.value = withTiming(0, {
@@ -98,7 +98,7 @@ const AnimatedOverlay = ({
           runOnJS(setIsDialogVisible)(false);
           runOnJS(onClose)();
           isMounted.value = false;
-        }
+        },
       );
     }
   }, [fadeAnim, isMounted, rotateAnim, slideAnim, onClose, visible]);

@@ -5,18 +5,53 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Text } from "@/components/ui/text";
 import { SearchHistory, searchHistoryTable } from "@/db/schema";
 import useDatabase from "@/hooks/useDatabase";
+import useSupabase from "@/hooks/useSupabase";
 import * as Sentry from "@sentry/react-native";
 import { FlashList } from "@shopify/flash-list";
 import { and, desc, eq } from "drizzle-orm";
 import { lt } from "drizzle-orm/sql/expressions/conditions";
 import React, { useCallback, useEffect, useState } from "react";
-import { View } from "react-native";
+import { RefreshControl, View } from "react-native";
+import { cssInterop } from "nativewind";
 
 const preloadItems = 10;
 
+type RefreshControlProps = React.ComponentProps<typeof RefreshControl> & {
+  className?: string;
+  style?: any;
+};
+
+function ThemedRefreshControl(props: RefreshControlProps) {
+  const { style, progressBackgroundColor, tintColor, colors, ...rest } = props;
+  const flatStyle = Array.isArray(style)
+    ? Object.assign({}, ...style)
+    : style || {};
+  const bg = (flatStyle?.backgroundColor as string | undefined) ?? undefined;
+  const fg = (flatStyle?.color as string | undefined) ?? undefined;
+
+  return (
+    <RefreshControl
+      {...rest}
+      progressBackgroundColor={bg ?? progressBackgroundColor}
+      tintColor={fg ?? tintColor}
+      colors={fg ? [fg] : colors}
+    />
+  );
+}
+
+const TwRefreshControl = cssInterop(ThemedRefreshControl, {
+  className: {
+    target: "style",
+  },
+});
+
 export default function SearchHistoryView() {
   const { db } = useDatabase();
+  const { syncToSupabase, syncFromSupabase, supabaseLoginCheck } =
+    useSupabase();
   const [currentTab, setCurrentTab] = useState("albums");
+  const [refreshingAlbums, setRefreshingAlbums] = useState(false);
+  const [refreshingTracks, setRefreshingTracks] = useState(false);
 
   // Albums
   const [albumHistory, setAlbumHistory] = useState<SearchHistory[]>([]);
@@ -102,7 +137,7 @@ export default function SearchHistoryView() {
 
       if (paginatedData.length === 0) {
         setHasMoreTracks(false);
-        setIsLoadingAlbums(false);
+        setIsLoadingTracks(false);
         return;
       }
 
@@ -132,15 +167,113 @@ export default function SearchHistoryView() {
     }
   }, [db, hasMoreTracks, isLoadingTracks, trackHistory.length, trackPointer]);
 
+  const resetPointers = useCallback(() => {
+    setAlbumPointer(0);
+    setTrackPointer(0);
+    setHasMoreAlbums(true);
+    setHasMoreTracks(true);
+    setIsLoadingAlbums(false);
+    setIsLoadingTracks(false);
+    setAlbumHistory([]);
+    setTrackHistory([]);
+  }, []);
+
+  const refreshAlbums = useCallback(async () => {
+    if (refreshingAlbums) return;
+    setRefreshingAlbums(true);
+    try {
+      const isLoggedIn = await supabaseLoginCheck();
+      setAlbumPointer(0);
+      setHasMoreAlbums(true);
+      setIsLoadingAlbums(false);
+      setAlbumHistory([]);
+      if (isLoggedIn) {
+        await syncFromSupabase();
+        await syncToSupabase();
+      }
+      await new Promise((r) => setTimeout(r, 0));
+      await incrementallyLoadAlbums();
+    } catch (error) {
+      Sentry.captureException(error, {
+        tags: { operation: "refreshAlbums", component: "SearchHistoryView" },
+      });
+    } finally {
+      setRefreshingAlbums(false);
+    }
+  }, [
+    incrementallyLoadAlbums,
+    refreshingAlbums,
+    supabaseLoginCheck,
+    syncFromSupabase,
+    syncToSupabase,
+  ]);
+
+  const refreshTracks = useCallback(async () => {
+    if (refreshingTracks) return;
+    setRefreshingTracks(true);
+    try {
+      const isLoggedIn = await supabaseLoginCheck();
+      setTrackPointer(0);
+      setHasMoreTracks(true);
+      setIsLoadingTracks(false);
+      setTrackHistory([]);
+      if (isLoggedIn) {
+        await syncFromSupabase();
+        await syncToSupabase();
+      }
+      await new Promise((r) => setTimeout(r, 0));
+      await incrementallyLoadTracks();
+    } catch (error) {
+      Sentry.captureException(error, {
+        tags: { operation: "refreshTracks", component: "SearchHistoryView" },
+      });
+    } finally {
+      setRefreshingTracks(false);
+    }
+  }, [
+    incrementallyLoadTracks,
+    refreshingTracks,
+    supabaseLoginCheck,
+    syncFromSupabase,
+    syncToSupabase,
+  ]);
+
+  const syncHistory = useCallback(async () => {
+    setRefreshingAlbums(true);
+    setRefreshingTracks(true);
+    try {
+      const isLoggedIn = await supabaseLoginCheck();
+      resetPointers();
+      if (isLoggedIn) {
+        await syncFromSupabase();
+        await syncToSupabase();
+      }
+      await new Promise((resolve) => setTimeout(resolve, 0));
+      await Promise.all([incrementallyLoadAlbums(), incrementallyLoadTracks()]);
+    } catch (error) {
+      Sentry.captureException(error, {
+        tags: { operation: "syncHistory", component: "SearchHistoryView" },
+      });
+    } finally {
+      setRefreshingAlbums(false);
+      setRefreshingTracks(false);
+    }
+  }, [
+    incrementallyLoadAlbums,
+    incrementallyLoadTracks,
+    resetPointers,
+    supabaseLoginCheck,
+    syncFromSupabase,
+    syncToSupabase,
+  ]);
+
   useEffect(() => {
     Sentry.addBreadcrumb({
       message: "SearchHistoryView mounted",
       category: "ui",
       level: "info",
     });
-    // Initial load once on mount
-    incrementallyLoadAlbums();
-    incrementallyLoadTracks();
+    syncHistory();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -266,6 +399,16 @@ export default function SearchHistoryView() {
             renderItem={renderItem}
             showsVerticalScrollIndicator={false}
             fadingEdgeLength={70}
+            scrollEventThrottle={16}
+            refreshing={refreshingAlbums}
+            onRefresh={refreshAlbums}
+            refreshControl={
+              <TwRefreshControl
+                className="bg-muted text-primary"
+                refreshing={refreshingAlbums}
+                onRefresh={refreshAlbums}
+              />
+            }
           />
         </TabsContent>
         <TabsContent value="tracks" className="flex-1">
@@ -281,6 +424,16 @@ export default function SearchHistoryView() {
             renderItem={renderItem}
             showsVerticalScrollIndicator={false}
             fadingEdgeLength={70}
+            scrollEventThrottle={16}
+            refreshing={refreshingTracks}
+            onRefresh={refreshTracks}
+            refreshControl={
+              <TwRefreshControl
+                className="bg-muted text-foreground"
+                refreshing={refreshingTracks}
+                onRefresh={refreshTracks}
+              />
+            }
           />
         </TabsContent>
         <TabsList className="absolute rounded-full bottom-5 w-[80%] self-center p-1 h-[7%]">
