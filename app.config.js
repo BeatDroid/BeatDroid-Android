@@ -73,96 +73,90 @@ module.exports = {
         {
           // Assets: Bundled font files (all platforms)
           fonts: [
-            "./assets/fonts/Montserrat-Bold.ttf", // used
-            "./assets/fonts/Montserrat-Thin.ttf",
-            "./assets/fonts/Montserrat-Black.ttf",
-            "./assets/fonts/Montserrat-Light.ttf",
-            "./assets/fonts/Montserrat-Italic.ttf",
-            "./assets/fonts/Montserrat-Medium.ttf", // used
-            "./assets/fonts/Montserrat-Regular.ttf", // used
-            "./assets/fonts/Montserrat-SemiBold.ttf", // used
-            "./assets/fonts/Montserrat-ExtraBold.ttf", // used
-            "./assets/fonts/Montserrat-BoldItalic.ttf",
-            "./assets/fonts/Montserrat-ExtraLight.ttf",
-            "./assets/fonts/Montserrat-ThinItalic.ttf",
-            "./assets/fonts/Montserrat-BlackItalic.ttf",
-            "./assets/fonts/Montserrat-LightItalic.ttf",
-            "./assets/fonts/Montserrat-MediumItalic.ttf",
-            "./assets/fonts/Montserrat-SemiBoldItalic.ttf",
-            "./assets/fonts/Montserrat-ExtraBoldItalic.ttf",
-            "./assets/fonts/Montserrat-ExtraLightItalic.ttf",
+            // PlusJakartaSans font files
+            "./assets/fonts/PlusJakartaSans-ExtraLight.ttf",
+            "./assets/fonts/PlusJakartaSans-ExtraLightItalic.ttf",
+            "./assets/fonts/PlusJakartaSans-Light.ttf",
+            "./assets/fonts/PlusJakartaSans-LightItalic.ttf",
+            "./assets/fonts/PlusJakartaSans-Regular.ttf",
+            "./assets/fonts/PlusJakartaSans-Italic.ttf",
+            "./assets/fonts/PlusJakartaSans-Medium.ttf",
+            "./assets/fonts/PlusJakartaSans-MediumItalic.ttf",
+            "./assets/fonts/PlusJakartaSans-SemiBold.ttf",
+            "./assets/fonts/PlusJakartaSans-SemiBoldItalic.ttf",
+            "./assets/fonts/PlusJakartaSans-Bold.ttf",
+            "./assets/fonts/PlusJakartaSans-BoldItalic.ttf",
+            "./assets/fonts/PlusJakartaSans-ExtraBold.ttf",
+            "./assets/fonts/PlusJakartaSans-ExtraBoldItalic.ttf",
           ],
 
           // Android-specific font family/weight mappings
           android: {
             fonts: [
               {
-                fontFamily: "Montserrat",
+                fontFamily: "PlusJakartaSans",
                 fontDefinitions: [
-                  { path: "./assets/fonts/Montserrat-Thin.ttf", weight: 100 },
                   {
-                    path: "./assets/fonts/Montserrat-ThinItalic.ttf",
-                    weight: 100,
-                    style: "italic",
-                  },
-                  {
-                    path: "./assets/fonts/Montserrat-ExtraLight.ttf",
+                    path: "./assets/fonts/PlusJakartaSans-ExtraLight.ttf",
                     weight: 200,
                   },
                   {
-                    path: "./assets/fonts/Montserrat-ExtraLightItalic.ttf",
+                    path: "./assets/fonts/PlusJakartaSans-ExtraLightItalic.ttf",
                     weight: 200,
                     style: "italic",
                   },
-                  { path: "./assets/fonts/Montserrat-Light.ttf", weight: 300 },
                   {
-                    path: "./assets/fonts/Montserrat-LightItalic.ttf",
+                    path: "./assets/fonts/PlusJakartaSans-Light.ttf",
+                    weight: 300,
+                  },
+                  {
+                    path: "./assets/fonts/PlusJakartaSans-LightItalic.ttf",
                     weight: 300,
                     style: "italic",
                   },
                   {
-                    path: "./assets/fonts/Montserrat-Regular.ttf",
+                    path: "./assets/fonts/PlusJakartaSans-Regular.ttf",
                     weight: 400,
                   },
                   {
-                    path: "./assets/fonts/Montserrat-Italic.ttf",
+                    path: "./assets/fonts/PlusJakartaSans-Italic.ttf",
                     weight: 400,
                     style: "italic",
                   },
-                  { path: "./assets/fonts/Montserrat-Medium.ttf", weight: 500 },
                   {
-                    path: "./assets/fonts/Montserrat-MediumItalic.ttf",
+                    path: "./assets/fonts/PlusJakartaSans-Medium.ttf",
+                    weight: 500,
+                  },
+                  {
+                    path: "./assets/fonts/PlusJakartaSans-MediumItalic.ttf",
                     weight: 500,
                     style: "italic",
                   },
                   {
-                    path: "./assets/fonts/Montserrat-SemiBold.ttf",
+                    path: "./assets/fonts/PlusJakartaSans-SemiBold.ttf",
                     weight: 600,
                   },
                   {
-                    path: "./assets/fonts/Montserrat-SemiBoldItalic.ttf",
+                    path: "./assets/fonts/PlusJakartaSans-SemiBoldItalic.ttf",
                     weight: 600,
                     style: "italic",
                   },
-                  { path: "./assets/fonts/Montserrat-Bold.ttf", weight: 700 },
                   {
-                    path: "./assets/fonts/Montserrat-BoldItalic.ttf",
+                    path: "./assets/fonts/PlusJakartaSans-Bold.ttf",
+                    weight: 700,
+                  },
+                  {
+                    path: "./assets/fonts/PlusJakartaSans-BoldItalic.ttf",
                     weight: 700,
                     style: "italic",
                   },
                   {
-                    path: "./assets/fonts/Montserrat-ExtraBold.ttf",
+                    path: "./assets/fonts/PlusJakartaSans-ExtraBold.ttf",
                     weight: 800,
                   },
                   {
-                    path: "./assets/fonts/Montserrat-ExtraBoldItalic.ttf",
+                    path: "./assets/fonts/PlusJakartaSans-ExtraBoldItalic.ttf",
                     weight: 800,
-                    style: "italic",
-                  },
-                  { path: "./assets/fonts/Montserrat-Black.ttf", weight: 900 },
-                  {
-                    path: "./assets/fonts/Montserrat-BlackItalic.ttf",
-                    weight: 900,
                     style: "italic",
                   },
                 ],
