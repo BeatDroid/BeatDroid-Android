@@ -2,9 +2,13 @@ import { TextClassContext } from "@/components/ui/text";
 import { cn } from "@/lib/utils";
 import { cva, type VariantProps } from "class-variance-authority";
 import * as React from "react";
-import { useEffect } from 'react';
+import { useEffect } from "react";
 import { Pressable } from "react-native";
-import Animated, { useAnimatedStyle, useSharedValue, withTiming } from "react-native-reanimated";
+import Animated, {
+  useAnimatedStyle,
+  useSharedValue,
+  withTiming,
+} from "react-native-reanimated";
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 
@@ -33,11 +37,11 @@ const buttonVariants = cva(
       variant: "default",
       size: "default",
     },
-  }
+  },
 );
 
 const buttonTextVariants = cva(
-  "web:whitespace-nowrap text-sm native:text-base font-medium text-foreground web:transition-colors",
+  "web:whitespace-nowrap text-sm native:text-base font-ui-medium text-foreground web:transition-colors",
   {
     variants: {
       variant: {
@@ -60,7 +64,7 @@ const buttonTextVariants = cva(
       variant: "default",
       size: "default",
     },
-  }
+  },
 );
 
 type ButtonProps = React.ComponentPropsWithoutRef<typeof Pressable> &
@@ -102,7 +106,7 @@ const AnimatedButton = React.forwardRef<
       <AnimatedPressable
         className={cn(
           props.disabled && "opacity-50 web:pointer-events-none",
-          buttonVariants({ variant, size, className })
+          buttonVariants({ variant, size, className }),
         )}
         ref={ref}
         role="button"

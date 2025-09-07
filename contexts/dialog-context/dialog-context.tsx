@@ -1,10 +1,14 @@
 import AnimatedOverlay from "@/components/ui-custom/animated-overlay";
 import { Text } from "@/components/ui/text";
 import React, { useState } from "react";
-import { DialogContentProps, DialogContextProps, DialogContextType } from "./dialog-types";
+import {
+  DialogContentProps,
+  DialogContextProps,
+  DialogContextType,
+} from "./dialog-types";
 
 const DialogContext = React.createContext<DialogContextProps | undefined>(
-  undefined
+  undefined,
 );
 
 export function DialogProvider({ children }: DialogContextType) {
@@ -12,7 +16,7 @@ export function DialogProvider({ children }: DialogContextType) {
   const [content, setContent] = useState<DialogContentProps>({
     content: (
       <>
-        <Text className="mt-5 text-2xl font-bold text-center text-foreground">
+        <Text className="mt-5 text-2xl font-ui-bold text-center text-foreground">
           Dialog Title
         </Text>
         <Text className="text-base text-center text-foreground">

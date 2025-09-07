@@ -40,7 +40,7 @@ const Settings = () => {
       <Card>
         <View className={"p-4"}>
           <View className="flex-row justify-between items-center">
-            <Text className={"font-bold"}>Theme</Text>
+            <Text className={"font-ui-bold"}>Theme</Text>
             <Button variant="ghost" onPress={toggleColorScheme}>
               <ExpoMaterialCommunityIcons
                 className="text-foreground"
@@ -56,7 +56,7 @@ const Settings = () => {
         </View>
         <View className={"p-4"}>
           <View className="flex-row justify-between items-center">
-            <Text className={"font-bold"}>History Sync</Text>
+            <Text className={"font-ui-bold"}>History Sync</Text>
             {isLoggedIn ? (
               <Button
                 variant="default"

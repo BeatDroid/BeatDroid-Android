@@ -120,7 +120,7 @@ const MiniPoster = ({
       >
         <Animated.Text
           style={previewTextStyle}
-          className="text-md font-bold uppercase text-center"
+          className="text-md font-ui-bold uppercase text-center"
         >
           {"T h e m e\nP r e v i e w"}
         </Animated.Text>

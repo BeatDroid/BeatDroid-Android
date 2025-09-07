@@ -1,11 +1,12 @@
 import { MicroPoster } from "@/components/ui-custom/micro-poster";
+import { Text } from "@/components/ui/text";
 import { SearchHistory } from "@/db/schema";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import { ImageBackground } from "expo-image";
 import { router } from "expo-router";
 import { cssInterop } from "nativewind";
 import React, { useCallback } from "react";
-import { Pressable, Text, View } from "react-native";
+import { Pressable, View } from "react-native";
 import { Gesture, GestureDetector } from "react-native-gesture-handler";
 import Animated, {
   Easing,
@@ -81,7 +82,7 @@ const AnimatedHistoryItem = ({
             <View className="flex-1 w-full">
               <Text
                 numberOfLines={2}
-                className="text-foreground font-bold text-lg text-center"
+                className="text-foreground font-ui-bold text-md text-center"
               >
                 {item.searchParam}
               </Text>

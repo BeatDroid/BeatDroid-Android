@@ -49,7 +49,7 @@ export function NetworkProvider({ children }: { children: React.ReactNode }) {
       setContent({
         content: (
           <>
-            <Text className="mt-5 text-2xl font-bold text-center text-foreground">
+            <Text className="mt-5 text-2xl font-ui-bold text-center text-foreground">
               No internet connection
             </Text>
             <Text className="text-base text-center text-foreground">
@@ -75,7 +75,7 @@ export function NetworkProvider({ children }: { children: React.ReactNode }) {
     () => ({
       isOnline,
     }),
-    [isOnline]
+    [isOnline],
   );
 
   return (

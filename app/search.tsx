@@ -1,7 +1,13 @@
 import { useAlbumSearchApi } from "@/api/search-album/useAlbumSearchApi";
-import { SearchAlbumRequest, SearchAlbumResponse } from "@/api/search-album/zod-schema";
+import {
+  SearchAlbumRequest,
+  SearchAlbumResponse,
+} from "@/api/search-album/zod-schema";
 import { useTrackSearchApi } from "@/api/search-track/useTrackSearchApi";
-import { SearchTrackRequest, SearchTrackResponse } from "@/api/search-track/zod-schema";
+import {
+  SearchTrackRequest,
+  SearchTrackResponse,
+} from "@/api/search-track/zod-schema";
 import AnimatedCard from "@/components/ui-custom/animated-card";
 import AnimatedConfirmButton from "@/components/ui-custom/animated-confirm-button";
 import AnimatedHeader from "@/components/ui-custom/animated-header";
@@ -16,7 +22,7 @@ import {
   DropdownMenuContent,
   DropdownMenuGroup,
   DropdownMenuItem,
-  DropdownMenuTrigger
+  DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
@@ -319,7 +325,7 @@ export default function Search() {
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant={buttonVariant}>
-                  <Text className="font-bold">{searchType}</Text>
+                  <Text className="font-ui-bold">{searchType}</Text>
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent className="w-64 native:w-72">
@@ -379,7 +385,7 @@ export default function Search() {
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <Button variant={buttonVariant}>
-                      <Text className="font-bold">{theme}</Text>
+                      <Text className="font-ui-bold">{theme}</Text>
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent

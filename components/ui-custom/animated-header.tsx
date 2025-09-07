@@ -43,7 +43,7 @@ const AnimatedHeader = ({
           rotateX: `${interpolate(
             headerPosition.value,
             [-offset, 0],
-            [160, 0]
+            [160, 0],
           )}deg`,
         },
       ],
@@ -56,7 +56,7 @@ const AnimatedHeader = ({
       style={animatedHeaderStyle}
       className="h-[100] items-center justify-center"
     >
-      <Text className="text-2xl font-bold mb-3 text-center">{title}</Text>
+      <Text className="text-xl font-ui-bold mb-3 text-center">{title}</Text>
       {description && (
         <Text className="text-base text-center">{description}</Text>
       )}
