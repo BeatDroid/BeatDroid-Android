@@ -14,6 +14,7 @@ interface AnimatedConfirmButtonProps {
   onPress?: () => void;
   disabled?: boolean;
   floating?: boolean;
+  occupySpaceWhenHidden?: boolean;
   duration?: number;
   loading?: boolean;
   buttonClassName?: string;
@@ -24,6 +25,7 @@ const AnimatedConfirmButton = ({
   onPress = () => {},
   disabled = false,
   floating = false,
+  occupySpaceWhenHidden = true,
   duration = 500,
   loading = false,
   buttonClassName = "",
@@ -37,12 +39,12 @@ const AnimatedConfirmButton = ({
       opacity.value = withTiming(1, { duration });
     } else {
       opacity.value = withTiming(0, { duration }, (finished) => {
-        if (finished) {
+        if (finished && !occupySpaceWhenHidden) {
           runOnJS(setHideComponent)(true);
         }
       });
     }
-  }, [disabled, duration, opacity]);
+  }, [disabled, duration, occupySpaceWhenHidden, opacity]);
 
   const animatedFooterStyle = useAnimatedStyle(() => {
     return {

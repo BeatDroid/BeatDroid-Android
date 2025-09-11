@@ -44,7 +44,7 @@ export default function Result() {
         title={`Your poster is ready! 🚀`}
         description="Your music, beautifully framed! ✨"
       />
-      <View className="flex-1">
+      <View className="flex-1 m-6">
         <AnimatedImage
           loading={posterApi.isFetching}
           uri={posterApi.data?.data?.image!}
@@ -61,7 +61,16 @@ export default function Result() {
       <AnimatedConfirmButton
         title="Download"
         disabled={!isLoaded}
-        onPress={() => handleDownloadPoster(posterApi.data?.data?.image!, searchParam!, artistName!, theme!, accentLine!)}
+        occupySpaceWhenHidden={true}
+        onPress={() =>
+          handleDownloadPoster(
+            posterApi.data?.data?.image!,
+            searchParam!,
+            artistName!,
+            theme!,
+            accentLine!,
+          )
+        }
       />
     </Background>
   );

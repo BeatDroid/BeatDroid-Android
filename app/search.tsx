@@ -293,7 +293,7 @@ export default function Search() {
         description="Search for your favorite music or albums"
       />
       <KeyboardAwareScrollView
-        className="flex-1"
+        className="flex-1 mt-4"
         bottomOffset={30}
         fadingEdgeLength={100}
         showsVerticalScrollIndicator={false}

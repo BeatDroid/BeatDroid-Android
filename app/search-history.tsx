@@ -349,7 +349,7 @@ export default function SearchHistoryView() {
 
   const renderListEmptyComponent = React.useCallback(() => {
     return (
-      <View className="h-full w-full items-center justify-center">
+      <View className="h-full w-full items-start justify-center px-4">
         <Text className="text-foreground text-center">
           No search history found
         </Text>
@@ -374,18 +374,20 @@ export default function SearchHistoryView() {
   }, [trackHistory.length, albumHistory.length]);
 
   return (
-    <Background className="px-0">
-      <AnimatedHeader
-        duration={500}
-        offset={50}
-        title="Search History 📜"
-        description="Tracks and albums you couldn't get enough of"
-      />
+    <Background>
       <Tabs
         value={currentTab}
         onValueChange={setCurrentTab}
         className="flex-1 px-0"
       >
+        <View className="pl-4">
+          <AnimatedHeader
+            duration={500}
+            offset={50}
+            title="Search History 📜"
+            description="Tracks and albums you couldn't get enough of"
+          />
+        </View>
         <TabsContent value="albums" className="flex-1">
           <FlashList
             masonry
@@ -395,7 +397,7 @@ export default function SearchHistoryView() {
             onEndReached={incrementallyLoadAlbums}
             onEndReachedThreshold={0.7}
             ListEmptyComponent={renderListEmptyComponent}
-            contentContainerClassName={"mx-2 pb-[85]"}
+            contentContainerClassName={"mx-0 pb-[85]"}
             renderItem={renderItem}
             showsVerticalScrollIndicator={false}
             fadingEdgeLength={70}
@@ -420,7 +422,7 @@ export default function SearchHistoryView() {
             onEndReached={incrementallyLoadTracks}
             onEndReachedThreshold={0.7}
             ListEmptyComponent={renderListEmptyComponent}
-            contentContainerClassName={"mx-2 pb-[85]"}
+            contentContainerClassName={"mx-0 pb-[85]"}
             renderItem={renderItem}
             showsVerticalScrollIndicator={false}
             fadingEdgeLength={70}

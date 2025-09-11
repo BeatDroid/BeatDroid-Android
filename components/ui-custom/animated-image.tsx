@@ -47,7 +47,7 @@ const AnimatedImage = ({ uri, blurhash, loading = true }: Props) => {
       return () => {
         setIsFocused(false);
       };
-    }, [])
+    }, []),
   );
 
   const spin = useCallback(() => {
@@ -55,7 +55,7 @@ const AnimatedImage = ({ uri, blurhash, loading = true }: Props) => {
     rotateY.value = withSequence(
       withTiming(`${-45}deg`, { duration: 200 }),
       withSpring(`${720}deg`, { stiffness: 50, damping: 20, mass: 5 }),
-      withTiming(`0deg`, { duration: 0 })
+      withTiming(`0deg`, { duration: 0 }),
     );
   }, [rotateY]);
 
@@ -69,7 +69,7 @@ const AnimatedImage = ({ uri, blurhash, loading = true }: Props) => {
         rotateY.value = `${event.translationX}deg`;
         rotateX.value = `${Math.min(
           Math.max(-event.translationY, -maxHorizontalAngle),
-          maxHorizontalAngle
+          maxHorizontalAngle,
         )}deg`;
       }
     })

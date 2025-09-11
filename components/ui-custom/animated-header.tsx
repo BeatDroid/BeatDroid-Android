@@ -1,5 +1,6 @@
 import React, { useEffect } from "react";
 import Animated, {
+  Easing,
   interpolate,
   useAnimatedStyle,
   useSharedValue,
@@ -20,7 +21,7 @@ const AnimatedHeader = ({
   description,
   disabled = false,
   duration = 1000,
-  offset = 100,
+  offset = 50,
 }: AnimatedHeaderProps) => {
   const headerPosition = useSharedValue(-offset);
 
@@ -30,23 +31,16 @@ const AnimatedHeader = ({
     }
 
     return () => {
-      headerPosition.value = withTiming(-offset, { duration });
+      headerPosition.value = withTiming(-offset, {
+        duration,
+        easing: Easing.ease,
+      });
     };
   }, [disabled, duration, headerPosition, offset]);
 
   const animatedHeaderStyle = useAnimatedStyle(() => {
     return {
-      transform: [
-        { translateY: headerPosition.value },
-        { scale: interpolate(headerPosition.value, [-offset, 0], [0.8, 1]) },
-        {
-          rotateX: `${interpolate(
-            headerPosition.value,
-            [-offset, 0],
-            [160, 0],
-          )}deg`,
-        },
-      ],
+      transform: [{ translateX: headerPosition.value }],
       opacity: interpolate(headerPosition.value, [-offset * 0.4, 0], [0, 1]),
     };
   });
@@ -54,9 +48,11 @@ const AnimatedHeader = ({
   return (
     <Animated.View
       style={animatedHeaderStyle}
-      className="h-[100] items-center justify-center"
+      className="h-[100] items-start justify-center"
     >
-      <Text className="text-xl font-ui-bold mb-3 text-center">{title}</Text>
+      <Text className="text-4xl leading-tight font-ui-bold mb-2 text-center">
+        {title}
+      </Text>
       {description && (
         <Text className="text-base text-center">{description}</Text>
       )}

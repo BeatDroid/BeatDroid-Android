@@ -1,15 +1,15 @@
-import React, { useCallback } from "react";
-import Background from "@/components/ui-custom/background";
 import AnimatedHeader from "@/components/ui-custom/animated-header";
-import { Card } from "@/components/ui/card";
-import { Text } from "@/components/ui/text";
+import Background from "@/components/ui-custom/background";
 import { Button } from "@/components/ui/button";
-import { cssInterop } from "nativewind";
-import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
-import { useColorScheme } from "@/lib/useColorScheme";
-import { View } from "react-native";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Text } from "@/components/ui/text";
 import useSupabase from "@/hooks/useSupabase";
+import { useColorScheme } from "@/lib/useColorScheme";
+import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import { useFocusEffect } from "expo-router";
+import { cssInterop } from "nativewind";
+import React, { useCallback } from "react";
+import { View } from "react-native";
 
 const ExpoMaterialCommunityIcons = cssInterop(MaterialCommunityIcons, {
   className: {
@@ -36,11 +36,19 @@ const Settings = () => {
 
   return (
     <Background>
-      <AnimatedHeader duration={500} offset={50} title="Settings ⚙️" />
-      <Card>
-        <View className={"p-4"}>
+      <AnimatedHeader
+        duration={500}
+        offset={50}
+        title="Settings ⚙️"
+        description={"Customize your experience"}
+      />
+      <Card className={"mt-3"}>
+        <CardHeader>
+          <Text className={"font-ui-bold"}>Theme</Text>
+        </CardHeader>
+        <CardContent>
           <View className="flex-row justify-between items-center">
-            <Text className={"font-ui-bold"}>Theme</Text>
+            <Text className={"font-ui-regular"}>Colour Scheme</Text>
             <Button variant="ghost" onPress={toggleColorScheme}>
               <ExpoMaterialCommunityIcons
                 className="text-foreground"
@@ -53,10 +61,15 @@ const Settings = () => {
               />
             </Button>
           </View>
-        </View>
+        </CardContent>
+      </Card>
+      <Card className={"mt-3"}>
+        <CardHeader>
+          <Text className={"font-ui-bold"}>Sync Options</Text>
+        </CardHeader>
         <View className={"p-4"}>
           <View className="flex-row justify-between items-center">
-            <Text className={"font-ui-bold"}>History Sync</Text>
+            <Text className={"font-ui-regular"}>History Sync</Text>
             {isLoggedIn ? (
               <Button
                 variant="default"
