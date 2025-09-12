@@ -47,7 +47,7 @@ export default function Layout() {
       <TabSlot />
       <TabList
         className={
-          "center-items justify-center w-full px-3 pb-safe-offset-2 pt-6 bg-secondary"
+          "center-items justify-center w-full px-3 pb-safe-offset-2 pt-4 bg-secondary"
         }
       >
         <TabTrigger
