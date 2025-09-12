@@ -1,6 +1,5 @@
 import { cn } from "@/lib/utils";
 import { Ionicons } from "@expo/vector-icons";
-import { duration } from "drizzle-orm/gel-core";
 import {
   TabList,
   Tabs,

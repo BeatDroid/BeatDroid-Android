@@ -31,6 +31,7 @@ import { useAuth } from "@/contexts/auth-context";
 import { type NewSearchHistory, searchHistoryTable } from "@/db/schema";
 import useDatabase from "@/hooks/useDatabase";
 import { useResponsiveLayout } from "@/hooks/useResponsiveLayout";
+import useSupabase from "@/hooks/useSupabase";
 import { themes } from "@/lib/constants";
 import { SearchType, ThemeTypes } from "@/lib/types";
 import { useColorScheme } from "@/lib/useColorScheme";
@@ -38,24 +39,14 @@ import { cn } from "@/lib/utils";
 import { notificationHaptic, selectionHaptic } from "@/utils/haptic-utils";
 import { selectPoster } from "@/utils/poster-utils";
 import { searchRegex } from "@/utils/text-utls";
-import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import * as Sentry from "@sentry/react-native";
 import { router, useLocalSearchParams } from "expo-router";
-import { cssInterop } from "nativewind";
 import React, { useEffect, useRef, useState } from "react";
 import { View } from "react-native";
 import { KeyboardAwareScrollView } from "react-native-keyboard-controller";
 import Animated, { FadeIn } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { toast } from "sonner-native";
-import useSupabase from "@/hooks/useSupabase";
-
-const ExpoMaterialCommunityIcons = cssInterop(MaterialCommunityIcons, {
-  className: {
-    target: "style",
-    nativeStyleToProp: { color: true },
-  },
-});
 
 export default function Search() {
   const { dbSearchParam, dbArtistName, dbSearchType, dbTheme, dbAccentLine } =

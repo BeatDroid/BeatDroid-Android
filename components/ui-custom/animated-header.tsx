@@ -44,7 +44,7 @@ const AnimatedHeader = ({
   const animatedHeaderStyle = useAnimatedStyle(() => {
     return {
       transform: [{ translateX: headerPosition.value }],
-      opacity: interpolate(headerPosition.value, [-offset * 1, 0], [0, 1]),
+      opacity: interpolate(headerPosition.value, [-offset, 0], [0, 1]),
     };
   });
 
