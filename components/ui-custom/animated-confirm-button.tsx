@@ -1,16 +1,17 @@
 import { cn } from "@/lib/utils";
 import React, { useEffect, useState } from "react";
-import { ActivityIndicator, Text } from "react-native";
+import { ActivityIndicator, Text, View } from "react-native";
 import Animated, {
+  runOnJS,
   useAnimatedStyle,
   useSharedValue,
   withTiming,
-  runOnJS,
 } from "react-native-reanimated";
 import { Button } from "../ui/button";
 
 interface AnimatedConfirmButtonProps {
   title: string;
+  icon?: React.ReactNode;
   onPress?: () => void;
   disabled?: boolean;
   floating?: boolean;
@@ -22,6 +23,7 @@ interface AnimatedConfirmButtonProps {
 
 const AnimatedConfirmButton = ({
   title = "Confirm",
+  icon,
   onPress = () => {},
   disabled = false,
   floating = false,
@@ -71,7 +73,10 @@ const AnimatedConfirmButton = ({
         {loading ? (
           <ActivityIndicator size="small" color="#000" />
         ) : (
-          <Text className="text-center font-ui-bold">{title}</Text>
+          <View className={"flex-row items-center justify-center"}>
+            {icon && <View className="mr-2">{icon}</View>}
+            <Text className="text-center font-ui-bold">{title}</Text>
+          </View>
         )}
       </Button>
     </Animated.View>

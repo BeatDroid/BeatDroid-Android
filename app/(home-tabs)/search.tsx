@@ -39,14 +39,23 @@ import { cn } from "@/lib/utils";
 import { notificationHaptic, selectionHaptic } from "@/utils/haptic-utils";
 import { selectPoster } from "@/utils/poster-utils";
 import { searchRegex } from "@/utils/text-utls";
+import { MaterialIcons } from "@expo/vector-icons";
 import * as Sentry from "@sentry/react-native";
 import { router, useLocalSearchParams } from "expo-router";
+import { cssInterop } from "nativewind";
 import React, { useEffect, useRef, useState } from "react";
 import { View } from "react-native";
 import { KeyboardAwareScrollView } from "react-native-keyboard-controller";
 import Animated, { FadeIn } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { toast } from "sonner-native";
+
+const ExpoMaterialIcons = cssInterop(MaterialIcons, {
+  className: {
+    target: "style",
+    nativeStyleToProp: { color: true },
+  },
+});
 
 export default function Search() {
   const { dbSearchParam, dbArtistName, dbSearchType, dbTheme, dbAccentLine } =
@@ -282,7 +291,7 @@ export default function Search() {
         description="Search for your favorite music or albums"
       />
       <KeyboardAwareScrollView
-        className="flex-1 mt-4"
+        className="flex-1 mt-6"
         bottomOffset={30}
         fadingEdgeLength={100}
         showsVerticalScrollIndicator={false}
@@ -424,11 +433,13 @@ export default function Search() {
       </KeyboardAwareScrollView>
       <AnimatedConfirmButton
         title={"Create Poster"}
+        icon={<ExpoMaterialIcons name="auto-awesome" size={20} />}
         loading={
           searchAlbumApi.isPending || searchTrackApi.isPending || !isTokenSet
         }
         onPress={search}
         disabled={searchType === "Choose type"}
+        buttonClassName={"rounded-full"}
       />
     </Background>
   );
