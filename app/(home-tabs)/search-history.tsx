@@ -347,11 +347,11 @@ export default function SearchHistoryView() {
     [currentTab, db],
   );
 
-  const renderListEmptyComponent = React.useCallback(() => {
+  const ListEmptyComponent = React.useCallback(() => {
     return (
-      <View className="h-full w-full items-start justify-center px-4">
-        <Text className="text-foreground text-center">
-          No search history found
+      <View className="h-full w-full items-start justify-center">
+        <Text className="text-foreground text-center w-full font-ui-italic">
+          {`No search history found.\nTry creating a poster first!`}
         </Text>
       </View>
     );
@@ -385,54 +385,60 @@ export default function SearchHistoryView() {
           description="Tracks and albums you couldn't get enough of"
         />
         <TabsContent value="albums" className="flex-1">
-          <FlashList
-            masonry
-            numColumns={2}
-            data={albumHistory}
-            keyExtractor={(item) => item.id.toString()}
-            onEndReached={incrementallyLoadAlbums}
-            onEndReachedThreshold={0.7}
-            ListEmptyComponent={renderListEmptyComponent}
-            contentContainerClassName={"mx-0 pb-[85]"}
-            renderItem={renderItem}
-            showsVerticalScrollIndicator={false}
-            fadingEdgeLength={70}
-            scrollEventThrottle={16}
-            refreshing={refreshingAlbums}
-            onRefresh={refreshAlbums}
-            refreshControl={
-              <TwRefreshControl
-                className="bg-muted text-primary"
-                refreshing={refreshingAlbums}
-                onRefresh={refreshAlbums}
-              />
-            }
-          />
+          {albumHistory.length === 0 ? (
+            <ListEmptyComponent />
+          ) : (
+            <FlashList
+              masonry
+              numColumns={2}
+              data={albumHistory}
+              keyExtractor={(item) => item.id.toString()}
+              onEndReached={incrementallyLoadAlbums}
+              onEndReachedThreshold={0.7}
+              contentContainerClassName={"mx-0 pb-[85]"}
+              renderItem={renderItem}
+              showsVerticalScrollIndicator={false}
+              fadingEdgeLength={70}
+              scrollEventThrottle={16}
+              refreshing={refreshingAlbums}
+              onRefresh={refreshAlbums}
+              refreshControl={
+                <TwRefreshControl
+                  className="bg-muted text-primary"
+                  refreshing={refreshingAlbums}
+                  onRefresh={refreshAlbums}
+                />
+              }
+            />
+          )}
         </TabsContent>
         <TabsContent value="tracks" className="flex-1">
-          <FlashList
-            masonry
-            numColumns={2}
-            data={trackHistory}
-            keyExtractor={(item) => item.id.toString()}
-            onEndReached={incrementallyLoadTracks}
-            onEndReachedThreshold={0.7}
-            ListEmptyComponent={renderListEmptyComponent}
-            contentContainerClassName={"mx-0 pb-[85]"}
-            renderItem={renderItem}
-            showsVerticalScrollIndicator={false}
-            fadingEdgeLength={70}
-            scrollEventThrottle={16}
-            refreshing={refreshingTracks}
-            onRefresh={refreshTracks}
-            refreshControl={
-              <TwRefreshControl
-                className="bg-muted text-foreground"
-                refreshing={refreshingTracks}
-                onRefresh={refreshTracks}
-              />
-            }
-          />
+          {trackHistory.length === 0 ? (
+            <ListEmptyComponent />
+          ) : (
+            <FlashList
+              masonry
+              numColumns={2}
+              data={trackHistory}
+              keyExtractor={(item) => item.id.toString()}
+              onEndReached={incrementallyLoadTracks}
+              onEndReachedThreshold={0.7}
+              contentContainerClassName={"mx-0 pb-[85]"}
+              renderItem={renderItem}
+              showsVerticalScrollIndicator={false}
+              fadingEdgeLength={70}
+              scrollEventThrottle={16}
+              refreshing={refreshingTracks}
+              onRefresh={refreshTracks}
+              refreshControl={
+                <TwRefreshControl
+                  className="bg-muted text-foreground"
+                  refreshing={refreshingTracks}
+                  onRefresh={refreshTracks}
+                />
+              }
+            />
+          )}
         </TabsContent>
         <TabsList className="absolute rounded-full bottom-5 w-[80%] self-center p-1 h-[7%]">
           <TabsTrigger className={"flex-1 h-full rounded-full"} value="albums">
