@@ -374,7 +374,7 @@ export default function SearchHistoryView() {
   }, [trackHistory.length, albumHistory.length]);
 
   return (
-    <Background>
+    <Background disableSafeArea className={"pt-safe"}>
       <Tabs
         value={currentTab}
         onValueChange={setCurrentTab}

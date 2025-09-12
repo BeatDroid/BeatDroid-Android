@@ -285,7 +285,7 @@ export default function Search() {
   };
 
   return (
-    <Background>
+    <Background disableSafeArea className={"pt-safe"}>
       <AnimatedHeader
         title="Search 🌟"
         description="Search for your favorite music or albums"

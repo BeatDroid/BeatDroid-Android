@@ -35,7 +35,7 @@ const Settings = () => {
   );
 
   return (
-    <Background>
+    <Background disableSafeArea className={"pt-safe"}>
       <AnimatedHeader
         title="Settings ⚙️"
         description={"Customize your experience"}
