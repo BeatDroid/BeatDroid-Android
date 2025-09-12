@@ -86,7 +86,7 @@ export default function Search() {
   >(undefined);
   const [theme, setTheme] = useState<ThemeTypes>("Dark");
   const [accentLine, setAccentLine] = useState(false);
-  const buttonVariant = isDarkColorScheme() ? "outline" : "secondary";
+  const buttonVariant = isDarkColorScheme ? "outline" : "secondary";
 
   useEffect(() => {
     if (dbSearchParam) {

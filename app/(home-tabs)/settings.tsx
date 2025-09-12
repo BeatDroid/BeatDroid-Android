@@ -47,12 +47,12 @@ const Settings = () => {
         <CardContent>
           <View className="flex-row justify-between items-center">
             <Text className={"font-ui-regular"}>Colour Scheme</Text>
-            <Button variant="ghost" onPress={toggleColorScheme}>
+            <Button variant="default" onPress={toggleColorScheme}>
               <ExpoMaterialCommunityIcons
-                className="text-foreground"
+                className="text-black"
                 size={23}
                 name={
-                  isDarkColorScheme()
+                  isDarkColorScheme
                     ? "white-balance-sunny"
                     : "moon-waning-crescent"
                 }
@@ -65,7 +65,7 @@ const Settings = () => {
         <CardHeader>
           <Text className={"font-ui-bold"}>Sync Options</Text>
         </CardHeader>
-        <View className={"p-4"}>
+        <CardContent>
           <View className="flex-row justify-between items-center">
             <Text className={"font-ui-regular"}>History Sync</Text>
             {isLoggedIn ? (
@@ -86,7 +86,7 @@ const Settings = () => {
               </Button>
             )}
           </View>
-        </View>
+        </CardContent>
       </Card>
     </Background>
   );

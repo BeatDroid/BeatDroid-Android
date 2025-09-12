@@ -62,7 +62,7 @@ module.exports = {
         "react-native-edge-to-edge",
         {
           android: {
-            parentTheme: "Theme.EdgeToEdge.Material3.Dynamic",
+            parentTheme: "Theme.EdgeToEdge.Material3",
             enforceNavigationBarContrast: false,
           },
         },

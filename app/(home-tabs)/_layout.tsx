@@ -41,6 +41,7 @@ const ExpoFontAwesome = cssInterop(FontAwesome, {
 export default function Layout() {
   return (
     <Tabs
+      className={"bg-background"}
       options={{ backBehavior: "initialRoute", initialRouteName: "search" }}
     >
       <TabSlot />

@@ -24,13 +24,13 @@ import * as SplashScreen from "expo-splash-screen";
 import { SQLiteProvider } from "expo-sqlite";
 import * as SystemUI from "expo-system-ui";
 import * as React from "react";
-import { useRef } from "react";
+import { useEffect, useRef } from "react";
 import { ActivityIndicator, Platform } from "react-native";
 import { SystemBars } from "react-native-edge-to-edge";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { KeyboardProvider } from "react-native-keyboard-controller";
 import { toast, Toaster } from "sonner-native";
-import { NAV_THEME } from "~/lib/constants";
+import { NAV_THEME, themes } from "~/lib/constants";
 import { useColorScheme } from "~/lib/useColorScheme";
 
 const navigationIntegration = Sentry.reactNavigationIntegration({
@@ -86,11 +86,11 @@ function ProviderStack() {
   const { isDarkColorScheme } = useColorScheme();
   const [isColorSchemeLoaded, setIsColorSchemeLoaded] = React.useState(false);
 
-  SystemUI.setBackgroundColorAsync(
-    isDarkColorScheme()
-      ? NAV_THEME.dark.background
-      : NAV_THEME.light.background,
-  );
+  useEffect(() => {
+    SystemUI.setBackgroundColorAsync(
+      isDarkColorScheme ? themes.Dark.bg : themes.Light.bg,
+    );
+  }, [isDarkColorScheme]);
 
   useIsomorphicLayoutEffect(() => {
     if (hasMounted.current) {
@@ -120,19 +120,18 @@ function ProviderStack() {
                   <NetworkProvider>
                     <QueryClientProvider client={queryClient}>
                       <ThemeProvider
-                        value={isDarkColorScheme() ? DARK_THEME : LIGHT_THEME}
+                        value={isDarkColorScheme ? DARK_THEME : LIGHT_THEME}
                       >
-                        <SystemBars
-                          style={isDarkColorScheme() ? "light" : "dark"}
-                        />
+                        <SystemBars style="auto" />
                         <NavigationStack />
                         <PortalHost />
                         <Toaster
+                          theme="system"
                           richColors
                           position="bottom-center"
                           autoWiggleOnUpdate="toast-change"
                           duration={7000}
-                          offset={120}
+                          offset={130}
                           closeButton={true}
                           toastOptions={{
                             style: {
