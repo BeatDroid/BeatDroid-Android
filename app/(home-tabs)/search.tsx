@@ -296,7 +296,7 @@ export default function Search() {
         fadingEdgeLength={100}
         showsVerticalScrollIndicator={false}
       >
-        <AnimatedCard className="dark:border-transparent">
+        <AnimatedCard index={0} className="dark:border-transparent">
           <CardHeader className="flex-row justify-between items-center">
             <Label>Search Type</Label>
           </CardHeader>
@@ -322,11 +322,7 @@ export default function Search() {
             </DropdownMenu>
           </CardContent>
         </AnimatedCard>
-        <AnimatedCard
-          index={0}
-          className="mt-4 dark:border-transparent"
-          disabled={searchType === "Choose type"}
-        >
+        <AnimatedCard index={1} className="mt-4 dark:border-transparent">
           <CardHeader>
             <Label className="">What are you looking for?</Label>
           </CardHeader>
@@ -353,9 +349,8 @@ export default function Search() {
         <View className="flex-row w-full h-[250]">
           <View className="flex-1">
             <AnimatedCard
-              index={1}
+              index={2}
               className="mt-4 dark:border-transparent flex-1"
-              disabled={searchType === "Choose type"}
             >
               <CardHeader>
                 <Label>Colour theme</Label>
@@ -386,9 +381,8 @@ export default function Search() {
               </CardContent>
             </AnimatedCard>
             <AnimatedCard
-              index={2}
+              index={3}
               className="mt-4 dark:border-transparent flex-1"
-              disabled={searchType === "Choose type"}
             >
               <CardHeader>
                 <Label>{isNarrow ? "Accent Line" : "Decor"}</Label>
@@ -423,9 +417,8 @@ export default function Search() {
           </View>
           <View className="w-4" />
           <AnimatedCard
-            index={3}
+            index={4}
             className="mt-4 border-0 items-center justify-center bg-transparent shadow-none"
-            disabled={searchType === "Choose type"}
           >
             <MiniPoster theme={theme} accentEnabled={accentLine} />
           </AnimatedCard>
