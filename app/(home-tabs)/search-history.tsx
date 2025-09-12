@@ -10,9 +10,9 @@ import * as Sentry from "@sentry/react-native";
 import { FlashList } from "@shopify/flash-list";
 import { and, desc, eq } from "drizzle-orm";
 import { lt } from "drizzle-orm/sql/expressions/conditions";
+import { cssInterop } from "nativewind";
 import React, { useCallback, useEffect, useState } from "react";
 import { RefreshControl, View } from "react-native";
-import { cssInterop } from "nativewind";
 
 const preloadItems = 10;
 
@@ -380,14 +380,10 @@ export default function SearchHistoryView() {
         onValueChange={setCurrentTab}
         className="flex-1 px-0"
       >
-        <View className="pl-4">
-          <AnimatedHeader
-            duration={500}
-            offset={50}
-            title="Search History 📜"
-            description="Tracks and albums you couldn't get enough of"
-          />
-        </View>
+        <AnimatedHeader
+          title="Search History 📜"
+          description="Tracks and albums you couldn't get enough of"
+        />
         <TabsContent value="albums" className="flex-1">
           <FlashList
             masonry

@@ -37,8 +37,6 @@ const Settings = () => {
   return (
     <Background>
       <AnimatedHeader
-        duration={500}
-        offset={50}
         title="Settings ⚙️"
         description={"Customize your experience"}
       />

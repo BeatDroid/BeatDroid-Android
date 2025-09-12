@@ -8,13 +8,10 @@ interface Props {
   children: ReactNode;
 }
 
-const Background = ({
-  className,
-  children,
-}: Props) => {
+const Background = ({ className, children }: Props) => {
   return (
     <SafeAreaView
-      className={cn(`flex-1 py-4 px-5 bg-background my-safe`, className)}
+      className={cn(`flex-1 px-5 bg-background py-safe`, className)}
       edges={[]}
     >
       {children}

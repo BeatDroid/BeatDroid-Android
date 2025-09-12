@@ -287,8 +287,6 @@ export default function Search() {
   return (
     <Background>
       <AnimatedHeader
-        duration={500}
-        offset={50}
         title="Search 🌟"
         description="Search for your favorite music or albums"
       />
@@ -301,25 +299,6 @@ export default function Search() {
         <AnimatedCard className="dark:border-transparent">
           <CardHeader className="flex-row justify-between items-center">
             <Label>Search Type</Label>
-            <View className="flex-row">
-              <Button variant="ghost" onPress={() => router.push("/Settings")}>
-                <ExpoMaterialCommunityIcons
-                  className="text-foreground"
-                  size={23}
-                  name={"cog-outline"}
-                />
-              </Button>
-              <Button
-                variant="ghost"
-                onPress={() => router.push("/search-history")}
-              >
-                <ExpoMaterialCommunityIcons
-                  className="text-foreground"
-                  size={23}
-                  name={"history"}
-                />
-              </Button>
-            </View>
           </CardHeader>
           <CardContent>
             <DropdownMenu>

@@ -132,7 +132,7 @@ function ProviderStack() {
                           position="bottom-center"
                           autoWiggleOnUpdate="toast-change"
                           duration={7000}
-                          offset={30}
+                          offset={120}
                           closeButton={true}
                           toastOptions={{
                             style: {
@@ -213,8 +213,7 @@ function NavigationStack() {
   return (
     <Stack screenOptions={{ headerShown: false }}>
       <Stack.Screen name="index" />
-      <Stack.Screen name="search" />
-      <Stack.Screen name="search-history" />
+      <Stack.Screen name="(home-tabs)" />
       <Stack.Screen name="poster-view" />
     </Stack>
   );

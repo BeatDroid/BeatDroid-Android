@@ -115,7 +115,7 @@ const AnimatedHistoryItem = ({
     <GestureDetector gesture={gesture}>
       <Pressable
         onPress={() =>
-          router.dismissTo({
+          router.navigate({
             pathname: "/search",
             params: {
               dbSearchParam: item.searchParam,

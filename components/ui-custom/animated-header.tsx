@@ -1,4 +1,5 @@
-import React, { useEffect } from "react";
+import { useFocusEffect } from "expo-router";
+import React from "react";
 import Animated, {
   Easing,
   interpolate,
@@ -20,28 +21,30 @@ const AnimatedHeader = ({
   title,
   description,
   disabled = false,
-  duration = 1000,
-  offset = 50,
+  duration = 300,
+  offset = 10,
 }: AnimatedHeaderProps) => {
   const headerPosition = useSharedValue(-offset);
 
-  useEffect(() => {
-    if (!disabled) {
-      headerPosition.value = withTiming(0, { duration });
-    }
+  useFocusEffect(
+    React.useCallback(() => {
+      if (!disabled) {
+        headerPosition.value = withTiming(0, { duration });
+      }
 
-    return () => {
-      headerPosition.value = withTiming(-offset, {
-        duration,
-        easing: Easing.ease,
-      });
-    };
-  }, [disabled, duration, headerPosition, offset]);
+      return () => {
+        headerPosition.value = withTiming(-offset, {
+          duration,
+          easing: Easing.ease,
+        });
+      };
+    }, [disabled, duration, headerPosition, offset]),
+  );
 
   const animatedHeaderStyle = useAnimatedStyle(() => {
     return {
       transform: [{ translateX: headerPosition.value }],
-      opacity: interpolate(headerPosition.value, [-offset * 0.4, 0], [0, 1]),
+      opacity: interpolate(headerPosition.value, [-offset * 1, 0], [0, 1]),
     };
   });
 
