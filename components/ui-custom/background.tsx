@@ -11,7 +11,7 @@ interface Props {
 const Background = ({ className, children }: Props) => {
   return (
     <SafeAreaView
-      className={cn(`flex-1 px-5 bg-background pt-safe`, className)}
+      className={cn(`flex-1 px-5 bg-background py-safe`, className)}
       edges={[]}
     >
       {children}
