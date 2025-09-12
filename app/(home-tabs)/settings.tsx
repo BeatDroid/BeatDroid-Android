@@ -2,6 +2,7 @@ import AnimatedHeader from "@/components/ui-custom/animated-header";
 import Background from "@/components/ui-custom/background";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Switch } from "@/components/ui/switch";
 import { Text } from "@/components/ui/text";
 import useSupabase from "@/hooks/useSupabase";
 import { useColorScheme } from "@/lib/useColorScheme";
@@ -46,18 +47,23 @@ const Settings = () => {
         </CardHeader>
         <CardContent>
           <View className="flex-row justify-between items-center">
-            <Text className={"font-ui-regular"}>Colour Scheme</Text>
-            <Button variant="default" onPress={toggleColorScheme}>
+            <Text className={"font-ui-regular"}>Dark Mode</Text>
+            <View className="flex-row items-center gap-3">
               <ExpoMaterialCommunityIcons
-                className="text-black"
+                className="text-foreground"
                 size={23}
-                name={
-                  isDarkColorScheme
-                    ? "white-balance-sunny"
-                    : "moon-waning-crescent"
-                }
+                name={"white-balance-sunny"}
               />
-            </Button>
+              <Switch
+                checked={isDarkColorScheme}
+                onCheckedChange={toggleColorScheme}
+              />
+              <ExpoMaterialCommunityIcons
+                className="text-foreground"
+                size={23}
+                name={"moon-waning-crescent"}
+              />
+            </View>
           </View>
         </CardContent>
       </Card>
@@ -81,7 +87,13 @@ const Settings = () => {
                 variant="default"
                 disabled={loading}
                 onPress={supabaseLogin}
+                className="flex-row items-center gap-2"
               >
+                <ExpoMaterialCommunityIcons
+                  className="text-background"
+                  size={15}
+                  name={"google"}
+                />
                 <Text>Login</Text>
               </Button>
             )}
