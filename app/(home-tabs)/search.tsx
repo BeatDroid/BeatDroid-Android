@@ -46,7 +46,12 @@ import { cssInterop } from "nativewind";
 import React, { useEffect, useRef, useState } from "react";
 import { View } from "react-native";
 import { KeyboardAwareScrollView } from "react-native-keyboard-controller";
-import Animated, { FadeIn } from "react-native-reanimated";
+import Animated, {
+  FadeIn,
+  useAnimatedStyle,
+  useSharedValue,
+  withTiming,
+} from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { toast } from "sonner-native";
 
@@ -87,6 +92,7 @@ export default function Search() {
   const [theme, setTheme] = useState<ThemeTypes>("Dark");
   const [accentLine, setAccentLine] = useState(false);
   const buttonVariant = isDarkColorScheme ? "outline" : "secondary";
+  const buttonContainerHeight = useSharedValue(0);
 
   useEffect(() => {
     if (dbSearchParam) {
@@ -117,7 +123,11 @@ export default function Search() {
     const selector = selectPoster(searchType);
     setSearchParamDefault(selector.searchParam);
     setArtistNameDefault(selector.artistName);
-  }, [searchType]);
+    buttonContainerHeight.value = withTiming(75, { duration: 300 });
+    if (searchType === "Choose type") {
+      buttonContainerHeight.value = withTiming(0, { duration: 300 });
+    }
+  }, [buttonContainerHeight, searchType]);
 
   const onMutate = (variables: SearchAlbumRequest | SearchTrackRequest) => {
     const searchParam =
@@ -284,6 +294,12 @@ export default function Search() {
     await syncToSupabase();
   };
 
+  const buttonContainerStyle = useAnimatedStyle(() => {
+    return {
+      height: buttonContainerHeight.value,
+    };
+  });
+
   return (
     <Background disableSafeArea className={"pt-safe"}>
       <AnimatedHeader
@@ -329,7 +345,11 @@ export default function Search() {
           <CardContent>
             <AnimatedInput
               ref={searchParamRef}
-              label={`${searchType} name`}
+              label={
+                searchType === "Choose type"
+                  ? "Choose a search type first"
+                  : `${searchType} name`
+              }
               editable={searchType !== "Choose type"}
               placeholder={`Eg. ${searchParamDefault}`}
               value={searchParam}
@@ -337,7 +357,11 @@ export default function Search() {
             />
             <AnimatedInput
               ref={artistNameRef}
-              label="Artist name"
+              label={
+                searchType === "Choose type"
+                  ? "Decide what you want before searching"
+                  : `Artist name`
+              }
               editable={searchType !== "Choose type"}
               placeholder={`Eg. ${artistNameDefault}`}
               value={artistName}
@@ -424,16 +448,18 @@ export default function Search() {
           </AnimatedCard>
         </View>
       </KeyboardAwareScrollView>
-      <AnimatedConfirmButton
-        title={"Create Poster"}
-        icon={<ExpoMaterialIcons name="auto-awesome" size={20} />}
-        loading={
-          searchAlbumApi.isPending || searchTrackApi.isPending || !isTokenSet
-        }
-        onPress={search}
-        disabled={searchType === "Choose type"}
-        buttonClassName={"rounded-full"}
-      />
+      <Animated.View style={buttonContainerStyle} className={"overflow-hidden"}>
+        <AnimatedConfirmButton
+          title={"Create Poster"}
+          icon={<ExpoMaterialIcons name="auto-awesome" size={20} />}
+          loading={
+            searchAlbumApi.isPending || searchTrackApi.isPending || !isTokenSet
+          }
+          onPress={search}
+          disabled={searchType === "Choose type"}
+          buttonClassName={"rounded-full"}
+        />
+      </Animated.View>
     </Background>
   );
 }
