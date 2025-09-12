@@ -1,5 +1,5 @@
 import { cn } from "@/lib/utils";
-import { Ionicons } from "@expo/vector-icons";
+import FontAwesome from "@expo/vector-icons/FontAwesome";
 import {
   TabList,
   Tabs,
@@ -27,11 +27,11 @@ import Animated, {
 interface CustomTabButtonProps
   extends React.PropsWithChildren,
     Omit<TabTriggerSlotProps, "style"> {
-  icon: keyof typeof Ionicons.glyphMap;
+  icon: keyof typeof FontAwesome.glyphMap;
   style?: PressableProps["style"];
 }
 
-const ExpoIonicons = cssInterop(Ionicons, {
+const ExpoFontAwesome = cssInterop(FontAwesome, {
   className: {
     target: "style",
     nativeStyleToProp: { color: true },
@@ -54,13 +54,13 @@ export default function Layout() {
           href="/(home-tabs)/search-history"
           asChild
         >
-          <CustomTabButton icon="images">History</CustomTabButton>
+          <CustomTabButton icon="history">History</CustomTabButton>
         </TabTrigger>
         <TabTrigger name="search" href="/(home-tabs)/search" asChild>
           <CustomTabButton icon="search">Search</CustomTabButton>
         </TabTrigger>
         <TabTrigger name="settings" href="/(home-tabs)/settings" asChild>
-          <CustomTabButton icon="settings">Settings</CustomTabButton>
+          <CustomTabButton icon="cog">Settings</CustomTabButton>
         </TabTrigger>
       </TabList>
     </Tabs>
@@ -111,7 +111,7 @@ const CustomTabButton = React.forwardRef<View, CustomTabButtonProps>(
               isFocused ? "bg-primary" : "bg-secondary",
             )}
           />
-          <ExpoIonicons
+          <ExpoFontAwesome
             name={props.icon}
             size={24}
             className={cn(
