@@ -10,6 +10,7 @@ import * as Sentry from "@sentry/react-native";
 import { FlashList } from "@shopify/flash-list";
 import { and, desc, eq } from "drizzle-orm";
 import { lt } from "drizzle-orm/sql/expressions/conditions";
+import { useFocusEffect } from "expo-router";
 import { cssInterop } from "nativewind";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { RefreshControl, View } from "react-native";
@@ -58,12 +59,14 @@ export default function SearchHistoryView() {
   const albumPointerRef = useRef<number>(0);
   const isLoadingAlbumsRef = useRef<boolean>(false);
   const hasMoreAlbumsRef = useRef<boolean>(true);
+  const albumLengthRef = useRef<number>(0);
 
   // Tracks
   const [trackHistory, setTrackHistory] = useState<SearchHistory[]>([]);
   const trackPointerRef = useRef<number>(0);
   const isLoadingTracksRef = useRef<boolean>(false);
   const hasMoreTracksRef = useRef<boolean>(true);
+  const trackLengthRef = useRef<number>(0);
 
   interface DataLoaderProps {
     reset?: boolean;
@@ -76,13 +79,11 @@ export default function SearchHistoryView() {
           albumPointerRef.current = 0;
           hasMoreAlbumsRef.current = true;
           isLoadingAlbumsRef.current = false;
-          setTimeout(() => {}, 200);
         }
 
         if (isLoadingAlbumsRef.current || !hasMoreAlbumsRef.current) return;
 
         isLoadingAlbumsRef.current = true;
-        // For descending order, use lt(pointer) to fetch older items
         const baseWhere = eq(searchHistoryTable.searchType, "Album");
 
         const paginatedData = await db
@@ -105,9 +106,7 @@ export default function SearchHistoryView() {
           return;
         }
 
-        // With desc order, the next pointer is the smallest id from this page
-        const nextPointer = paginatedData[paginatedData.length - 1].id;
-        albumPointerRef.current = nextPointer;
+        albumPointerRef.current = paginatedData[paginatedData.length - 1].id;
         if (reset) {
           setAlbumHistory(paginatedData);
         } else {
@@ -127,14 +126,14 @@ export default function SearchHistoryView() {
               where: {
                 searchType: "Album",
                 pointer: albumPointerRef.current,
-                loadedLength: albumHistory.length,
+                loadedLength: albumLengthRef.current,
               },
             },
           },
         });
       }
     },
-    [albumHistory.length, db],
+    [db],
   );
 
   const incrementallyLoadTracks = useCallback(
@@ -144,7 +143,6 @@ export default function SearchHistoryView() {
           trackPointerRef.current = 0;
           hasMoreTracksRef.current = true;
           isLoadingTracksRef.current = false;
-          setTimeout(() => {}, 200);
         }
 
         if (isLoadingTracksRef.current || !hasMoreTracksRef.current) return;
@@ -172,8 +170,7 @@ export default function SearchHistoryView() {
           return;
         }
 
-        const nextPointer = paginatedData[paginatedData.length - 1].id;
-        trackPointerRef.current = nextPointer;
+        trackPointerRef.current = paginatedData[paginatedData.length - 1].id;
         if (reset) {
           setTrackHistory(paginatedData);
         } else {
@@ -193,14 +190,14 @@ export default function SearchHistoryView() {
               where: {
                 searchType: "Track",
                 pointer: trackPointerRef.current,
-                loadedLength: trackHistory.length,
+                loadedLength: trackLengthRef.current,
               },
             },
           },
         });
       }
     },
-    [db, trackHistory.length],
+    [db],
   );
 
   const refreshAlbums = useCallback(async () => {
@@ -282,32 +279,34 @@ export default function SearchHistoryView() {
     syncToSupabase,
   ]);
 
-  useEffect(() => {
-    const initialLoad = async () => {
-      Sentry.addBreadcrumb({
-        message: "SearchHistoryView mounted",
-        category: "ui",
-        level: "info",
-      });
-      await incrementallyLoadAlbums({ reset: true });
-      await incrementallyLoadTracks({ reset: true });
-      setTimeout(() => syncHistory(), 2000);
-    };
+  const initialLoad = async () => {
+    Sentry.addBreadcrumb({
+      message: "SearchHistoryView mounted",
+      category: "ui",
+      level: "info",
+    });
+    await Promise.all([
+      incrementallyLoadAlbums({ reset: true }),
+      incrementallyLoadTracks({ reset: true }),
+    ]);
+    syncHistory();
+  };
 
+  useEffect(() => {
     initialLoad();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  useFocusEffect(
+    useCallback(() => {
+      initialLoad();
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []),
+  );
+
   useEffect(() => {
-    console.log(
-      "Album History: ",
-      albumHistory,
-      "Track History",
-      trackHistory,
-      "Pointers",
-      albumPointerRef.current,
-      trackPointerRef.current,
-    );
+    albumLengthRef.current = albumHistory.length;
+    trackLengthRef.current = trackHistory.length;
   }, [albumHistory, trackHistory]);
 
   const renderItem = React.useCallback(
