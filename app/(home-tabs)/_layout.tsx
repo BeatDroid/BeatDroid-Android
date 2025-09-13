@@ -1,4 +1,5 @@
 import { cn } from "@/lib/utils";
+import { selectionHaptic } from "@/utils/haptic-utils";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
 import {
   TabList,
@@ -47,7 +48,7 @@ export default function Layout() {
       <TabSlot />
       <TabList
         className={
-          "center-items justify-center w-full px-3 pb-safe-offset-2 pt-4 bg-secondary"
+          "center-items justify-center w-full px-3 pb-safe-offset-4 pt-4 bg-secondary"
         }
       >
         <TabTrigger
@@ -101,6 +102,10 @@ const CustomTabButton = React.forwardRef<View, CustomTabButtonProps>(
       <Pressable
         ref={ref}
         {...props}
+        onPress={(events) => {
+          props.onPress?.(events);
+          selectionHaptic();
+        }}
         style={StyleSheet.flatten([props.style, { flexDirection: "column" }])}
         className={cn(`py-2 px-4 w-1/3 items-center self-center rounded-xl`)}
       >
