@@ -79,6 +79,7 @@ const Settings = () => {
                 variant="default"
                 disabled={loading}
                 onPress={supabaseLogout}
+                className={"rounded-full"}
               >
                 <Text>Logout</Text>
               </Button>
@@ -87,10 +88,10 @@ const Settings = () => {
                 variant="default"
                 disabled={loading}
                 onPress={supabaseLogin}
-                className="flex-row items-center gap-2"
+                className="flex-row items-center gap-2 rounded-full"
               >
                 <ExpoMaterialCommunityIcons
-                  className="text-background"
+                  className="text-black"
                   size={15}
                   name={"google"}
                 />
