@@ -217,6 +217,7 @@ const AnimatedInput = forwardRef<AnimatedInputRef, AnimatedInputProps>(
             >
               <Label
                 className={cn(
+                  "line-clamp-1 pr-4",
                   labelClasses,
                   hasError ? "text-red-700 dark:text-red-500" : "",
                 )}
