@@ -51,13 +51,13 @@ const AnimatedHeader = ({
   return (
     <Animated.View
       style={animatedHeaderStyle}
-      className="h-[100] items-start justify-center"
+      className="items-start justify-center mt-2"
     >
-      <Text className="text-4xl leading-tight font-ui-bold mb-2 text-center">
+      <Text className="text-4xl leading-tight font-ui-bold mb-2 text-center line-clamp-1">
         {title}
       </Text>
       {description && (
-        <Text className="text-base text-center">{description}</Text>
+        <Text className="text-base text-left line-clamp-2">{description}</Text>
       )}
     </Animated.View>
   );
