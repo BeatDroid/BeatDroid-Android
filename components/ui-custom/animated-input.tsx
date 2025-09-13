@@ -213,11 +213,11 @@ const AnimatedInput = forwardRef<AnimatedInputRef, AnimatedInputProps>(
               className="z-[1] absolute top-3 left-3"
               style={animatedLabelStyle}
               entering={FadeIn.duration(ANIMATION_DURATION)}
-              pointerEvents="box-none"
+              pointerEvents="none"
             >
               <Label
                 className={cn(
-                  "line-clamp-1 pr-4",
+                  "line-clamp-1 pr-4 pointer-events-none",
                   labelClasses,
                   hasError ? "text-red-700 dark:text-red-500" : "",
                 )}
