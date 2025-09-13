@@ -41,7 +41,7 @@ const Settings = () => {
         title="Settings ⚙️"
         description={"Customize your experience"}
       />
-      <Card className={"mt-3"}>
+      <Card className={"mt-6"}>
         <CardHeader>
           <Text className={"font-ui-bold"}>Theme</Text>
         </CardHeader>
