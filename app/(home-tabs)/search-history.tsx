@@ -11,10 +11,10 @@ import { FlashList } from "@shopify/flash-list";
 import { and, desc, eq } from "drizzle-orm";
 import { lt } from "drizzle-orm/sql/expressions/conditions";
 import { cssInterop } from "nativewind";
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { RefreshControl, View } from "react-native";
 
-const preloadItems = 10;
+const PRELOAD_ITEMS = 10;
 
 type RefreshControlProps = React.ComponentProps<typeof RefreshControl> & {
   className?: string;
@@ -55,144 +55,164 @@ export default function SearchHistoryView() {
 
   // Albums
   const [albumHistory, setAlbumHistory] = useState<SearchHistory[]>([]);
-  const [albumPointer, setAlbumPointer] = useState<number>(0);
-  const [isLoadingAlbums, setIsLoadingAlbums] = useState(false);
-  const [hasMoreAlbums, setHasMoreAlbums] = useState(true);
+  const albumPointerRef = useRef<number>(0);
+  const isLoadingAlbumsRef = useRef<boolean>(false);
+  const hasMoreAlbumsRef = useRef<boolean>(true);
 
   // Tracks
   const [trackHistory, setTrackHistory] = useState<SearchHistory[]>([]);
-  const [trackPointer, setTrackPointer] = useState<number>(0);
-  const [isLoadingTracks, setIsLoadingTracks] = useState(false);
-  const [hasMoreTracks, setHasMoreTracks] = useState(true);
+  const trackPointerRef = useRef<number>(0);
+  const isLoadingTracksRef = useRef<boolean>(false);
+  const hasMoreTracksRef = useRef<boolean>(true);
 
-  const incrementallyLoadAlbums = useCallback(async () => {
-    try {
-      if (isLoadingAlbums || !hasMoreAlbums) return;
+  interface DataLoaderProps {
+    reset?: boolean;
+  }
 
-      setIsLoadingAlbums(true);
-      // For descending order, use lt(pointer) to fetch older items
-      const baseWhere = eq(searchHistoryTable.searchType, "Album");
+  const incrementallyLoadAlbums = useCallback(
+    async ({ reset = false }: DataLoaderProps) => {
+      try {
+        if (reset) {
+          albumPointerRef.current = 0;
+          hasMoreAlbumsRef.current = true;
+          isLoadingAlbumsRef.current = false;
+          setTimeout(() => {}, 200);
+        }
 
-      const paginatedData = await db
-        .select()
-        .from(searchHistoryTable)
-        .where(
-          albumPointer > 0
-            ? and(baseWhere, lt(searchHistoryTable.id, albumPointer))
-            : baseWhere,
-        )
-        .orderBy(desc(searchHistoryTable.id))
-        .limit(preloadItems);
+        if (isLoadingAlbumsRef.current || !hasMoreAlbumsRef.current) return;
 
-      if (paginatedData.length === 0) {
-        setHasMoreAlbums(false);
-        setIsLoadingAlbums(false);
-        return;
-      }
+        isLoadingAlbumsRef.current = true;
+        // For descending order, use lt(pointer) to fetch older items
+        const baseWhere = eq(searchHistoryTable.searchType, "Album");
 
-      // With desc order, the next pointer is the smallest id from this page
-      const nextPointer = paginatedData[paginatedData.length - 1].id;
-      setAlbumPointer(nextPointer);
-      setAlbumHistory((prevHistory) => [...prevHistory, ...paginatedData]);
-      setIsLoadingAlbums(false);
-    } catch (error) {
-      Sentry.captureException(error, {
-        tags: {
-          operation: "incrementallyLoadAlbums",
-          component: "SearchHistoryView",
-        },
-        contexts: {
-          database: {
-            operation: "incremental_album_load",
-            table: "searchHistoryTable",
-            where: {
-              searchType: "Album",
-              pointer: albumPointer,
-              loadedLength: albumHistory.length,
+        const paginatedData = await db
+          .select()
+          .from(searchHistoryTable)
+          .where(
+            albumPointerRef.current > 0
+              ? and(
+                  baseWhere,
+                  lt(searchHistoryTable.id, albumPointerRef.current),
+                )
+              : baseWhere,
+          )
+          .orderBy(desc(searchHistoryTable.id))
+          .limit(PRELOAD_ITEMS);
+
+        if (paginatedData.length === 0) {
+          hasMoreAlbumsRef.current = false;
+          isLoadingAlbumsRef.current = false;
+          return;
+        }
+
+        // With desc order, the next pointer is the smallest id from this page
+        const nextPointer = paginatedData[paginatedData.length - 1].id;
+        albumPointerRef.current = nextPointer;
+        if (reset) {
+          setAlbumHistory(paginatedData);
+        } else {
+          setAlbumHistory((prevHistory) => [...prevHistory, ...paginatedData]);
+        }
+        isLoadingAlbumsRef.current = false;
+      } catch (error) {
+        Sentry.captureException(error, {
+          tags: {
+            operation: "incrementallyLoadAlbums",
+            component: "SearchHistoryView",
+          },
+          contexts: {
+            database: {
+              operation: "incremental_album_load",
+              table: "searchHistoryTable",
+              where: {
+                searchType: "Album",
+                pointer: albumPointerRef.current,
+                loadedLength: albumHistory.length,
+              },
             },
           },
-        },
-      });
-    }
-  }, [albumHistory.length, albumPointer, db, hasMoreAlbums, isLoadingAlbums]);
-
-  const incrementallyLoadTracks = useCallback(async () => {
-    try {
-      if (isLoadingTracks || !hasMoreTracks) return;
-
-      setIsLoadingTracks(true);
-      // For descending order, use lt(pointer) to fetch older items
-      const baseWhere = eq(searchHistoryTable.searchType, "Track");
-
-      const paginatedData = await db
-        .select()
-        .from(searchHistoryTable)
-        .where(
-          trackPointer > 0
-            ? and(baseWhere, lt(searchHistoryTable.id, trackPointer))
-            : baseWhere,
-        )
-        .orderBy(desc(searchHistoryTable.id))
-        .limit(preloadItems);
-
-      if (paginatedData.length === 0) {
-        setHasMoreTracks(false);
-        setIsLoadingTracks(false);
-        return;
+        });
       }
+    },
+    [albumHistory.length, db],
+  );
 
-      // With desc order, the next pointer is the smallest id from this page
-      const nextPointer = paginatedData[paginatedData.length - 1].id;
-      setTrackPointer(nextPointer);
-      setTrackHistory((prevHistory) => [...prevHistory, ...paginatedData]);
-      setIsLoadingTracks(false);
-    } catch (error) {
-      Sentry.captureException(error, {
-        tags: {
-          operation: "incrementallyLoadTracks",
-          component: "SearchHistoryView",
-        },
-        contexts: {
-          database: {
-            operation: "incremental_track_load",
-            table: "searchHistoryTable",
-            where: {
-              searchType: "Track",
-              pointer: trackPointer,
-              loadedLength: trackHistory.length,
+  const incrementallyLoadTracks = useCallback(
+    async ({ reset = false }: DataLoaderProps) => {
+      try {
+        if (reset) {
+          trackPointerRef.current = 0;
+          hasMoreTracksRef.current = true;
+          isLoadingTracksRef.current = false;
+          setTimeout(() => {}, 200);
+        }
+
+        if (isLoadingTracksRef.current || !hasMoreTracksRef.current) return;
+
+        isLoadingTracksRef.current = true;
+        const baseWhere = eq(searchHistoryTable.searchType, "Track");
+
+        const paginatedData = await db
+          .select()
+          .from(searchHistoryTable)
+          .where(
+            trackPointerRef.current > 0
+              ? and(
+                  baseWhere,
+                  lt(searchHistoryTable.id, trackPointerRef.current),
+                )
+              : baseWhere,
+          )
+          .orderBy(desc(searchHistoryTable.id))
+          .limit(PRELOAD_ITEMS);
+
+        if (paginatedData.length === 0) {
+          hasMoreTracksRef.current = false;
+          isLoadingTracksRef.current = false;
+          return;
+        }
+
+        const nextPointer = paginatedData[paginatedData.length - 1].id;
+        trackPointerRef.current = nextPointer;
+        if (reset) {
+          setTrackHistory(paginatedData);
+        } else {
+          setTrackHistory((prevHistory) => [...prevHistory, ...paginatedData]);
+        }
+        isLoadingTracksRef.current = false;
+      } catch (error) {
+        Sentry.captureException(error, {
+          tags: {
+            operation: "incrementallyLoadTracks",
+            component: "SearchHistoryView",
+          },
+          contexts: {
+            database: {
+              operation: "incremental_track_load",
+              table: "searchHistoryTable",
+              where: {
+                searchType: "Track",
+                pointer: trackPointerRef.current,
+                loadedLength: trackHistory.length,
+              },
             },
           },
-        },
-      });
-    }
-  }, [db, hasMoreTracks, isLoadingTracks, trackHistory.length, trackPointer]);
-
-  const resetPointers = useCallback(() => {
-    setAlbumPointer(0);
-    setTrackPointer(0);
-    setHasMoreAlbums(true);
-    setHasMoreTracks(true);
-    setIsLoadingAlbums(false);
-    setIsLoadingTracks(false);
-    setAlbumHistory([]);
-    setTrackHistory([]);
-  }, []);
+        });
+      }
+    },
+    [db, trackHistory.length],
+  );
 
   const refreshAlbums = useCallback(async () => {
     if (refreshingAlbums) return;
     setRefreshingAlbums(true);
     try {
       const isLoggedIn = await supabaseLoginCheck();
-      setAlbumPointer(0);
-      setHasMoreAlbums(true);
-      setIsLoadingAlbums(false);
-      setAlbumHistory([]);
       if (isLoggedIn) {
         await syncFromSupabase();
         await syncToSupabase();
       }
-      await new Promise((r) => setTimeout(r, 0));
-      await incrementallyLoadAlbums();
+      await incrementallyLoadAlbums({ reset: true });
     } catch (error) {
       Sentry.captureException(error, {
         tags: { operation: "refreshAlbums", component: "SearchHistoryView" },
@@ -213,16 +233,11 @@ export default function SearchHistoryView() {
     setRefreshingTracks(true);
     try {
       const isLoggedIn = await supabaseLoginCheck();
-      setTrackPointer(0);
-      setHasMoreTracks(true);
-      setIsLoadingTracks(false);
-      setTrackHistory([]);
       if (isLoggedIn) {
         await syncFromSupabase();
         await syncToSupabase();
       }
-      await new Promise((r) => setTimeout(r, 0));
-      await incrementallyLoadTracks();
+      await incrementallyLoadTracks({ reset: true });
     } catch (error) {
       Sentry.captureException(error, {
         tags: { operation: "refreshTracks", component: "SearchHistoryView" },
@@ -243,13 +258,14 @@ export default function SearchHistoryView() {
     setRefreshingTracks(true);
     try {
       const isLoggedIn = await supabaseLoginCheck();
-      resetPointers();
       if (isLoggedIn) {
         await syncFromSupabase();
         await syncToSupabase();
       }
-      await new Promise((resolve) => setTimeout(resolve, 0));
-      await Promise.all([incrementallyLoadAlbums(), incrementallyLoadTracks()]);
+      await Promise.all([
+        incrementallyLoadAlbums({ reset: true }),
+        incrementallyLoadTracks({ reset: true }),
+      ]);
     } catch (error) {
       Sentry.captureException(error, {
         tags: { operation: "syncHistory", component: "SearchHistoryView" },
@@ -261,21 +277,38 @@ export default function SearchHistoryView() {
   }, [
     incrementallyLoadAlbums,
     incrementallyLoadTracks,
-    resetPointers,
     supabaseLoginCheck,
     syncFromSupabase,
     syncToSupabase,
   ]);
 
   useEffect(() => {
-    Sentry.addBreadcrumb({
-      message: "SearchHistoryView mounted",
-      category: "ui",
-      level: "info",
-    });
-    syncHistory();
+    const initialLoad = async () => {
+      Sentry.addBreadcrumb({
+        message: "SearchHistoryView mounted",
+        category: "ui",
+        level: "info",
+      });
+      await incrementallyLoadAlbums({ reset: true });
+      await incrementallyLoadTracks({ reset: true });
+      setTimeout(() => syncHistory(), 2000);
+    };
+
+    initialLoad();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  useEffect(() => {
+    console.log(
+      "Album History: ",
+      albumHistory,
+      "Track History",
+      trackHistory,
+      "Pointers",
+      albumPointerRef.current,
+      trackPointerRef.current,
+    );
+  }, [albumHistory, trackHistory]);
 
   const renderItem = React.useCallback(
     ({ item }: { item: SearchHistory }) => {
@@ -393,7 +426,7 @@ export default function SearchHistoryView() {
               numColumns={2}
               data={albumHistory}
               keyExtractor={(item) => item.id.toString()}
-              onEndReached={incrementallyLoadAlbums}
+              onEndReached={() => incrementallyLoadAlbums({})}
               onEndReachedThreshold={0.7}
               contentContainerClassName={"mx-0 pb-[85]"}
               renderItem={renderItem}
@@ -421,7 +454,7 @@ export default function SearchHistoryView() {
               numColumns={2}
               data={trackHistory}
               keyExtractor={(item) => item.id.toString()}
-              onEndReached={incrementallyLoadTracks}
+              onEndReached={() => incrementallyLoadTracks({})}
               onEndReachedThreshold={0.7}
               contentContainerClassName={"mx-0 pb-[85]"}
               renderItem={renderItem}
