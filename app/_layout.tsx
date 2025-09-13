@@ -166,20 +166,9 @@ function NavigationStack() {
   }, [supabaseLoginCheck, syncFromSupabase]);
 
   React.useEffect(() => {
-    id.current = toast.loading("Fetching token.", {
-      duration: 1000,
-    });
-  }, []);
-
-  React.useEffect(() => {
     const setTokenAsync = async () => {
       if (genTokenApi.isSuccess && genTokenApi.data.success) {
         setToken(genTokenApi.data.data!.access_token);
-        toast.success("App initialized successfully", {
-          id: id.current,
-          description: "Enjoy your posters!",
-          duration: 2000,
-        });
       } else if (genTokenApi.isError) {
         toast.error("Cannot initialize app", {
           id: id.current,

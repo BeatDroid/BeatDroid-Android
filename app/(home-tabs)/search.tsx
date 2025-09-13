@@ -44,10 +44,12 @@ import * as Sentry from "@sentry/react-native";
 import { router, useLocalSearchParams } from "expo-router";
 import { cssInterop } from "nativewind";
 import React, { useEffect, useRef, useState } from "react";
-import { View } from "react-native";
+import { ActivityIndicator, View } from "react-native";
 import { KeyboardAwareScrollView } from "react-native-keyboard-controller";
 import Animated, {
+  Easing,
   FadeIn,
+  interpolate,
   useAnimatedStyle,
   useSharedValue,
   withTiming,
@@ -93,6 +95,7 @@ export default function Search() {
   const [accentLine, setAccentLine] = useState(false);
   const buttonVariant = isDarkColorScheme ? "outline" : "secondary";
   const buttonContainerHeight = useSharedValue(0);
+  const statusChipHeight = useSharedValue(50);
 
   useEffect(() => {
     if (dbSearchParam) {
@@ -118,6 +121,19 @@ export default function Search() {
       dbAccentLine: undefined,
     });
   }, [dbSearchParam, dbArtistName, dbSearchType, dbTheme, dbAccentLine]);
+
+  useEffect(() => {
+    if (isTokenSet)
+      statusChipHeight.value = withTiming(0, {
+        duration: 500,
+        easing: Easing.inOut(Easing.sin),
+      });
+    else
+      statusChipHeight.value = withTiming(50, {
+        duration: 500,
+        easing: Easing.inOut(Easing.sin),
+      });
+  }, [isTokenSet, statusChipHeight]);
 
   useEffect(() => {
     const selector = selectPoster(searchType);
@@ -300,6 +316,14 @@ export default function Search() {
     };
   });
 
+  const statusChipContainerStyle = useAnimatedStyle(() => {
+    return {
+      height: statusChipHeight.value,
+      width: `${interpolate(statusChipHeight.value, [0, 50], [0, 100])}%`,
+      opacity: interpolate(statusChipHeight.value, [30, 50], [0, 1]),
+    };
+  });
+
   return (
     <Background disableSafeArea className={"pt-safe"}>
       <AnimatedHeader
@@ -312,6 +336,18 @@ export default function Search() {
         fadingEdgeLength={100}
         showsVerticalScrollIndicator={false}
       >
+        <Animated.View
+          style={statusChipContainerStyle}
+          className={"overflow-hidden"}
+        >
+          <View className="flex-row items-center justify-center bg-transparent border border-accent px-4 py-2 w-1/2 rounded-full">
+            <Text className={"text-md mb-1"}>Fetching token</Text>
+            <ActivityIndicator
+              size={"small"}
+              className={"ml-4 text-foreground aspect-square w-auto h-[70%]"}
+            />
+          </View>
+        </Animated.View>
         <AnimatedCard index={0} className="dark:border-transparent">
           <CardHeader className="flex-row justify-between items-center">
             <Label>Search Type</Label>
