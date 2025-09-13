@@ -386,7 +386,11 @@ export default function Search() {
                   ? "Choose a search type first"
                   : `${searchType} name`
               }
-              editable={searchType !== "Choose type"}
+              editable={
+                searchType !== "Choose type" &&
+                !searchAlbumApi.isPending &&
+                !searchTrackApi.isPending
+              }
               placeholder={`Eg. ${searchParamDefault}`}
               value={searchParam}
               onChangeText={setSearchParam}
@@ -398,7 +402,11 @@ export default function Search() {
                   ? "Decide what you want before searching"
                   : `Artist name`
               }
-              editable={searchType !== "Choose type"}
+              editable={
+                searchType !== "Choose type" &&
+                !searchAlbumApi.isPending &&
+                !searchTrackApi.isPending
+              }
               placeholder={`Eg. ${artistNameDefault}`}
               value={artistName}
               onChangeText={setArtistName}
