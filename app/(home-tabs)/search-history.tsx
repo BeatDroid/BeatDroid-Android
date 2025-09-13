@@ -48,8 +48,12 @@ const TwRefreshControl = cssInterop(ThemedRefreshControl, {
 
 export default function SearchHistoryView() {
   const { db } = useDatabase();
-  const { syncToSupabase, syncFromSupabase, supabaseLoginCheck } =
-    useSupabase();
+  const {
+    syncToSupabase,
+    syncFromSupabase,
+    supabaseLoginCheck,
+    deleteFromSupabase,
+  } = useSupabase();
   const [currentTab, setCurrentTab] = useState("albums");
   const [refreshingAlbums, setRefreshingAlbums] = useState(false);
   const [refreshingTracks, setRefreshingTracks] = useState(false);
@@ -328,6 +332,11 @@ export default function SearchHistoryView() {
             );
           }
 
+          const isLoggedIn = await supabaseLoginCheck();
+          if (isLoggedIn) {
+            await deleteFromSupabase(item.id);
+          }
+
           const deleteTime = Date.now() - startTime;
 
           // Log successful deletion
@@ -376,7 +385,7 @@ export default function SearchHistoryView() {
         />
       );
     },
-    [currentTab, db],
+    [currentTab, db, deleteFromSupabase, supabaseLoginCheck],
   );
 
   const ListEmptyComponent = React.useCallback(() => {

@@ -10,21 +10,25 @@ import {
   statusCodes,
 } from "@react-native-google-signin/google-signin";
 import * as Sentry from "@sentry/react-native";
-import { eq, sql } from "drizzle-orm";
-import { useCallback, useState } from "react";
+import { eq, inArray, sql } from "drizzle-orm";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 export default function useSupabase() {
   const network = useNetwork();
   const { db, success, error } = useDatabase();
   const [loading, setLoading] = useState(true);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const isLoggedInRef = useRef<boolean>(false);
 
   GoogleSignin.configure({
     webClientId: process.env.EXPO_PUBLIC_WEB_CLIEND_ID || "",
   });
 
+  useEffect(() => {
+    console.log("Login status: ", isLoggedInRef.current);
+  }, []);
+
   const syncToSupabase = useCallback(async () => {
-    if (!network && !isLoggedIn) return;
+    if (!network || !isLoggedInRef.current) return;
     try {
       const unsyncedRecords = await db
         .select()
@@ -80,16 +84,20 @@ export default function useSupabase() {
         },
       });
     }
-  }, [db, isLoggedIn, network]);
+  }, [db, network]);
 
   const syncFromSupabase = useCallback(async () => {
-    if (!network && !isLoggedIn) return;
+    if (!network || !isLoggedInRef.current) return;
     try {
-      const { error, data } = await supabase.from("search_history").select("*");
+      const { data: authData } = await supabase.auth.getUser();
+      if (!authData?.user?.id) throw new Error("User not authenticated");
+
+      const { error, data } = await supabase
+        .from("search_history")
+        .select("*")
+        .eq("user_id", authData.user.id);
 
       if (error) throw error;
-
-      if (data.length === 0) return;
 
       Sentry.addBreadcrumb({
         type: "debug",
@@ -130,6 +138,33 @@ export default function useSupabase() {
               synced: true,
             },
           });
+
+        const remoteIds = new Set<number>(
+          data.map((r: SupabaseRecord) => r.local_id),
+        );
+
+        const localSynced = await db
+          .select({ id: searchHistoryTable.id })
+          .from(searchHistoryTable)
+          .where(eq(searchHistoryTable.synced, true));
+
+        const toDelete = localSynced
+          .map((r) => r.id)
+          .filter((id) => !remoteIds.has(id));
+
+        if (toDelete.length > 0) {
+          Sentry.addBreadcrumb({
+            type: "debug",
+            category: "Supabase pull",
+            level: "info",
+            message: `Deleting ${toDelete.length} local records absent on remote`,
+            timestamp: Date.now(),
+          });
+
+          await db
+            .delete(searchHistoryTable)
+            .where(inArray(searchHistoryTable.id, toDelete));
+        }
       }
     } catch (e) {
       console.log("Error syncing from Supabase:", e);
@@ -145,7 +180,68 @@ export default function useSupabase() {
         },
       });
     }
-  }, [db, isLoggedIn, network]);
+  }, [db, network]);
+
+  const deleteFromSupabase = useCallback(
+    async (localId: number) => {
+      console.log(
+        "Deleting from Supabase:",
+        localId,
+        network,
+        isLoggedInRef.current,
+      );
+      try {
+        if (!network || !isLoggedInRef.current) {
+          throw new Error("Network unavailable or user not logged in");
+        }
+
+        const { data: authData } = await supabase.auth.getUser();
+        if (!authData?.user?.id) {
+          throw new Error("User not authenticated");
+        }
+
+        Sentry.addBreadcrumb({
+          type: "debug",
+          category: "Supabase delete",
+          level: "info",
+          message: `Deleting record with local_id: ${localId}`,
+          timestamp: Date.now(),
+        });
+
+        const { error } = await supabase
+          .from("search_history")
+          .delete()
+          .eq("local_id", localId)
+          .eq("user_id", authData.user.id);
+
+        if (error) throw error;
+
+        Sentry.addBreadcrumb({
+          type: "debug",
+          category: "Supabase delete",
+          level: "info",
+          message: `Successfully deleted record with local_id: ${localId}`,
+          timestamp: Date.now(),
+        });
+      } catch (e) {
+        console.log("Error deleting from Supabase:", e);
+        Sentry.captureException(e, {
+          tags: {
+            operation: "deleteFromSupabase",
+          },
+          contexts: {
+            database: {
+              operation: "delete_from_supabase",
+              table: "search_history",
+              local_id: localId,
+            },
+          },
+        });
+        throw e;
+      }
+    },
+    [network],
+  );
 
   const supabaseLogin = useCallback(async () => {
     if (!network) return;
@@ -176,7 +272,7 @@ export default function useSupabase() {
           });
           throw { ...error, source: "supabase" };
         }
-        setIsLoggedIn(true);
+        isLoggedInRef.current = true;
         await syncFromSupabase();
       } else {
         // sign in was cancelled by user
@@ -218,7 +314,7 @@ export default function useSupabase() {
   const supabaseLoginCheck = async () => {
     const { data: authData } = await supabase.auth.getUser();
     if (authData?.user !== null) {
-      setIsLoggedIn(true);
+      isLoggedInRef.current = true;
       Sentry.addBreadcrumb({
         type: "debug",
         category: "Supabase login check",
@@ -227,7 +323,7 @@ export default function useSupabase() {
         timestamp: Date.now(),
       });
     } else {
-      setIsLoggedIn(false);
+      isLoggedInRef.current = false;
       Sentry.addBreadcrumb({
         type: "debug",
         category: "Supabase login check",
@@ -259,10 +355,11 @@ export default function useSupabase() {
   return {
     syncToSupabase,
     syncFromSupabase,
+    deleteFromSupabase,
     supabaseLogin,
     supabaseLoginCheck,
     supabaseLogout,
-    isLoggedIn,
+    isLoggedIn: isLoggedInRef.current,
     loading,
     success,
     error,
