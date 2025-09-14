@@ -415,16 +415,17 @@ export default function SearchHistoryView() {
   }, [trackHistory.length, albumHistory.length]);
 
   return (
-    <Background disableSafeArea className={"pt-safe"}>
+    <Background disableSafeArea className={"pt-safe px-0"}>
+      <AnimatedHeader
+        title="Search History 📜"
+        description="Tracks and albums you couldn't get enough of"
+        containerClassName={"px-5"}
+      />
       <Tabs
         value={currentTab}
         onValueChange={setCurrentTab}
-        className="flex-1 px-0"
+        className="flex-1 px-2"
       >
-        <AnimatedHeader
-          title="Search History 📜"
-          description="Tracks and albums you couldn't get enough of"
-        />
         <TabsContent value="albums" className="flex-1">
           {albumHistory.length === 0 ? (
             <ListEmptyComponent />
@@ -436,10 +437,10 @@ export default function SearchHistoryView() {
               keyExtractor={(item) => item.id.toString()}
               onEndReached={() => incrementallyLoadAlbums({})}
               onEndReachedThreshold={0.7}
-              contentContainerClassName={"mx-0 pb-[85]"}
+              contentContainerClassName={"mx-0 pb-[70] pt-4"}
               renderItem={renderItem}
               showsVerticalScrollIndicator={false}
-              fadingEdgeLength={70}
+              fadingEdgeLength={80}
               scrollEventThrottle={16}
               refreshing={refreshingAlbums}
               onRefresh={refreshAlbums}
@@ -464,10 +465,10 @@ export default function SearchHistoryView() {
               keyExtractor={(item) => item.id.toString()}
               onEndReached={() => incrementallyLoadTracks({})}
               onEndReachedThreshold={0.7}
-              contentContainerClassName={"mx-0 pb-[85]"}
+              contentContainerClassName={"mx-0 pb-[70] pt-4"}
               renderItem={renderItem}
               showsVerticalScrollIndicator={false}
-              fadingEdgeLength={70}
+              fadingEdgeLength={80}
               scrollEventThrottle={16}
               refreshing={refreshingTracks}
               onRefresh={refreshTracks}

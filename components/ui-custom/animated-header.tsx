@@ -1,3 +1,4 @@
+import { cn } from "@/lib/utils";
 import { useFocusEffect } from "expo-router";
 import React from "react";
 import Animated, {
@@ -15,6 +16,7 @@ interface AnimatedHeaderProps {
   disabled?: boolean;
   duration?: number;
   offset?: number;
+  containerClassName?: string;
 }
 
 const AnimatedHeader = ({
@@ -23,6 +25,7 @@ const AnimatedHeader = ({
   disabled = false,
   duration = 300,
   offset = 10,
+  containerClassName,
 }: AnimatedHeaderProps) => {
   const headerPosition = useSharedValue(-offset);
 
@@ -51,7 +54,7 @@ const AnimatedHeader = ({
   return (
     <Animated.View
       style={animatedHeaderStyle}
-      className="items-start justify-center mt-2"
+      className={cn("items-start justify-center mt-2", containerClassName)}
     >
       <Text className="text-4xl leading-tight font-ui-bold mb-2 text-center line-clamp-1">
         {title}
