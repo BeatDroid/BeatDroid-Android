@@ -23,10 +23,6 @@ export default function useSupabase() {
     webClientId: process.env.EXPO_PUBLIC_WEB_CLIEND_ID || "",
   });
 
-  useEffect(() => {
-    console.log("Login status: ", isLoggedInRef.current);
-  }, []);
-
   const syncToSupabase = useCallback(async () => {
     if (!network || !isLoggedInRef.current) return;
     try {
