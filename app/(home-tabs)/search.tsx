@@ -325,13 +325,15 @@ export default function Search() {
   });
 
   return (
-    <Background disableSafeArea className={"pt-safe"}>
+    <Background disableSafeArea className={"pt-safe px-0"}>
       <AnimatedHeader
         title="Search 🌟"
         description="Search for your favorite music or albums"
+        containerClassName={"px-5"}
       />
       <KeyboardAwareScrollView
-        className="flex-1 mt-6"
+        className="flex-1 mt-6 px-5"
+        contentContainerClassName="pb-4"
         bottomOffset={30}
         fadingEdgeLength={100}
         showsVerticalScrollIndicator={false}
@@ -355,8 +357,13 @@ export default function Search() {
           <CardContent>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant={buttonVariant}>
+                <Button childAsRow variant={buttonVariant}>
                   <Text className="font-ui-bold">{searchType}</Text>
+                  <ExpoMaterialIcons
+                    name="keyboard-arrow-down"
+                    size={24}
+                    className={"text-foreground ml-2"}
+                  />
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent className="w-64 native:w-72">
@@ -426,8 +433,13 @@ export default function Search() {
               <CardContent className="flex-1 content-center justify-center">
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <Button variant={buttonVariant}>
+                    <Button childAsRow variant={buttonVariant}>
                       <Text className="font-ui-bold">{theme}</Text>
+                      <ExpoMaterialIcons
+                        name="keyboard-arrow-down"
+                        size={24}
+                        className={"text-foreground ml-2"}
+                      />
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent
@@ -486,13 +498,16 @@ export default function Search() {
           <View className="w-4" />
           <AnimatedCard
             index={4}
-            className="mt-4 border-0 items-center justify-center bg-transparent shadow-none"
+            className="mt-4 border-0 items-center justify-center bg-background shadow-md shadow-black"
           >
             <MiniPoster theme={theme} accentEnabled={accentLine} />
           </AnimatedCard>
         </View>
       </KeyboardAwareScrollView>
-      <Animated.View style={buttonContainerStyle} className={"overflow-hidden"}>
+      <Animated.View
+        style={buttonContainerStyle}
+        className={"overflow-hidden px-5 mb-3"}
+      >
         <AnimatedConfirmButton
           title={"Create Poster"}
           icon={<ExpoMaterialIcons name="auto-awesome" size={20} />}

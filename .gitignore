@@ -39,6 +39,7 @@ yarn-error.*
 # editor
 .cursor
 .idea
+.windsurf
 
 # prebuild
 android/

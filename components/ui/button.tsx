@@ -63,38 +63,52 @@ const buttonTextVariants = cva(
 type ButtonProps = React.ComponentPropsWithoutRef<typeof Pressable> &
   VariantProps<typeof buttonVariants> & {
     visiblyDisabled?: boolean;
+    childAsRow?: boolean;
   };
 
 const Button = React.forwardRef<
   React.ElementRef<typeof Pressable>,
   ButtonProps
->(({ className, variant, size, visiblyDisabled = true, ...props }, ref) => {
-  return (
-    <TextClassContext.Provider
-      value={buttonTextVariants({
-        variant,
-        size,
-        className: "web:pointer-events-none",
-      })}
-    >
-      <Pressable
-        className={cn(
-          props.disabled &&
-            visiblyDisabled &&
-            "opacity-50 web:pointer-events-none",
-          buttonVariants({ variant, size, className }),
-        )}
-        ref={ref}
-        role="button"
-        {...props}
-        onPress={(events) => {
-          props.onPress?.(events);
-          selectionHaptic();
-        }}
-      />
-    </TextClassContext.Provider>
-  );
-});
+>(
+  (
+    {
+      className,
+      variant,
+      size,
+      visiblyDisabled = true,
+      childAsRow = false,
+      ...props
+    },
+    ref,
+  ) => {
+    return (
+      <TextClassContext.Provider
+        value={buttonTextVariants({
+          variant,
+          size,
+          className: "web:pointer-events-none",
+        })}
+      >
+        <Pressable
+          className={cn(
+            props.disabled &&
+              visiblyDisabled &&
+              "opacity-50 web:pointer-events-none",
+            buttonVariants({ variant, size, className }),
+            childAsRow && "flex-row",
+          )}
+          ref={ref}
+          role="button"
+          {...props}
+          onPress={(events) => {
+            props.onPress?.(events);
+            selectionHaptic();
+          }}
+        />
+      </TextClassContext.Provider>
+    );
+  },
+);
 Button.displayName = "Button";
 
 export { Button, buttonTextVariants, buttonVariants };

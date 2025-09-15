@@ -69,36 +69,34 @@ const AnimatedHistoryItem = ({
         source={{ blurhash: item.blurhash || "L69HLn?wI9jF_3t5M_t7H?%1-=R*" }}
         className="flex-1"
       >
-        <View className="absolute top-0 left-0 right-0 bottom-0 bg-background opacity-40 dark:opacity-20" />
-        <View className="flex-row">
-          <View className="flex-1 justify-between items-center p-4">
-            <View className="w-16 h-auto aspect-[7.3/10] mt-2 mb-3">
-              <MicroPoster
-                theme={item.theme}
-                accentEnabled={item.accentLine}
-                className="shadow-md"
-              />
-            </View>
-            <View className="flex-1 w-full">
-              <Text
-                numberOfLines={2}
-                className="text-foreground font-ui-bold text-md text-center"
-              >
-                {item.searchParam}
-              </Text>
-              <Text
-                numberOfLines={1}
-                className="text-foreground text-sm text-center"
-              >
-                {item.artistName}
-              </Text>
-              <Text
-                numberOfLines={2}
-                className="text-foreground text-sm text-center"
-              >
-                {item.theme + (item.accentLine ? `\nAccent line` : "")}
-              </Text>
-            </View>
+        <View className="absolute top-0 left-0 right-0 bottom-0 bg-background/40 dark:bg-background/20" />
+        <View className="flex-1 justify-between items-center p-4">
+          <View className="w-16 h-auto aspect-[7.3/10] mt-2 mb-3">
+            <MicroPoster
+              theme={item.theme}
+              accentEnabled={item.accentLine}
+              className="shadow-md"
+            />
+          </View>
+          <View className="flex-1 w-full">
+            <Text
+              numberOfLines={2}
+              className="text-foreground font-ui-bold text-md text-center"
+            >
+              {item.searchParam}
+            </Text>
+            <Text
+              numberOfLines={1}
+              className="text-foreground text-sm text-center"
+            >
+              {item.artistName}
+            </Text>
+            <Text
+              numberOfLines={2}
+              className="text-foreground text-sm text-center"
+            >
+              {item.theme + (item.accentLine ? `\nAccent line` : "")}
+            </Text>
           </View>
         </View>
       </ImageBackground>
