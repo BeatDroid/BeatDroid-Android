@@ -482,7 +482,7 @@ export default function SearchHistoryView() {
             />
           )}
         </TabsContent>
-        <TabsList className="absolute rounded-full bottom-5 w-[80%] self-center p-1 h-[7%]">
+        <TabsList className="absolute rounded-full bottom-5 w-[80%] self-center p-1 h-[7%] shadow-md shadow-black">
           <TabsTrigger className={"flex-1 h-full rounded-full"} value="albums">
             <Text>Albums</Text>
           </TabsTrigger>
