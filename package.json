@@ -11,7 +11,9 @@
     "test": "jest --watchAll",
     "lint": "expo lint",
     "update-preview": "eas update --channel='preview' --auto",
-    "build-preview": "eas build --platform=android --profile=preview"
+    "build-preview": "eas build --platform=android --profile=preview",
+    "update-alpha": "eas update --channel='alpha' --auto",
+    "build-alpha": "eas build --platform=android --profile=alpha"
   },
   "jest": {
     "preset": "jest-expo"

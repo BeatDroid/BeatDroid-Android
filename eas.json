@@ -17,6 +17,14 @@
         "buildType": "apk"
       }
     },
+    "alpha": {
+      "distribution": "internal",
+      "autoIncrement": true,
+      "channel": "alpha",
+      "android": {
+        "buildType": "apk"
+      }
+    },
     "production": {
       "autoIncrement": true,
       "channel": "production"
