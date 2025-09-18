@@ -1,13 +1,11 @@
 import { useColorScheme as useNativewindColorScheme } from "nativewind";
 import { useCallback, useEffect, useState } from "react";
-import { useColorScheme as useReactNativeColorScheme } from "react-native";
 import { useMMKVString } from "react-native-mmkv";
 
 export function useColorScheme() {
   const { setColorScheme } = useNativewindColorScheme();
-  const colorScheme = useReactNativeColorScheme();
   const [savedColorScheme, setSavedColorScheme] = useMMKVString("colorScheme");
-  const theme = savedColorScheme || colorScheme;
+  const theme = savedColorScheme || "dark";
   const [isDarkColorScheme, setIsDarkColorScheme] = useState<boolean>(
     theme === "dark",
   );

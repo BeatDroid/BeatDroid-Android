@@ -9,6 +9,7 @@ import { AuthProvider, useAuth } from "@/contexts/auth-context";
 import { DialogProvider } from "@/contexts/dialog-context/dialog-context";
 import { NetworkProvider } from "@/contexts/network-context";
 import useSupabase from "@/hooks/useSupabase";
+import { NAV_THEME } from "@/lib/theme";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
 import {
   DarkTheme,
@@ -30,8 +31,8 @@ import { SystemBars } from "react-native-edge-to-edge";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { KeyboardProvider } from "react-native-keyboard-controller";
 import { toast, Toaster } from "sonner-native";
-import { NAV_THEME, themes } from "~/lib/constants";
-import { useColorScheme } from "~/lib/useColorScheme";
+import { themes } from "~/lib/constants";
+import { useColorScheme } from "@/hooks/useColorScheme";
 
 const navigationIntegration = Sentry.reactNavigationIntegration({
   enableTimeToInitialDisplay: true,

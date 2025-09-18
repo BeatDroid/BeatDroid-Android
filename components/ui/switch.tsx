@@ -7,7 +7,7 @@ import Animated, {
   useDerivedValue,
   withTiming,
 } from "react-native-reanimated";
-import { useColorScheme } from "@/lib/useColorScheme";
+import { useColorScheme } from "@/hooks/useColorScheme";
 import { cn } from "@/lib/utils";
 import { selectionHaptic } from "@/utils/haptic-utils";
 

@@ -34,7 +34,7 @@ import { useResponsiveLayout } from "@/hooks/useResponsiveLayout";
 import useSupabase from "@/hooks/useSupabase";
 import { themes } from "@/lib/constants";
 import { SearchType, ThemeTypes } from "@/lib/types";
-import { useColorScheme } from "@/lib/useColorScheme";
+import { useColorScheme } from "@/hooks/useColorScheme";
 import { cn } from "@/lib/utils";
 import { notificationHaptic, selectionHaptic } from "@/utils/haptic-utils";
 import { selectPoster } from "@/utils/poster-utils";

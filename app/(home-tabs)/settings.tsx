@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
 import { Text } from "@/components/ui/text";
 import useSupabase from "@/hooks/useSupabase";
-import { useColorScheme } from "@/lib/useColorScheme";
+import { useColorScheme } from "@/hooks/useColorScheme";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import { useFocusEffect } from "expo-router";
 import { cssInterop } from "nativewind";
