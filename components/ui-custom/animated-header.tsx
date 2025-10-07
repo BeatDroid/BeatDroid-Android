@@ -54,7 +54,7 @@ const AnimatedHeader = ({
   return (
     <Animated.View
       style={animatedHeaderStyle}
-      className={cn("items-start justify-center mt-2", containerClassName)}
+      className={cn("items-start justify-center mt-[10%]", containerClassName)}
     >
       <Text className="text-4xl leading-tight font-ui-bold mb-2 text-center line-clamp-1">
         {title}
