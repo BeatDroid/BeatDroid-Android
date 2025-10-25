@@ -14,7 +14,8 @@
     "update-preview": "eas update --channel='preview' --auto",
     "build-preview": "eas build --platform=android --profile=preview",
     "update-alpha": "eas update --channel='alpha' --auto",
-    "build-alpha": "eas build --platform=android --profile=alpha"
+    "build-alpha": "eas build --platform=android --profile=alpha",
+    "eas-build-pre-install": "corepack enable && yarn set version 4"
   },
   "jest": {
     "preset": "jest-expo"
