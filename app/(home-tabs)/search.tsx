@@ -401,6 +401,7 @@ export default function Search() {
               placeholder={`Eg. ${searchParamDefault}`}
               value={searchParam}
               onChangeText={setSearchParam}
+              textInputClassName={"bg-secondary dark:bg-background/70"}
             />
             <AnimatedInput
               ref={artistNameRef}
@@ -417,6 +418,7 @@ export default function Search() {
               placeholder={`Eg. ${artistNameDefault}`}
               value={artistName}
               onChangeText={setArtistName}
+              textInputClassName={"bg-secondary dark:bg-background/70"}
               className="mt-4"
             />
           </CardContent>
