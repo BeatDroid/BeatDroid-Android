@@ -357,7 +357,7 @@ export default function Search() {
           <CardContent>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button childAsRow variant={buttonVariant}>
+                <Button variant={buttonVariant}>
                   <Text className="font-ui-bold">{searchType}</Text>
                   <ExpoMaterialIcons
                     name="keyboard-arrow-down"
@@ -433,7 +433,7 @@ export default function Search() {
               <CardContent className="flex-1 content-center justify-center">
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <Button childAsRow variant={buttonVariant}>
+                    <Button variant={buttonVariant}>
                       <Text className="font-ui-bold">{theme}</Text>
                       <ExpoMaterialIcons
                         name="keyboard-arrow-down"
