@@ -40,6 +40,7 @@ const Settings = () => {
       <AnimatedHeader
         title="Settings ⚙️"
         description={"Customize your experience"}
+        containerClassName={"px-2"}
       />
       {__DEV__ && (
         <Card className={"mt-6"}>

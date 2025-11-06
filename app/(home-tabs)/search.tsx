@@ -326,18 +326,18 @@ export default function Search() {
 
   return (
     <Background disableSafeArea className={"pt-safe px-0"}>
-      <AnimatedHeader
-        title="Search 🌟"
-        description="Search for your favorite music or albums"
-        containerClassName={"px-5"}
-      />
       <KeyboardAwareScrollView
-        className="flex-1 mt-6 px-5"
+        className="flex-1 px-5"
         contentContainerClassName="pb-4"
         bottomOffset={30}
         fadingEdgeLength={100}
         showsVerticalScrollIndicator={false}
       >
+        <AnimatedHeader
+          title="Search 🌟"
+          description="Search for your favorite music or albums"
+          containerClassName={"px-2"}
+        />
         <Animated.View
           style={statusChipContainerStyle}
           className={"overflow-hidden"}
