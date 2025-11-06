@@ -4,8 +4,8 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
 import { Text } from "@/components/ui/text";
-import useSupabase from "@/hooks/useSupabase";
 import { useColorScheme } from "@/hooks/useColorScheme";
+import useSupabase from "@/hooks/useSupabase";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import { useFocusEffect } from "expo-router";
 import { cssInterop } from "nativewind";
@@ -41,32 +41,34 @@ const Settings = () => {
         title="Settings ⚙️"
         description={"Customize your experience"}
       />
-      <Card className={"mt-6"}>
-        <CardHeader>
-          <Text className={"font-ui-bold"}>Theme</Text>
-        </CardHeader>
-        <CardContent>
-          <View className="flex-row justify-between items-center">
-            <Text className={"font-ui-regular"}>Dark Mode</Text>
-            <View className="flex-row items-center gap-3">
-              <ExpoMaterialCommunityIcons
-                className="text-foreground"
-                size={23}
-                name={"white-balance-sunny"}
-              />
-              <Switch
-                checked={isDarkColorScheme}
-                onCheckedChange={toggleColorScheme}
-              />
-              <ExpoMaterialCommunityIcons
-                className="text-foreground"
-                size={23}
-                name={"moon-waning-crescent"}
-              />
+      {__DEV__ && (
+        <Card className={"mt-6"}>
+          <CardHeader>
+            <Text className={"font-ui-bold"}>Theme</Text>
+          </CardHeader>
+          <CardContent>
+            <View className="flex-row justify-between items-center">
+              <Text className={"font-ui-regular"}>Dark Mode</Text>
+              <View className="flex-row items-center gap-3">
+                <ExpoMaterialCommunityIcons
+                  className="text-foreground"
+                  size={23}
+                  name={"white-balance-sunny"}
+                />
+                <Switch
+                  checked={isDarkColorScheme}
+                  onCheckedChange={toggleColorScheme}
+                />
+                <ExpoMaterialCommunityIcons
+                  className="text-foreground"
+                  size={23}
+                  name={"moon-waning-crescent"}
+                />
+              </View>
             </View>
-          </View>
-        </CardContent>
-      </Card>
+          </CardContent>
+        </Card>
+      )}
       <Card className={"mt-3"}>
         <CardHeader>
           <Text className={"font-ui-bold"}>Sync Options</Text>

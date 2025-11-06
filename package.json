@@ -15,6 +15,7 @@
     "build-preview": "eas build --platform=android --profile=preview",
     "update-alpha": "eas update --channel='alpha' --auto",
     "build-alpha": "eas build --platform=android --profile=alpha",
+    "android-prod": "expo run:android --variant release",
     "eas-build-pre-install": "corepack enable && yarn set version 4"
   },
   "jest": {
@@ -79,7 +80,6 @@
     "react-native-webview": "13.13.5",
     "sonner-native": "^0.19.0",
     "tailwind-merge": "^3.3.1",
-    "tailwindcss": "^3.4.17",
     "tailwindcss-animate": "^1.0.7",
     "zod": "^3.25.42"
   },
@@ -99,6 +99,7 @@
     "prettier-plugin-tailwindcss": "^0.5.11",
     "react-test-renderer": "18.3.1",
     "reactotron-react-native": "^5.1.13",
+    "tailwindcss": "^3.4.17",
     "typescript": "~5.8.3"
   },
   "private": true
