@@ -1,4 +1,3 @@
-import { useAuth } from "@/contexts/auth-context";
 import { useCustomQuery } from "@/hooks/useCustomQuery";
 import { getPoster } from "./getPoster";
 import { GetPosterResponse } from "./zod-schema";
@@ -12,10 +11,8 @@ export function usePosterDownApi({
 }: {
   posterPath: string;
 }): UsePosterDownApi {
-  const { token } = useAuth();
-  const getPosterApi = useCustomQuery<GetPosterResponse, GetPosterResponse>({
+  return useCustomQuery<GetPosterResponse, GetPosterResponse>({
     queryKey: ["usePosterDownApi"],
-    queryFn: () => getPoster(token, posterPath),
+    queryFn: () => getPoster(null, posterPath),
   });
-  return getPosterApi;
 }

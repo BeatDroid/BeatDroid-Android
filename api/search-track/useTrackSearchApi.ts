@@ -1,4 +1,3 @@
-import { useAuth } from "@/contexts/auth-context";
 import { useCustomMutation } from "@/hooks/useCustomMutation";
 import { searchTrack } from "./searchTrack";
 import type { SearchTrackRequest, SearchTrackResponse } from "./zod-schema";
@@ -18,16 +17,14 @@ export function useTrackSearchApi({
   onError,
   onMutate = () => {},
 }: UseTrackSearchApiParams): UseTrackSearchApi {
-  const { token } = useAuth();
-  const searchTrackApi = useCustomMutation({
+  return useCustomMutation({
     mutationKey: ["useTrackSearchApi"],
     mutationFn: async (params: SearchTrackRequest) => {
       const { track_name, artist_name, theme, accent } = params;
-      return searchTrack(token!, track_name, artist_name, theme, accent);
+      return searchTrack(null, track_name, artist_name, theme, accent);
     },
     onSuccess,
     onError,
     onMutate,
   });
-  return searchTrackApi;
 }

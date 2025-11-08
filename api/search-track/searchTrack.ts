@@ -1,16 +1,16 @@
 import { apiClient } from "../client/ky-instance";
 import {
   searchTrackRequestSchema,
-  searchTrackResponseSchema,
   type SearchTrackResponse,
+  searchTrackResponseSchema,
 } from "./zod-schema";
 
 export async function searchTrack(
-  token: string,
+  token: string | null,
   track: string,
   artist: string,
   theme: string,
-  accent: boolean
+  accent: boolean,
 ): Promise<SearchTrackResponse> {
   const requestData = searchTrackRequestSchema.parse({
     track_name: track,
@@ -27,7 +27,9 @@ export async function searchTrack(
         hooks: {
           beforeRequest: [
             (request) => {
-              request.headers.append("Authorization", `Bearer ${token}`);
+              if (token) {
+                request.headers.append("Authorization", `Bearer ${token}`);
+              }
             },
           ],
         },

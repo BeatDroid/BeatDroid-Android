@@ -27,7 +27,6 @@ import {
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Text } from "@/components/ui/text";
-import { useAuth } from "@/contexts/auth-context";
 import { type NewSearchHistory, searchHistoryTable } from "@/db/schema";
 import useDatabase from "@/hooks/useDatabase";
 import { useResponsiveLayout } from "@/hooks/useResponsiveLayout";
@@ -76,7 +75,7 @@ export default function Search() {
 
   const { db } = useDatabase();
   const { syncToSupabase } = useSupabase();
-  const { isTokenSet } = useAuth();
+  const isTokenSet = true;
   const insets = useSafeAreaInsets();
   const isNarrow = useResponsiveLayout(400);
   const { isDarkColorScheme } = useColorScheme();
@@ -513,9 +512,7 @@ export default function Search() {
         <AnimatedConfirmButton
           title={"Create Poster"}
           icon={<ExpoMaterialIcons name="auto-awesome" size={20} />}
-          loading={
-            searchAlbumApi.isPending || searchTrackApi.isPending || !isTokenSet
-          }
+          loading={searchAlbumApi.isPending || searchTrackApi.isPending}
           onPress={search}
           disabled={searchType === "Choose type"}
           buttonClassName={"rounded-full"}

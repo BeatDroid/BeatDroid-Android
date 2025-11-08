@@ -1,13 +1,13 @@
 import { apiClient } from "../client/ky-instance";
 import {
   getPosterRequestSchema,
-  getPosterResponseSchema,
   type GetPosterResponse,
+  getPosterResponseSchema,
 } from "./zod-schema";
 
 export async function getPoster(
   token: string | null,
-  posterPath: string
+  posterPath: string,
 ): Promise<GetPosterResponse> {
   const requestData = getPosterRequestSchema.parse({
     filename: posterPath,
@@ -17,7 +17,9 @@ export async function getPoster(
       hooks: {
         beforeRequest: [
           (request) => {
-            request.headers.append("Authorization", `Bearer ${token}`);
+            if (token) {
+              request.headers.append("Authorization", `Bearer ${token}`);
+            }
           },
         ],
       },

@@ -23,7 +23,7 @@ export default function Welcome() {
   const [enableButton, setEnableButton] = useState(false);
   const [hasLoaded, setHasLoaded] = useState(false);
   const [onboardingCompleted, setOnboardingCompleted] = useMMKVBoolean(
-    "onboardingCompleted"
+    "onboardingCompleted",
   );
   const featureBox1Position = useSharedValue(-offset);
   const featureBox2Position = useSharedValue(-offset);

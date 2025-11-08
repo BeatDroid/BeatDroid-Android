@@ -1,18 +1,18 @@
 import DeviceInfo from "react-native-device-info";
 import { apiClient } from "../client/ky-instance";
 import {
-  genTokenRequestSchema,
-  genTokenResponseSchema,
-  type GenTokenResponse,
+  startupTaskRequestSchema,
+  type StartupTaskResponse,
+  startupTaskResponseSchema,
 } from "./zod-schema";
 
-export async function genToken(): Promise<GenTokenResponse> {
+export async function executeStartupTask(): Promise<StartupTaskResponse> {
   try {
     const instanceId = await DeviceInfo.getInstanceId();
-    const requestData = genTokenRequestSchema.parse({ 
-      device_id: instanceId 
+    const requestData = startupTaskRequestSchema.parse({
+      device_id: instanceId,
     });
-    
+
     const response = await apiClient
       .extend({
         timeout: 10000,
@@ -21,10 +21,10 @@ export async function genToken(): Promise<GenTokenResponse> {
         json: requestData,
       })
       .json<unknown>();
-      
-    return genTokenResponseSchema.parse(response);
+
+    return startupTaskResponseSchema.parse(response);
   } catch (error) {
-    console.error("Error generating token:", error);
+    console.error("Error executing startup task:", error);
     throw error;
   }
 }

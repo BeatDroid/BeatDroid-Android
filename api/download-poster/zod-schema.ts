@@ -7,10 +7,12 @@ export const getPosterRequestSchema = z.object({
 export const getPosterResponseSchema = z.object({
   success: z.boolean(),
   message: z.string(),
-  data: z.object({
-    image: z.string(),
-    filename: z.string(),
-  }).optional(),
+  data: z
+    .object({
+      image: z.string(),
+      filename: z.string(),
+    })
+    .optional(),
   error: z.string().optional(),
   details: z.string().optional(),
 });

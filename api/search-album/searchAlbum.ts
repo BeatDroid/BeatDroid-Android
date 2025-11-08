@@ -1,16 +1,16 @@
 import { apiClient } from "../client/ky-instance";
 import {
   searchAlbumRequestSchema,
-  searchAlbumResponseSchema,
   type SearchAlbumResponse,
+  searchAlbumResponseSchema,
 } from "./zod-schema";
 
 export async function searchAlbum(
-  token: string,
+  token: string | null,
   album: string,
   artist: string,
   theme: string,
-  accent: boolean
+  accent: boolean,
 ): Promise<SearchAlbumResponse> {
   const requestData = searchAlbumRequestSchema.parse({
     album_name: album,
@@ -27,12 +27,14 @@ export async function searchAlbum(
         hooks: {
           beforeRequest: [
             (request) => {
-              request.headers.append("Authorization", `Bearer ${token}`);
+              if (token) {
+                request.headers.append("Authorization", `Bearer ${token}`);
+              }
             },
           ],
         },
       })
-      .post("generate_album_poster", { json: requestData })
+      .post("api/v1/posters/album", { json: requestData })
       .json<unknown>();
 
     return searchAlbumResponseSchema.parse(response);
