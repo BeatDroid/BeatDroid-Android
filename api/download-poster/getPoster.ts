@@ -1,4 +1,4 @@
-import { apiClient } from "../client/ky-instance";
+import { downloadPosterToCache } from "@/utils/image-utils";
 import {
   getPosterRequestSchema,
   type GetPosterResponse,
@@ -6,28 +6,26 @@ import {
 } from "./zod-schema";
 
 export async function getPoster(
-  token: string | null,
   posterPath: string,
 ): Promise<GetPosterResponse> {
-  const requestData = getPosterRequestSchema.parse({
-    filename: posterPath,
-  });
-  const response = await apiClient
-    .extend({
-      hooks: {
-        beforeRequest: [
-          (request) => {
-            if (token) {
-              request.headers.append("Authorization", `Bearer ${token}`);
-            }
-          },
-        ],
-      },
-    })
-    .post("get_poster", {
-      json: requestData,
-    })
-    .json<unknown>();
+  // Validate input (can be a full /static/... path or just a filename)
+  const input = getPosterRequestSchema.parse(posterPath).trim();
 
-  return getPosterResponseSchema.parse(response);
+  try {
+    const { fileUri, filename } = await downloadPosterToCache(input);
+    return getPosterResponseSchema.parse({
+      success: true,
+      message: "Poster fetched successfully",
+      // Note: `image` now carries a file:// URI for direct preview
+      data: { image: fileUri, filename },
+    });
+  } catch (error) {
+    const message =
+      error instanceof Error ? error.message : "Failed to download poster";
+    return getPosterResponseSchema.parse({
+      success: false,
+      message,
+      error: message,
+    });
+  }
 }

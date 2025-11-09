@@ -13,6 +13,6 @@ export function usePosterDownApi({
 }): UsePosterDownApi {
   return useCustomQuery<GetPosterResponse, GetPosterResponse>({
     queryKey: ["usePosterDownApi"],
-    queryFn: () => getPoster(null, posterPath),
+    queryFn: () => getPoster(posterPath),
   });
 }

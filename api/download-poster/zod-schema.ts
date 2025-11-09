@@ -1,8 +1,8 @@
 import { z } from "zod";
 
-export const getPosterRequestSchema = z.object({
-  filename: z.string().min(1, "Filename is required"),
-});
+export const getPosterRequestSchema = z
+  .string()
+  .min(1, "Poster filename or static path is required");
 
 export const getPosterResponseSchema = z.object({
   success: z.boolean(),

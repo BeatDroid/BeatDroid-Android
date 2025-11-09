@@ -165,7 +165,6 @@ export default function Search() {
     variables: SearchAlbumRequest | SearchTrackRequest,
   ) => {
     saveToDb(data, variables);
-    console.log(data, variables);
 
     router.navigate({
       pathname: "/poster-view",

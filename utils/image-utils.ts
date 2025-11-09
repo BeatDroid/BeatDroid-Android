@@ -1,57 +1,68 @@
 import * as FileSystem from "expo-file-system";
 import { toast } from "sonner-native";
 
-/**
- * Handles downloading a poster image and saving it to the user's device
- * Optimized for Android using Storage Access Framework with direct writing
- *
- * @param uri The URI of the poster to download
- * @param onProgress Optional callback for progress updates
- * @returns Promise<boolean> Indicates if the download was successful
- */
-export async function handleDownloadPoster(
-  uri: string,
-  searchParam: string,
-  artistName: string,
-  theme: string,
-  accentLine: string
+// Downloads a poster into the app cache using the backend download endpoint.
+// Returns the local file uri and the filename.
+export async function downloadPosterToCache(
+  posterPathOrUrl: string,
+): Promise<{ fileUri: string; filename: string }> {
+  const baseUrl = (process.env.EXPO_PUBLIC_BASE_URL || "").replace(/\/$/, "");
+  const raw = posterPathOrUrl.trim();
+  const filename = (raw.split("/").pop() || raw).split("?")[0];
+
+  const url = `${baseUrl}/api/v1/posters/download/${encodeURIComponent(
+    filename,
+  )}`;
+
+  const targetPath = `${FileSystem.cacheDirectory ?? ""}${filename}`;
+  const result = await FileSystem.downloadAsync(url, targetPath);
+  if (result.status < 200 || result.status >= 300) {
+    try {
+      await FileSystem.deleteAsync(targetPath, { idempotent: true });
+    } catch {}
+    throw new Error(`HTTP ${result.status} while downloading poster`);
+  }
+  return { fileUri: result.uri, filename };
+}
+
+// Saves a cached file (downloaded earlier) into a user-selected folder using SAF.
+export async function saveCachedPosterToUserFolder(
+  fileUri: string,
+  displayName: string,
+  mimeType: string = "image/png",
 ): Promise<boolean> {
   const toastId = toast("Downloading...");
-
   try {
-    // Request directory permissions using SAF
     const userDirectory =
       await FileSystem.StorageAccessFramework.requestDirectoryPermissionsAsync();
-
     if (!userDirectory.granted) {
       throw new Error("Storage permission denied");
     }
 
-    // Create file in chosen directory with unique name
     const localFileUri =
       await FileSystem.StorageAccessFramework.createFileAsync(
         userDirectory.directoryUri,
-        `${searchParam} by ${artistName} - ${theme} ${accentLine === "true" ? "with accent line" : ""}.jpg`,
-        "image/jpeg"
+        displayName,
+        mimeType,
       );
 
-    // Write data directly to the new file
+    // Read cached file as base64 and write to user-selected file
+    const base64 = await FileSystem.readAsStringAsync(fileUri, {
+      encoding: FileSystem.EncodingType.Base64,
+    });
     await FileSystem.StorageAccessFramework.writeAsStringAsync(
       localFileUri,
-      uri,
-      { encoding: FileSystem.EncodingType.Base64 }
+      base64,
+      { encoding: FileSystem.EncodingType.Base64 },
     );
 
     toast.success("Success", {
       id: toastId,
       description: "Poster saved to your selected folder!",
     });
-
     return true;
   } catch (error) {
     console.error("Download error:", error);
-
-    // Show more specific error message
     toast.error("Failed to save the poster", {
       id: toastId,
       description:
@@ -59,7 +70,6 @@ export async function handleDownloadPoster(
           ? `${error.message}`
           : "Please choose another folder",
     });
-
     return false;
   }
 }
