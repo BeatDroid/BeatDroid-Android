@@ -341,7 +341,7 @@ export default function Search() {
         <AnimatedHeader
           title="Search 🌟"
           description="Search for your favorite music or albums"
-          containerClassName={"px-2"}
+          containerClassName={"px-2 pb-6"}
         />
         <Animated.View
           style={statusChipContainerStyle}
@@ -445,7 +445,7 @@ export default function Search() {
                       <ExpoMaterialIcons
                         name="keyboard-arrow-down"
                         size={24}
-                        className={"text-foreground ml-2"}
+                        className={"text-foreground"}
                       />
                     </Button>
                   </DropdownMenuTrigger>
@@ -505,7 +505,7 @@ export default function Search() {
           <View className="w-4" />
           <AnimatedCard
             index={4}
-            className="mt-4 border-0 items-center justify-center bg-background shadow-md shadow-black"
+            className="mt-4 w-1/2 border-0 items-center justify-center fg-background shadow-md shadow-black"
           >
             <MiniPoster theme={theme} accentEnabled={accentLine} />
           </AnimatedCard>
