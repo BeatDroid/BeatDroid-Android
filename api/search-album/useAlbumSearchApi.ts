@@ -21,7 +21,7 @@ export function useAlbumSearchApi({
     mutationKey: ["useAlbumSearchApi"],
     mutationFn: async (params: SearchAlbumRequest) => {
       const { album_name, artist_name, theme, accent } = params;
-      return searchAlbum(null, album_name, artist_name, theme, accent);
+      return searchAlbum(album_name, artist_name, theme, accent);
     },
     onSuccess,
     onError,

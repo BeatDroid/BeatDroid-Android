@@ -20,8 +20,8 @@ export function useTrackSearchApi({
   return useCustomMutation({
     mutationKey: ["useTrackSearchApi"],
     mutationFn: async (params: SearchTrackRequest) => {
-      const { track_name, artist_name, theme, accent } = params;
-      return searchTrack(null, track_name, artist_name, theme, accent);
+      const { song_name, artist_name, theme, accent } = params;
+      return searchTrack(song_name, artist_name, theme, accent);
     },
     onSuccess,
     onError,

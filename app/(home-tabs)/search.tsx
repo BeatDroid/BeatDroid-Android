@@ -1,3 +1,4 @@
+import type { Theme } from "@/api/common/theme-schema";
 import { useAlbumSearchApi } from "@/api/search-album/useAlbumSearchApi";
 import {
   SearchAlbumRequest,
@@ -28,12 +29,12 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Text } from "@/components/ui/text";
 import { type NewSearchHistory, searchHistoryTable } from "@/db/schema";
+import { useColorScheme } from "@/hooks/useColorScheme";
 import useDatabase from "@/hooks/useDatabase";
 import { useResponsiveLayout } from "@/hooks/useResponsiveLayout";
 import useSupabase from "@/hooks/useSupabase";
 import { themes } from "@/lib/constants";
-import { SearchType, ThemeTypes } from "@/lib/types";
-import { useColorScheme } from "@/hooks/useColorScheme";
+import { SearchType } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import { notificationHaptic, selectionHaptic } from "@/utils/haptic-utils";
 import { selectPoster } from "@/utils/poster-utils";
@@ -90,7 +91,7 @@ export default function Search() {
   const [artistNameDefault, setArtistNameDefault] = useState<
     string | undefined
   >(undefined);
-  const [theme, setTheme] = useState<ThemeTypes>("Dark");
+  const [theme, setTheme] = useState<Theme>("Dark");
   const [accentLine, setAccentLine] = useState(false);
   const buttonVariant = isDarkColorScheme ? "outline" : "secondary";
   const buttonContainerHeight = useSharedValue(0);
@@ -107,7 +108,7 @@ export default function Search() {
       setSearchType(dbSearchType as SearchType);
     }
     if (dbTheme) {
-      setTheme(dbTheme as ThemeTypes);
+      setTheme(dbTheme as Theme);
     }
     if (dbAccentLine) {
       setAccentLine(dbAccentLine === "true");
@@ -145,8 +146,10 @@ export default function Search() {
   }, [buttonContainerHeight, searchType]);
 
   const onMutate = (variables: SearchAlbumRequest | SearchTrackRequest) => {
-    const searchParam =
-      "track_name" in variables ? variables.track_name : variables.album_name;
+    const isTrackSearch = "song_name" in variables;
+    const searchParam = isTrackSearch
+      ? variables.song_name
+      : variables.album_name;
 
     Sentry.setContext("Search Input", {
       searchType,
@@ -162,16 +165,15 @@ export default function Search() {
     variables: SearchAlbumRequest | SearchTrackRequest,
   ) => {
     saveToDb(data, variables);
+    console.log(data, variables);
+
     router.navigate({
       pathname: "/poster-view",
       params: {
-        posterPath: data.data?.filePath,
-        blurhash: data.data?.blurhash,
-        searchParam:
-          "trackName" in data.data!
-            ? data.data!.trackName
-            : data.data!.albumName,
-        artistName: data.data!.artistName,
+        posterPath: data.poster_url,
+        blurhash: data.thumb_hash,
+        searchParam: data.name,
+        artistName: data.artist_name,
         theme: variables.theme,
         accentLine: variables.accent.toString(),
       },
@@ -180,15 +182,19 @@ export default function Search() {
 
   const onError = (error: unknown) => {
     console.log("Error: ", error);
-    let description = "Unknown error";
+
+    let errorMessage = "Unknown error";
     if (error && typeof error === "object" && "message" in error) {
-      description = String((error as { message?: unknown }).message);
+      errorMessage = String((error as { message?: unknown }).message);
     }
+
+    // Show error toast with fallback message
+    const displayMessage =
+      errorMessage === ""
+        ? "An error occurred. Please try again."
+        : errorMessage;
     toast.error("Search failed", {
-      description:
-        description === ""
-          ? "An error occurred. Please try again."
-          : description,
+      description: displayMessage,
     });
   };
 
@@ -272,10 +278,11 @@ export default function Search() {
     artistNameRef.current?.clearError();
     if (searchType === "Track") {
       searchTrackApi.mutate({
-        track_name: sanitizedSearchParam!,
+        song_name: sanitizedSearchParam!,
         artist_name: sanitizedArtistName!,
         theme,
         accent: accentLine,
+        lyric_lines: "5-9",
       });
     } else {
       searchAlbumApi.mutate({
@@ -291,16 +298,16 @@ export default function Search() {
     responseData: SearchAlbumResponse | SearchTrackResponse,
     passedVariables: SearchAlbumRequest | SearchTrackRequest,
   ) => {
+    // Determine search type based on request variables
+    const isTrackSearch = "song_name" in passedVariables;
+
     const insertData: NewSearchHistory = {
-      searchType: "albumName" in responseData.data! ? "Album" : "Track",
-      searchParam:
-        "trackName" in responseData.data!
-          ? responseData.data!.trackName
-          : responseData.data!.albumName,
-      artistName: responseData.data!.artistName,
+      searchType: isTrackSearch ? "Track" : "Album",
+      searchParam: responseData.name,
+      artistName: responseData.artist_name,
       theme: passedVariables.theme,
       accentLine: passedVariables.accent,
-      blurhash: responseData.data!.blurhash,
+      blurhash: responseData.thumb_hash,
       createdAt: new Date(),
     };
 
@@ -451,7 +458,7 @@ export default function Search() {
                       {Object.keys(themes).map((theme) => (
                         <DropdownMenuItem
                           key={theme}
-                          onPress={() => setTheme(theme as ThemeTypes)}
+                          onPress={() => setTheme(theme as Theme)}
                         >
                           <Text>{theme}</Text>
                         </DropdownMenuItem>

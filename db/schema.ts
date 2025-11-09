@@ -1,5 +1,4 @@
-import type { ThemeTypes } from "@/lib/types";
-import { sql } from "drizzle-orm";
+import type { Theme } from "@/api/common/theme-schema";
 import { index, integer, sqliteTable, text } from "drizzle-orm/sqlite-core";
 
 export const searchTypes = ["Track", "Album"] as const;
@@ -12,7 +11,7 @@ export const themeTypes = [
   "Nord",
   "RosePine",
   "Everforest",
-] as const satisfies readonly ThemeTypes[];
+] as const satisfies readonly Theme[];
 
 export const searchHistoryTable = sqliteTable(
   "search_history",
@@ -30,7 +29,7 @@ export const searchHistoryTable = sqliteTable(
     blurhash: text("blurhash"),
     createdAt: integer("created_at", { mode: "timestamp" })
       .notNull()
-      .default(sql`(strftime('%s', 'now'))`),
+      .$defaultFn(() => new Date()),
     synced: integer("synced", { mode: "boolean" }).notNull().default(false),
   },
   (table) => ({

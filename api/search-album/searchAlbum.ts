@@ -1,3 +1,4 @@
+import type { Theme } from "@/api/common/theme-schema";
 import { apiClient } from "../client/ky-instance";
 import {
   searchAlbumRequestSchema,
@@ -6,10 +7,9 @@ import {
 } from "./zod-schema";
 
 export async function searchAlbum(
-  token: string | null,
   album: string,
   artist: string,
-  theme: string,
+  theme: Theme,
   accent: boolean,
 ): Promise<SearchAlbumResponse> {
   const requestData = searchAlbumRequestSchema.parse({
@@ -17,22 +17,12 @@ export async function searchAlbum(
     artist_name: artist,
     theme,
     accent,
-    indexing: true,
   });
 
   try {
     const response = await apiClient
       .extend({
         timeout: 30000,
-        hooks: {
-          beforeRequest: [
-            (request) => {
-              if (token) {
-                request.headers.append("Authorization", `Bearer ${token}`);
-              }
-            },
-          ],
-        },
       })
       .post("api/v1/posters/album", { json: requestData })
       .json<unknown>();

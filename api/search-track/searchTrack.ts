@@ -1,3 +1,4 @@
+import type { Theme } from "@/api/common/theme-schema";
 import { apiClient } from "../client/ky-instance";
 import {
   searchTrackRequestSchema,
@@ -6,35 +7,25 @@ import {
 } from "./zod-schema";
 
 export async function searchTrack(
-  token: string | null,
   track: string,
   artist: string,
-  theme: string,
+  theme: Theme,
   accent: boolean,
 ): Promise<SearchTrackResponse> {
   const requestData = searchTrackRequestSchema.parse({
-    track_name: track,
+    song_name: track,
     artist_name: artist,
     theme,
     accent,
-    indexing: true,
+    lyric_lines: "5-9",
   });
 
   try {
     const response = await apiClient
       .extend({
         timeout: 30000,
-        hooks: {
-          beforeRequest: [
-            (request) => {
-              if (token) {
-                request.headers.append("Authorization", `Bearer ${token}`);
-              }
-            },
-          ],
-        },
       })
-      .post("generate_track_poster", {
+      .post("api/v1/posters/track", {
         json: requestData,
       })
       .json<unknown>();

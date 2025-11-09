@@ -1,7 +1,7 @@
-import { ThemeTypes } from "./types";
+import type { Theme } from "@/api/common/theme-schema";
 
 export const themes: Record<
-  ThemeTypes,
+  Theme,
   {
     bg: string;
     fg: string;
