@@ -43,6 +43,8 @@ export default function Result() {
         disabled={!isLoaded}
         title={`Your poster is ready! 🚀`}
         description="Your music, beautifully framed! ✨"
+        titleClassName={"text-left"}
+        descriptionClassName={"text-left"}
       />
       <View className="flex-1 m-6">
         <AnimatedImage

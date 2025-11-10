@@ -17,6 +17,8 @@ interface AnimatedHeaderProps {
   duration?: number;
   offset?: number;
   containerClassName?: string;
+  titleClassName?: string;
+  descriptionClassName?: string;
 }
 
 const AnimatedHeader = ({
@@ -26,6 +28,8 @@ const AnimatedHeader = ({
   duration = 300,
   offset = 10,
   containerClassName,
+  titleClassName,
+  descriptionClassName,
 }: AnimatedHeaderProps) => {
   const headerPosition = useSharedValue(-offset);
 
@@ -56,11 +60,25 @@ const AnimatedHeader = ({
       style={animatedHeaderStyle}
       className={cn("items-start justify-center mt-[10%]", containerClassName)}
     >
-      <Text className="text-4xl leading-tight font-ui-bold mb-2 text-center line-clamp-1">
+      <Text
+        numberOfLines={1}
+        className={cn(
+          "text-3xl leading-tight font-ui-bold mb-2 text-center line-clamp-1",
+          titleClassName,
+        )}
+      >
         {title}
       </Text>
       {description && (
-        <Text className="text-base text-left line-clamp-2">{description}</Text>
+        <Text
+          numberOfLines={1}
+          className={cn(
+            "text-base text-left line-clamp-2",
+            descriptionClassName,
+          )}
+        >
+          {description}
+        </Text>
       )}
     </Animated.View>
   );
