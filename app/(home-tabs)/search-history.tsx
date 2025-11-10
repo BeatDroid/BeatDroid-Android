@@ -419,7 +419,7 @@ export default function SearchHistoryView() {
       <AnimatedHeader
         title="Search History 📜"
         description="Tracks and albums you couldn't get enough of"
-        containerClassName={"px-5 pb-4"}
+        containerClassName={"px-5 pb-3"}
       />
     ),
     [],
@@ -432,6 +432,7 @@ export default function SearchHistoryView() {
         onValueChange={setCurrentTab}
         className="flex-1 px-2"
       >
+        <Header />
         <TabsContent value="albums" className="flex-1">
           {albumHistory.length === 0 ? (
             <ListEmptyComponent />
@@ -450,7 +451,7 @@ export default function SearchHistoryView() {
               scrollEventThrottle={16}
               refreshing={refreshingAlbums}
               onRefresh={refreshAlbums}
-              ListHeaderComponent={Header}
+              // ListHeaderComponent={Header}
               refreshControl={
                 <TwRefreshControl
                   className="bg-muted text-primary"
@@ -479,7 +480,7 @@ export default function SearchHistoryView() {
               scrollEventThrottle={16}
               refreshing={refreshingTracks}
               onRefresh={refreshTracks}
-              ListHeaderComponent={Header}
+              // ListHeaderComponent={Header}
               refreshControl={
                 <TwRefreshControl
                   className="bg-muted text-foreground"
