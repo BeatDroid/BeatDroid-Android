@@ -1,4 +1,5 @@
 import { cn } from "@/lib/utils";
+import { selectionHaptic } from "@/utils/haptic-utils";
 import * as SwitchPrimitives from "@rn-primitives/switch";
 import { Platform } from "react-native";
 
@@ -18,6 +19,10 @@ function Switch({
         className,
       )}
       {...props}
+      onPress={(events) => {
+        props.onPress?.(events);
+        selectionHaptic();
+      }}
     >
       <SwitchPrimitives.Thumb
         className={cn(
