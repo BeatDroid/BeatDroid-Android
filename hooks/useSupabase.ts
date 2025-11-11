@@ -11,7 +11,7 @@ import {
 } from "@react-native-google-signin/google-signin";
 import * as Sentry from "@sentry/react-native";
 import { eq, inArray, sql } from "drizzle-orm";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useRef, useState } from "react";
 
 export default function useSupabase() {
   const network = useNetwork();
@@ -104,36 +104,65 @@ export default function useSupabase() {
       });
 
       if (data) {
-        const newRecords = data.map(
-          (record: SupabaseRecord): NewSearchHistory => ({
-            id: record.local_id,
-            searchType: record.search_type,
-            searchParam: record.search_param,
-            artistName: record.artist_name,
-            accentLine: record.accent_line,
-            blurhash: record.blurhash,
-            theme: record.theme,
-            createdAt: new Date(record.created_at),
-            synced: true,
-          }),
-        );
-
-        await db
-          .insert(searchHistoryTable)
-          .values(newRecords)
-          .onConflictDoUpdate({
-            target: searchHistoryTable.id,
-            set: {
-              searchType: sql`excluded.search_type`,
-              searchParam: sql`excluded.search_param`,
-              artistName: sql`excluded.artist_name`,
-              theme: sql`excluded.theme`,
-              accentLine: sql`excluded.accent_line`,
-              blurhash: sql`excluded.blurhash`,
-              createdAt: sql`excluded.created_at`,
+        const newRecords = data
+          .filter((record: SupabaseRecord) => {
+            // Filter out invalid records missing required fields
+            return (
+              record.search_param &&
+              record.artist_name &&
+              record.search_type &&
+              record.theme
+            );
+          })
+          .map(
+            (record: SupabaseRecord): NewSearchHistory => ({
+              id: record.local_id,
+              searchType: record.search_type,
+              searchParam: record.search_param,
+              artistName: record.artist_name,
+              accentLine: record.accent_line,
+              blurhash: record.blurhash,
+              theme: record.theme,
+              createdAt: new Date(record.created_at),
               synced: true,
-            },
-          });
+            }),
+          );
+
+        if (newRecords.length > 0) {
+          try {
+            await db
+              .insert(searchHistoryTable)
+              .values(newRecords)
+              .onConflictDoUpdate({
+                target: searchHistoryTable.id,
+                set: {
+                  searchType: sql`excluded.search_type`,
+                  searchParam: sql`excluded.search_param`,
+                  artistName: sql`excluded.artist_name`,
+                  theme: sql`excluded.theme`,
+                  accentLine: sql`excluded.accent_line`,
+                  blurhash: sql`excluded.blurhash`,
+                  createdAt: sql`excluded.created_at`,
+                  synced: true,
+                },
+              });
+          } catch (error) {
+            console.error("Error inserting records to local database:", error);
+            Sentry.captureException(error, {
+              tags: {
+                operation: "syncFromSupabase",
+                dbOperation: "insert",
+              },
+              contexts: {
+                database: {
+                  operation: "insert_with_conflict_update",
+                  table: "search_history",
+                  recordCount: newRecords.length,
+                },
+              },
+            });
+          }
+        }
 
         const remoteIds = new Set<number>(
           data.map((r: SupabaseRecord) => r.local_id),

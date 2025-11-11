@@ -299,6 +299,22 @@ export default function Search() {
     responseData: SearchAlbumResponse | SearchTrackResponse,
     passedVariables: SearchAlbumRequest | SearchTrackRequest,
   ) => {
+    // Validate required fields before attempting database insertion
+    if (!responseData.name || !responseData.artist_name) {
+      console.error("Invalid response data: missing required fields");
+      Sentry.captureMessage(
+        "Failed to save search to database: missing required fields",
+        {
+          level: "error",
+          tags: {
+            operation: "saveToDb",
+            validation: "failed",
+          },
+        },
+      );
+      return;
+    }
+
     // Determine search type based on request variables
     const isTrackSearch = "song_name" in passedVariables;
 
@@ -312,9 +328,25 @@ export default function Search() {
       createdAt: new Date(),
     };
 
-    await db.insert(searchHistoryTable).values(insertData);
-
-    await syncToSupabase();
+    try {
+      await db.insert(searchHistoryTable).values(insertData);
+      await syncToSupabase();
+    } catch (error) {
+      console.error("Error saving to database:", error);
+      Sentry.captureException(error, {
+        tags: {
+          operation: "saveToDb",
+          searchType: isTrackSearch ? "track" : "album",
+        },
+        contexts: {
+          database: {
+            operation: "insert",
+            table: "search_history",
+            hasValidData: true,
+          },
+        },
+      });
+    }
   };
 
   const buttonContainerStyle = useAnimatedStyle(() => {

@@ -13,8 +13,8 @@ export const searchTrackResponseSchema = z.object({
   poster_url: z.string(),
   thumb_hash: z.string(),
   poster_filename: z.string(),
-  name: z.string(),
-  artist_name: z.string(),
+  name: z.string().min(1, "Track name cannot be empty"),
+  artist_name: z.string().min(1, "Artist name cannot be empty"),
 });
 
 export type SearchTrackRequest = z.infer<typeof searchTrackRequestSchema>;
