@@ -28,6 +28,7 @@ import {
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Text } from "@/components/ui/text";
+import { useStartup } from "@/contexts/startup-context";
 import { type NewSearchHistory, searchHistoryTable } from "@/db/schema";
 import { useColorScheme } from "@/hooks/useColorScheme";
 import useDatabase from "@/hooks/useDatabase";
@@ -76,7 +77,7 @@ export default function Search() {
 
   const { db } = useDatabase();
   const { syncToSupabase } = useSupabase();
-  const isTokenSet = true;
+  const { isLoading } = useStartup();
   const insets = useSafeAreaInsets();
   const isNarrow = useResponsiveLayout(400);
   const { isDarkColorScheme } = useColorScheme();
@@ -123,17 +124,18 @@ export default function Search() {
   }, [dbSearchParam, dbArtistName, dbSearchType, dbTheme, dbAccentLine]);
 
   useEffect(() => {
-    if (isTokenSet)
+    if (!isLoading) {
       statusChipHeight.value = withTiming(0, {
         duration: 500,
         easing: Easing.inOut(Easing.sin),
       });
-    else
+    } else {
       statusChipHeight.value = withTiming(50, {
         duration: 500,
         easing: Easing.inOut(Easing.sin),
       });
-  }, [isTokenSet, statusChipHeight]);
+    }
+  }, [isLoading, statusChipHeight]);
 
   useEffect(() => {
     const selector = selectPoster(searchType);
@@ -518,7 +520,9 @@ export default function Search() {
         <AnimatedConfirmButton
           title={"Create Poster"}
           icon={<ExpoMaterialIcons name="auto-awesome" size={20} />}
-          loading={searchAlbumApi.isPending || searchTrackApi.isPending}
+          loading={
+            searchAlbumApi.isPending || searchTrackApi.isPending || isLoading
+          }
           onPress={search}
           disabled={searchType === "Choose type"}
           buttonClassName={"rounded-full"}

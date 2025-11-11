@@ -3,6 +3,7 @@ import { ErrorBoundary } from "@/components/error-boundary";
 import queryClient from "@/config/queryClient";
 import { DialogProvider } from "@/contexts/dialog-context/dialog-context";
 import { NetworkProvider } from "@/contexts/network-context";
+import { StartupProvider } from "@/contexts/startup-context";
 import { useColorScheme } from "@/hooks/useColorScheme";
 import useSupabase from "@/hooks/useSupabase";
 import { NAV_THEME } from "@/lib/theme";
@@ -107,34 +108,36 @@ function ProviderStack() {
         <ErrorBoundary>
           <GestureHandlerRootView>
             <KeyboardProvider>
-              <DialogProvider>
-                <NetworkProvider>
-                  <QueryClientProvider client={queryClient}>
-                    <ThemeProvider
-                      value={isDarkColorScheme ? DARK_THEME : LIGHT_THEME}
-                    >
-                      <SystemBars style="auto" />
-                      <NavigationStack />
-                      <PortalHost />
-                      <Toaster
-                        theme="system"
-                        richColors
-                        position="bottom-center"
-                        autoWiggleOnUpdate="toast-change"
-                        duration={7000}
-                        offset={130}
-                        closeButton={true}
-                        toastOptions={{
-                          style: {
-                            borderWidth: 3,
-                            borderRadius: 7,
-                          },
-                        }}
-                      />
-                    </ThemeProvider>
-                  </QueryClientProvider>
-                </NetworkProvider>
-              </DialogProvider>
+              <QueryClientProvider client={queryClient}>
+                <StartupProvider>
+                  <DialogProvider>
+                    <NetworkProvider>
+                      <ThemeProvider
+                        value={isDarkColorScheme ? DARK_THEME : LIGHT_THEME}
+                      >
+                        <SystemBars style="auto" />
+                        <NavigationStack />
+                        <PortalHost />
+                        <Toaster
+                          theme="system"
+                          richColors
+                          position="bottom-center"
+                          autoWiggleOnUpdate="toast-change"
+                          duration={7000}
+                          offset={130}
+                          closeButton={true}
+                          toastOptions={{
+                            style: {
+                              borderWidth: 3,
+                              borderRadius: 7,
+                            },
+                          }}
+                        />
+                      </ThemeProvider>
+                    </NetworkProvider>
+                  </DialogProvider>
+                </StartupProvider>
+              </QueryClientProvider>
             </KeyboardProvider>
           </GestureHandlerRootView>
         </ErrorBoundary>
