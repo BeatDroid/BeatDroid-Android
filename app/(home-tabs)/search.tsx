@@ -32,7 +32,6 @@ import { useStartup } from "@/contexts/startup-context";
 import { type NewSearchHistory, searchHistoryTable } from "@/db/schema";
 import { useColorScheme } from "@/hooks/useColorScheme";
 import useDatabase from "@/hooks/useDatabase";
-import { useResponsiveLayout } from "@/hooks/useResponsiveLayout";
 import useSupabase from "@/hooks/useSupabase";
 import { themes } from "@/lib/constants";
 import { SearchType } from "@/lib/types";
@@ -86,7 +85,6 @@ export default function Search() {
   const { syncToSupabase } = useSupabase();
   const { isLoading } = useStartup();
   const insets = useSafeAreaInsets();
-  const isNarrow = useResponsiveLayout(400);
   const { isDarkColorScheme } = useColorScheme();
   const searchParamRef = useRef<AnimatedInputRef>(null);
   const artistNameRef = useRef<AnimatedInputRef>(null);
