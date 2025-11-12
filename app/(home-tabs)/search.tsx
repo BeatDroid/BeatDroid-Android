@@ -36,11 +36,11 @@ import { useResponsiveLayout } from "@/hooks/useResponsiveLayout";
 import useSupabase from "@/hooks/useSupabase";
 import { themes } from "@/lib/constants";
 import { SearchType } from "@/lib/types";
-import { cn } from "@/lib/utils";
-import { notificationHaptic, selectionHaptic } from "@/utils/haptic-utils";
+import { notificationHaptic } from "@/utils/haptic-utils";
 import { selectPoster } from "@/utils/poster-utils";
 import { searchRegex } from "@/utils/text-utls";
 import { MaterialIcons } from "@expo/vector-icons";
+import FontAwesome from "@expo/vector-icons/FontAwesome";
 import * as Sentry from "@sentry/react-native";
 import { router, useLocalSearchParams } from "expo-router";
 import { cssInterop } from "nativewind";
@@ -59,6 +59,13 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { toast } from "sonner-native";
 
 const ExpoMaterialIcons = cssInterop(MaterialIcons, {
+  className: {
+    target: "style",
+    nativeStyleToProp: { color: true },
+  },
+});
+
+const ExpoFontAwesome = cssInterop(FontAwesome, {
   className: {
     target: "style",
     nativeStyleToProp: { color: true },
@@ -390,8 +397,8 @@ export default function Search() {
           </View>
         </Animated.View>
         <AnimatedCard index={0} className="dark:border-transparent">
-          <CardHeader className="flex-row justify-between items-center">
-            <Label>Search Type</Label>
+          <CardHeader className={"items-center flex-row justify-center"}>
+            <Label className={"font-ui-bold"}>What's on your mind today?</Label>
           </CardHeader>
           <CardContent>
             <DropdownMenu>
@@ -421,8 +428,8 @@ export default function Search() {
           </CardContent>
         </AnimatedCard>
         <AnimatedCard index={1} className="mt-4 dark:border-transparent">
-          <CardHeader>
-            <Label className="">What are you looking for?</Label>
+          <CardHeader className={"items-center flex-row justify-center"}>
+            <Label className={"font-ui-bold"}>What are you looking for?</Label>
           </CardHeader>
           <CardContent>
             <AnimatedInput
@@ -468,8 +475,8 @@ export default function Search() {
               index={2}
               className="mt-4 dark:border-transparent flex-1"
             >
-              <CardHeader>
-                <Label>Colour theme</Label>
+              <CardHeader className={"items-center flex-row justify-center"}>
+                <Label className={"font-ui-bold"}>Colour theme</Label>
               </CardHeader>
               <CardContent className="flex-1 content-center justify-center">
                 <DropdownMenu>
@@ -505,34 +512,25 @@ export default function Search() {
               index={3}
               className="mt-4 dark:border-transparent flex-1"
             >
-              <CardHeader>
-                <Label>{isNarrow ? "Accent Line" : "Decor"}</Label>
+              <CardHeader className={"items-center flex-row justify-center"}>
+                <Label className={"font-ui-bold"}>Accent Line</Label>
               </CardHeader>
-              <CardContent>
-                <View
-                  className={cn(
-                    "items-center",
-                    isNarrow ? "flex-col" : "flex-row",
-                  )}
-                >
-                  <Switch
-                    checked={accentLine}
-                    onCheckedChange={setAccentLine}
-                    nativeID="accent-line"
-                  />
-                  {!isNarrow && (
-                    <Label
-                      className="ml-6 flex-1"
-                      nativeID="accent-line"
-                      onPress={() => {
-                        setAccentLine((prev) => !prev);
-                        selectionHaptic();
-                      }}
-                    >
-                      Accent line
-                    </Label>
-                  )}
-                </View>
+              <CardContent className={"items-center flex-row justify-center"}>
+                <ExpoFontAwesome
+                  name="circle-o"
+                  className={"text-foreground mr-3"}
+                  size={20}
+                />
+                <Switch
+                  checked={accentLine}
+                  onCheckedChange={setAccentLine}
+                  nativeID="accent-line"
+                />
+                <ExpoFontAwesome
+                  name="dot-circle-o"
+                  className={"text-foreground ml-3"}
+                  size={20}
+                />
               </CardContent>
             </AnimatedCard>
           </View>
