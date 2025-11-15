@@ -8,7 +8,11 @@ import AnimatedHeader from "@/components/ui-custom/animated-header";
 import Background from "@/components/ui-custom/background";
 import { Button } from "@/components/ui/button";
 import { Text } from "@/components/ui/text";
+import { type NewSearchHistory, searchHistoryTable } from "@/db/schema";
+import useDatabase from "@/hooks/useDatabase";
+import useSupabase from "@/hooks/useSupabase";
 import { parseLyrics } from "@/utils/text-utls";
+import * as Sentry from "@sentry/react-native";
 import { FlashList } from "@shopify/flash-list";
 import { router, useLocalSearchParams } from "expo-router";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
@@ -30,6 +34,8 @@ const LyricSelection = () => {
     }>();
   const [lyricList, setLyricList] = useState<Lyric[]>();
   const [selectedBlock, setSelectedBlock] = useState<BlockRange | null>(null);
+  const { db } = useDatabase();
+  const { syncToSupabase } = useSupabase();
 
   useEffect(() => {
     setLyricList(parseLyrics(lyrics));
@@ -89,13 +95,65 @@ const LyricSelection = () => {
     [],
   );
 
-  // API handlers
+  const saveToDb = async (
+    responseData: SearchTrackResponse,
+    passedVariables: SearchTrackRequest,
+  ) => {
+    if (!responseData.name || !responseData.artist_name) {
+      console.error("Invalid response data: missing required fields");
+      Sentry.captureMessage(
+        "Failed to save search to database: missing required fields",
+        {
+          level: "error",
+          tags: {
+            operation: "saveToDb",
+            validation: "failed",
+          },
+        },
+      );
+      return;
+    }
+
+    const hasThumbhash = "thumb_hash" in responseData;
+
+    const insertData: NewSearchHistory = {
+      searchType: "Track",
+      searchParam: responseData.name,
+      artistName: responseData.artist_name,
+      theme: passedVariables.theme,
+      accentLine: passedVariables.accent,
+      blurhash: hasThumbhash ? responseData.thumb_hash : "",
+      createdAt: new Date(),
+    };
+
+    try {
+      await db.insert(searchHistoryTable).values(insertData);
+      await syncToSupabase();
+    } catch (error) {
+      console.error("Error saving to database:", error);
+      Sentry.captureException(error, {
+        tags: {
+          operation: "saveToDb",
+          searchType: "track",
+        },
+        contexts: {
+          database: {
+            operation: "insert",
+            table: "search_history",
+            hasValidData: true,
+          },
+        },
+      });
+    }
+  };
+
   const onSuccess = (
     data: SearchTrackResponse,
     variables: SearchTrackRequest,
   ) => {
-    // This time we should get the poster response
     if ("poster_url" in data) {
+      saveToDb(data, variables);
+
       router.navigate({
         pathname: "/poster-view",
         params: {
@@ -108,7 +166,6 @@ const LyricSelection = () => {
         },
       });
     } else {
-      // Unexpected: got lyrics again instead of poster
       toast.error("Unexpected response", {
         description: "Please try again",
       });
