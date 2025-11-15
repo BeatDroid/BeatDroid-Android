@@ -11,13 +11,14 @@ export async function searchTrack(
   artist: string,
   theme: Theme,
   accent: boolean,
+  lyric_lines?: string,
 ): Promise<SearchTrackResponse> {
   const requestData = searchTrackRequestSchema.parse({
     song_name: track,
     artist_name: artist,
     theme,
     accent,
-    lyric_lines: "5-9",
+    ...(lyric_lines !== undefined && { lyric_lines }),
   });
 
   try {

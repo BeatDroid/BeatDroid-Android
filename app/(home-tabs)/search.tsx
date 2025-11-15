@@ -72,6 +72,7 @@ const ExpoFontAwesome = cssInterop(FontAwesome, {
 });
 
 export default function Search() {
+  // TODO: Use useReducer instead to reduce state spam
   const { dbSearchParam, dbArtistName, dbSearchType, dbTheme, dbAccentLine } =
     useLocalSearchParams<{
       dbSearchParam: string;
@@ -171,19 +172,38 @@ export default function Search() {
     data: SearchAlbumResponse | SearchTrackResponse,
     variables: SearchAlbumRequest | SearchTrackRequest,
   ) => {
-    saveToDb(data, variables);
+    // Type guard: Check if the response has poster_url (not a lyrics-only response)
+    if ("lyrics" in data) {
+      // Type guard: Only tracks return lyrics, so variables must be SearchTrackRequest
+      const trackVariables = variables as SearchTrackRequest;
+      // Pass all search parameters so lyric-selection can make the second API call
+      router.navigate({
+        pathname: "/lyric-selection",
+        params: {
+          name: data.name,
+          artistName: data.artist_name,
+          lyrics: data.lyrics,
+          // Pass original search parameters for second API call
+          songName: trackVariables.song_name,
+          theme: trackVariables.theme,
+          accentLine: trackVariables.accent.toString(),
+        },
+      });
+    } else {
+      saveToDb(data, variables);
 
-    router.navigate({
-      pathname: "/poster-view",
-      params: {
-        posterPath: data.poster_url,
-        blurhash: data.thumb_hash,
-        searchParam: data.name,
-        artistName: data.artist_name,
-        theme: variables.theme,
-        accentLine: variables.accent.toString(),
-      },
-    });
+      router.navigate({
+        pathname: "/poster-view",
+        params: {
+          posterPath: data.poster_url,
+          blurhash: data.thumb_hash,
+          searchParam: data.name,
+          artistName: data.artist_name,
+          theme: variables.theme,
+          accentLine: variables.accent.toString(),
+        },
+      });
+    }
   };
 
   const onError = (error: unknown) => {
@@ -288,7 +308,6 @@ export default function Search() {
         artist_name: sanitizedArtistName!,
         theme,
         accent: accentLine,
-        lyric_lines: "5-9",
       });
     } else {
       searchAlbumApi.mutate({
@@ -322,6 +341,7 @@ export default function Search() {
 
     // Determine search type based on request variables
     const isTrackSearch = "song_name" in passedVariables;
+    const hasThumbhash = "thumb_hash" in responseData;
 
     const insertData: NewSearchHistory = {
       searchType: isTrackSearch ? "Track" : "Album",
@@ -329,7 +349,7 @@ export default function Search() {
       artistName: responseData.artist_name,
       theme: passedVariables.theme,
       accentLine: passedVariables.accent,
-      blurhash: responseData.thumb_hash,
+      blurhash: hasThumbhash ? responseData.thumb_hash : "",
       createdAt: new Date(),
     };
 

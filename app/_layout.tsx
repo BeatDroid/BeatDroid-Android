@@ -160,6 +160,7 @@ function NavigationStack() {
       <Stack.Screen name="index" />
       <Stack.Screen name="(home-tabs)" />
       <Stack.Screen name="poster-view" />
+      <Stack.Screen name="lyric-selection" />
     </Stack>
   );
 }
