@@ -407,7 +407,7 @@ export default function Search() {
           className={"overflow-hidden"}
         >
           <View className="flex-row items-center justify-center bg-transparent border border-accent px-4 py-2 w-1/2 rounded-full">
-            <Text className={"text-md mb-1"}>Fetching token</Text>
+            <Text className={"text-md mb-1 ml-2"}>Spinning up the server</Text>
             <ActivityIndicator
               size={"small"}
               className={"ml-4 text-foreground aspect-square w-auto h-[70%]"}
