@@ -1,38 +1,28 @@
-import { z } from 'zod';
-
-export const themeSchema = z.union([
-  z.literal('Light'),
-  z.literal('Dark'),
-  z.literal('Catppuccin'),
-  z.literal('Gruvbox'),
-  z.literal('Nord'),
-  z.literal('RosePine'),
-  z.literal('Everforest')
-]);
-
-export type Theme = z.infer<typeof themeSchema>;
+import { themeSchema } from "@/api/common/theme-schema";
+import { z } from "zod";
 
 export const searchTrackRequestSchema = z.object({
-  track_name: z.string().min(1, 'Track name is required'),
-  artist_name: z.string().min(1, 'Artist name is required'),
-  theme: themeSchema.default('Dark'),
+  song_name: z.string().min(1, "Track name is required"),
+  artist_name: z.string().min(1, "Artist name is required"),
+  theme: themeSchema.default("Dark"),
   accent: z.boolean().default(false),
-  indexing: z.boolean().default(true).optional()
+  lyric_lines: z.string().optional(),
 });
 
-export const searchTrackResponseSchema = z.object({
-  data: z.object({
-    filePath: z.string(),
-    blurhash: z.string(),
-    type: z.string(),
-    trackName: z.string(),
-    artistName: z.string(),
-  }).optional(),
-  message: z.string(),
-  success: z.boolean(),
-  error: z.string().optional(),
-  details: z.string().optional(),
-});
+export const searchTrackResponseSchema = z.union([
+  z.object({
+    poster_url: z.string(),
+    thumb_hash: z.string(),
+    poster_filename: z.string(),
+    name: z.string().min(1, "Track name cannot be empty"),
+    artist_name: z.string().min(1, "Artist name cannot be empty"),
+  }),
+  z.object({
+    name: z.string().min(1, "Track name cannot be empty"),
+    artist_name: z.string().min(1, "Artist name cannot be empty"),
+    lyrics: z.string(),
+  }),
+]);
 
 export type SearchTrackRequest = z.infer<typeof searchTrackRequestSchema>;
 export type SearchTrackResponse = z.infer<typeof searchTrackResponseSchema>;

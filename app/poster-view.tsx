@@ -4,7 +4,7 @@ import AnimatedHeader from "@/components/ui-custom/animated-header";
 import AnimatedImage from "@/components/ui-custom/animated-image";
 import Background from "@/components/ui-custom/background";
 import { selectionHaptic } from "@/utils/haptic-utils";
-import { handleDownloadPoster } from "@/utils/image-utils";
+import { saveCachedPosterToUserFolder } from "@/utils/image-utils";
 import { useLocalSearchParams } from "expo-router";
 import { useEffect, useState } from "react";
 import { View } from "react-native";
@@ -43,12 +43,14 @@ export default function Result() {
         disabled={!isLoaded}
         title={`Your poster is ready! 🚀`}
         description="Your music, beautifully framed! ✨"
+        titleClassName={"text-left"}
+        descriptionClassName={"text-left"}
       />
       <View className="flex-1 m-6">
         <AnimatedImage
           loading={posterApi.isFetching}
           uri={posterApi.data?.data?.image!}
-          blurhash={blurhash!}
+          thumbhash={blurhash!}
           onPress={() => {
             setIsLoaded(true);
           }}
@@ -62,15 +64,14 @@ export default function Result() {
         title="Download"
         disabled={!isLoaded}
         occupySpaceWhenHidden={true}
-        onPress={() =>
-          handleDownloadPoster(
-            posterApi.data?.data?.image!,
-            searchParam!,
-            artistName!,
-            theme!,
-            accentLine!,
-          )
-        }
+        onPress={() => {
+          const fileUri = posterApi.data?.data?.image;
+          if (!fileUri) return;
+          const displayName = `${searchParam} by ${artistName} - ${theme} ${
+            accentLine === "true" ? "with accent line" : ""
+          }.png`;
+          saveCachedPosterToUserFolder(fileUri, displayName, "image/png");
+        }}
       />
     </Background>
   );

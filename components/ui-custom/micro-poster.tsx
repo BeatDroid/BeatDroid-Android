@@ -1,11 +1,11 @@
+import type { Theme } from "@/api/common/theme-schema";
 import { themes } from "@/lib/constants";
-import { ThemeTypes } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import React, { memo } from "react";
 import { View } from "react-native";
 
 interface MicroPosterProps {
-  theme?: ThemeTypes;
+  theme?: Theme;
   accentEnabled?: boolean;
   microMode?: boolean;
   className?: string;

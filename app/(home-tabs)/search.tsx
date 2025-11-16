@@ -1,13 +1,4 @@
-import { useAlbumSearchApi } from "@/api/search-album/useAlbumSearchApi";
-import {
-  SearchAlbumRequest,
-  SearchAlbumResponse,
-} from "@/api/search-album/zod-schema";
-import { useTrackSearchApi } from "@/api/search-track/useTrackSearchApi";
-import {
-  SearchTrackRequest,
-  SearchTrackResponse,
-} from "@/api/search-track/zod-schema";
+import type { Theme } from "@/api/common/theme-schema";
 import AnimatedCard from "@/components/ui-custom/animated-card";
 import AnimatedConfirmButton from "@/components/ui-custom/animated-confirm-button";
 import AnimatedHeader from "@/components/ui-custom/animated-header";
@@ -27,19 +18,16 @@ import {
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Text } from "@/components/ui/text";
-import { useAuth } from "@/contexts/auth-context";
-import { type NewSearchHistory, searchHistoryTable } from "@/db/schema";
-import useDatabase from "@/hooks/useDatabase";
-import { useResponsiveLayout } from "@/hooks/useResponsiveLayout";
-import useSupabase from "@/hooks/useSupabase";
+import { useStartup } from "@/contexts/startup-context";
+import { useColorScheme } from "@/hooks/useColorScheme";
+import { useSearch } from "@/hooks/useSearch";
 import { themes } from "@/lib/constants";
-import { SearchType, ThemeTypes } from "@/lib/types";
-import { useColorScheme } from "@/lib/useColorScheme";
-import { cn } from "@/lib/utils";
-import { notificationHaptic, selectionHaptic } from "@/utils/haptic-utils";
+import { SearchType } from "@/lib/types";
+import { notificationHaptic } from "@/utils/haptic-utils";
 import { selectPoster } from "@/utils/poster-utils";
 import { searchRegex } from "@/utils/text-utls";
 import { MaterialIcons } from "@expo/vector-icons";
+import FontAwesome from "@expo/vector-icons/FontAwesome";
 import * as Sentry from "@sentry/react-native";
 import { router, useLocalSearchParams } from "expo-router";
 import { cssInterop } from "nativewind";
@@ -64,6 +52,13 @@ const ExpoMaterialIcons = cssInterop(MaterialIcons, {
   },
 });
 
+const ExpoFontAwesome = cssInterop(FontAwesome, {
+  className: {
+    target: "style",
+    nativeStyleToProp: { color: true },
+  },
+});
+
 export default function Search() {
   const { dbSearchParam, dbArtistName, dbSearchType, dbTheme, dbAccentLine } =
     useLocalSearchParams<{
@@ -74,11 +69,8 @@ export default function Search() {
       dbAccentLine: string;
     }>();
 
-  const { db } = useDatabase();
-  const { syncToSupabase } = useSupabase();
-  const { isTokenSet } = useAuth();
+  const { isLoading } = useStartup();
   const insets = useSafeAreaInsets();
-  const isNarrow = useResponsiveLayout(400);
   const { isDarkColorScheme } = useColorScheme();
   const searchParamRef = useRef<AnimatedInputRef>(null);
   const artistNameRef = useRef<AnimatedInputRef>(null);
@@ -91,11 +83,28 @@ export default function Search() {
   const [artistNameDefault, setArtistNameDefault] = useState<
     string | undefined
   >(undefined);
-  const [theme, setTheme] = useState<ThemeTypes>("Dark");
+  const [theme, setTheme] = useState<Theme>("Dark");
   const [accentLine, setAccentLine] = useState(false);
   const buttonVariant = isDarkColorScheme ? "outline" : "secondary";
   const buttonContainerHeight = useSharedValue(0);
   const statusChipHeight = useSharedValue(50);
+
+  const { trackSearch, albumSearch, isSearching } = useSearch({
+    onMutate: (variables) => {
+      const isTrackSearch = "song_name" in variables;
+      const searchParam = isTrackSearch
+        ? variables.song_name
+        : variables.album_name;
+
+      Sentry.setContext("Search Input", {
+        searchType,
+        searchParam,
+        artistName: variables.artist_name,
+        theme: variables.theme,
+        accentLine: variables.accent,
+      });
+    },
+  });
 
   useEffect(() => {
     if (dbSearchParam) {
@@ -108,7 +117,7 @@ export default function Search() {
       setSearchType(dbSearchType as SearchType);
     }
     if (dbTheme) {
-      setTheme(dbTheme as ThemeTypes);
+      setTheme(dbTheme as Theme);
     }
     if (dbAccentLine) {
       setAccentLine(dbAccentLine === "true");
@@ -123,17 +132,18 @@ export default function Search() {
   }, [dbSearchParam, dbArtistName, dbSearchType, dbTheme, dbAccentLine]);
 
   useEffect(() => {
-    if (isTokenSet)
+    if (!isLoading) {
       statusChipHeight.value = withTiming(0, {
         duration: 500,
         easing: Easing.inOut(Easing.sin),
       });
-    else
+    } else {
       statusChipHeight.value = withTiming(50, {
         duration: 500,
         easing: Easing.inOut(Easing.sin),
       });
-  }, [isTokenSet, statusChipHeight]);
+    }
+  }, [isLoading, statusChipHeight]);
 
   useEffect(() => {
     const selector = selectPoster(searchType);
@@ -144,66 +154,6 @@ export default function Search() {
       buttonContainerHeight.value = withTiming(0, { duration: 300 });
     }
   }, [buttonContainerHeight, searchType]);
-
-  const onMutate = (variables: SearchAlbumRequest | SearchTrackRequest) => {
-    const searchParam =
-      "track_name" in variables ? variables.track_name : variables.album_name;
-
-    Sentry.setContext("Search Input", {
-      searchType,
-      searchParam,
-      artistName: variables.artist_name,
-      theme: variables.theme,
-      accentLine: variables.accent,
-    });
-  };
-
-  const onSuccess = (
-    data: SearchAlbumResponse | SearchTrackResponse,
-    variables: SearchAlbumRequest | SearchTrackRequest,
-  ) => {
-    saveToDb(data, variables);
-    router.navigate({
-      pathname: "/poster-view",
-      params: {
-        posterPath: data.data?.filePath,
-        blurhash: data.data?.blurhash,
-        searchParam:
-          "trackName" in data.data!
-            ? data.data!.trackName
-            : data.data!.albumName,
-        artistName: data.data!.artistName,
-        theme: variables.theme,
-        accentLine: variables.accent.toString(),
-      },
-    });
-  };
-
-  const onError = (error: unknown) => {
-    console.log("Error: ", error);
-    let description = "Unknown error";
-    if (error && typeof error === "object" && "message" in error) {
-      description = String((error as { message?: unknown }).message);
-    }
-    toast.error("Search failed", {
-      description:
-        description === ""
-          ? "An error occurred. Please try again."
-          : description,
-    });
-  };
-
-  const searchAlbumApi = useAlbumSearchApi({
-    onMutate,
-    onSuccess,
-    onError,
-  });
-
-  const searchTrackApi = useTrackSearchApi({
-    onMutate,
-    onSuccess,
-    onError,
-  });
 
   const search = () => {
     const sanitizedSearchParam = searchParam?.trim();
@@ -272,42 +222,20 @@ export default function Search() {
     searchParamRef.current?.clearError();
     artistNameRef.current?.clearError();
     if (searchType === "Track") {
-      searchTrackApi.mutate({
-        track_name: sanitizedSearchParam!,
+      trackSearch.mutate({
+        song_name: sanitizedSearchParam!,
         artist_name: sanitizedArtistName!,
         theme,
         accent: accentLine,
       });
     } else {
-      searchAlbumApi.mutate({
+      albumSearch.mutate({
         album_name: sanitizedSearchParam!,
         artist_name: sanitizedArtistName!,
         theme,
         accent: accentLine,
       });
     }
-  };
-
-  const saveToDb = async (
-    responseData: SearchAlbumResponse | SearchTrackResponse,
-    passedVariables: SearchAlbumRequest | SearchTrackRequest,
-  ) => {
-    const insertData: NewSearchHistory = {
-      searchType: "albumName" in responseData.data! ? "Album" : "Track",
-      searchParam:
-        "trackName" in responseData.data!
-          ? responseData.data!.trackName
-          : responseData.data!.albumName,
-      artistName: responseData.data!.artistName,
-      theme: passedVariables.theme,
-      accentLine: passedVariables.accent,
-      blurhash: responseData.data!.blurhash,
-      createdAt: new Date(),
-    };
-
-    await db.insert(searchHistoryTable).values(insertData);
-
-    await syncToSupabase();
   };
 
   const buttonContainerStyle = useAnimatedStyle(() => {
@@ -326,24 +254,24 @@ export default function Search() {
 
   return (
     <Background disableSafeArea className={"pt-safe px-0"}>
-      <AnimatedHeader
-        title="Search 🌟"
-        description="Search for your favorite music or albums"
-        containerClassName={"px-5"}
-      />
       <KeyboardAwareScrollView
-        className="flex-1 mt-6 px-5"
+        className="flex-1 px-5"
         contentContainerClassName="pb-4"
         bottomOffset={30}
         fadingEdgeLength={100}
         showsVerticalScrollIndicator={false}
       >
+        <AnimatedHeader
+          title="Search 🌟"
+          description="Search for your favorite music or albums"
+          containerClassName={"px-2 pb-6"}
+        />
         <Animated.View
           style={statusChipContainerStyle}
           className={"overflow-hidden"}
         >
           <View className="flex-row items-center justify-center bg-transparent border border-accent px-4 py-2 w-1/2 rounded-full">
-            <Text className={"text-md mb-1"}>Fetching token</Text>
+            <Text className={"text-md mb-1 ml-2"}>Spinning up the server</Text>
             <ActivityIndicator
               size={"small"}
               className={"ml-4 text-foreground aspect-square w-auto h-[70%]"}
@@ -351,13 +279,13 @@ export default function Search() {
           </View>
         </Animated.View>
         <AnimatedCard index={0} className="dark:border-transparent">
-          <CardHeader className="flex-row justify-between items-center">
-            <Label>Search Type</Label>
+          <CardHeader className={"items-center flex-row justify-center"}>
+            <Label className={"font-ui-bold"}>What's on your mind today?</Label>
           </CardHeader>
           <CardContent>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button childAsRow variant={buttonVariant}>
+                <Button variant={buttonVariant}>
                   <Text className="font-ui-bold">{searchType}</Text>
                   <ExpoMaterialIcons
                     name="keyboard-arrow-down"
@@ -382,8 +310,8 @@ export default function Search() {
           </CardContent>
         </AnimatedCard>
         <AnimatedCard index={1} className="mt-4 dark:border-transparent">
-          <CardHeader>
-            <Label className="">What are you looking for?</Label>
+          <CardHeader className={"items-center flex-row justify-center"}>
+            <Label className={"font-ui-bold"}>What are you looking for?</Label>
           </CardHeader>
           <CardContent>
             <AnimatedInput
@@ -393,14 +321,11 @@ export default function Search() {
                   ? "Choose a search type first"
                   : `${searchType} name`
               }
-              editable={
-                searchType !== "Choose type" &&
-                !searchAlbumApi.isPending &&
-                !searchTrackApi.isPending
-              }
+              editable={searchType !== "Choose type" && !isSearching}
               placeholder={`Eg. ${searchParamDefault}`}
               value={searchParam}
               onChangeText={setSearchParam}
+              textInputClassName={"bg-secondary dark:bg-background/70"}
             />
             <AnimatedInput
               ref={artistNameRef}
@@ -409,14 +334,11 @@ export default function Search() {
                   ? "Decide what you want before searching"
                   : `Artist name`
               }
-              editable={
-                searchType !== "Choose type" &&
-                !searchAlbumApi.isPending &&
-                !searchTrackApi.isPending
-              }
+              editable={searchType !== "Choose type" && !isSearching}
               placeholder={`Eg. ${artistNameDefault}`}
               value={artistName}
               onChangeText={setArtistName}
+              textInputClassName={"bg-secondary dark:bg-background/70"}
               className="mt-4"
             />
           </CardContent>
@@ -427,18 +349,18 @@ export default function Search() {
               index={2}
               className="mt-4 dark:border-transparent flex-1"
             >
-              <CardHeader>
-                <Label>Colour theme</Label>
+              <CardHeader className={"items-center flex-row justify-center"}>
+                <Label className={"font-ui-bold"}>Colour theme</Label>
               </CardHeader>
               <CardContent className="flex-1 content-center justify-center">
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <Button childAsRow variant={buttonVariant}>
+                    <Button variant={buttonVariant}>
                       <Text className="font-ui-bold">{theme}</Text>
                       <ExpoMaterialIcons
                         name="keyboard-arrow-down"
                         size={24}
-                        className={"text-foreground ml-2"}
+                        className={"text-foreground"}
                       />
                     </Button>
                   </DropdownMenuTrigger>
@@ -450,7 +372,7 @@ export default function Search() {
                       {Object.keys(themes).map((theme) => (
                         <DropdownMenuItem
                           key={theme}
-                          onPress={() => setTheme(theme as ThemeTypes)}
+                          onPress={() => setTheme(theme as Theme)}
                         >
                           <Text>{theme}</Text>
                         </DropdownMenuItem>
@@ -464,41 +386,32 @@ export default function Search() {
               index={3}
               className="mt-4 dark:border-transparent flex-1"
             >
-              <CardHeader>
-                <Label>{isNarrow ? "Accent Line" : "Decor"}</Label>
+              <CardHeader className={"items-center flex-row justify-center"}>
+                <Label className={"font-ui-bold"}>Accent Line</Label>
               </CardHeader>
-              <CardContent>
-                <View
-                  className={cn(
-                    "items-center",
-                    isNarrow ? "flex-col" : "flex-row",
-                  )}
-                >
-                  <Switch
-                    checked={accentLine}
-                    onCheckedChange={setAccentLine}
-                    nativeID="accent-line"
-                  />
-                  {!isNarrow && (
-                    <Label
-                      className="ml-6 flex-1"
-                      nativeID="accent-line"
-                      onPress={() => {
-                        setAccentLine((prev) => !prev);
-                        selectionHaptic();
-                      }}
-                    >
-                      Accent line
-                    </Label>
-                  )}
-                </View>
+              <CardContent className={"items-center flex-row justify-center"}>
+                <ExpoFontAwesome
+                  name="circle-o"
+                  className={"text-foreground mr-3"}
+                  size={20}
+                />
+                <Switch
+                  checked={accentLine}
+                  onCheckedChange={setAccentLine}
+                  nativeID="accent-line"
+                />
+                <ExpoFontAwesome
+                  name="dot-circle-o"
+                  className={"text-foreground ml-3"}
+                  size={20}
+                />
               </CardContent>
             </AnimatedCard>
           </View>
           <View className="w-4" />
           <AnimatedCard
             index={4}
-            className="mt-4 border-0 items-center justify-center bg-background shadow-md shadow-black"
+            className="mt-4 w-1/2 border-0 items-center justify-center fg-background shadow-md shadow-black"
           >
             <MiniPoster theme={theme} accentEnabled={accentLine} />
           </AnimatedCard>
@@ -511,9 +424,7 @@ export default function Search() {
         <AnimatedConfirmButton
           title={"Create Poster"}
           icon={<ExpoMaterialIcons name="auto-awesome" size={20} />}
-          loading={
-            searchAlbumApi.isPending || searchTrackApi.isPending || !isTokenSet
-          }
+          loading={isSearching || isLoading}
           onPress={search}
           disabled={searchType === "Choose type"}
           buttonClassName={"rounded-full"}

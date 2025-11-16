@@ -26,7 +26,7 @@ const AnimatedCardComponent = Animated.createAnimatedComponent(Card);
 const AnimatedCard = React.forwardRef<ViewRef, AnimatedCardProps>(
   (
     { disabled = false, color, delay = undefined, index = 0, style, ...props },
-    ref
+    ref,
   ) => {
     const opacity = useSharedValue(initialOpacity);
 
@@ -37,7 +37,7 @@ const AnimatedCard = React.forwardRef<ViewRef, AnimatedCardProps>(
           delay !== undefined ? delay : index * delayBetweenCards;
         opacity.value = withDelay(
           calculatedDelay,
-          withTiming(targetOpacity, { duration })
+          withTiming(targetOpacity, { duration }),
         );
       } else {
         opacity.value = withTiming(initialOpacity, { duration });
@@ -61,7 +61,7 @@ const AnimatedCard = React.forwardRef<ViewRef, AnimatedCardProps>(
         {...props}
       />
     );
-  }
+  },
 );
 
 AnimatedCard.displayName = "AnimatedCard";

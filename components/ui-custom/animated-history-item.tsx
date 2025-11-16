@@ -1,6 +1,7 @@
 import { MicroPoster } from "@/components/ui-custom/micro-poster";
 import { Text } from "@/components/ui/text";
 import { SearchHistory } from "@/db/schema";
+import { createHashSource } from "@/utils/image-utils";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import { ImageBackground } from "expo-image";
 import { router } from "expo-router";
@@ -66,7 +67,7 @@ const AnimatedHistoryItem = ({
   const getHistoryDetails = useCallback(() => {
     return (
       <ImageBackground
-        source={{ blurhash: item.blurhash || "L69HLn?wI9jF_3t5M_t7H?%1-=R*" }}
+        source={createHashSource(item.blurhash)}
         className="flex-1"
       >
         <View className="absolute top-0 left-0 right-0 bottom-0 bg-background/40 dark:bg-background/20" />

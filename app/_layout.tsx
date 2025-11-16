@@ -1,15 +1,12 @@
 import "~/global.css";
-
-import { useTokenGenApi } from "@/api/generate-token/useTokenGenApi";
 import { ErrorBoundary } from "@/components/error-boundary";
-import { Button } from "@/components/ui/button";
-import { Text } from "@/components/ui/text";
 import queryClient from "@/config/queryClient";
-import { AuthProvider, useAuth } from "@/contexts/auth-context";
 import { DialogProvider } from "@/contexts/dialog-context/dialog-context";
 import { NetworkProvider } from "@/contexts/network-context";
+import { StartupProvider } from "@/contexts/startup-context";
+import { useColorScheme } from "@/hooks/useColorScheme";
 import useSupabase from "@/hooks/useSupabase";
-import FontAwesome from "@expo/vector-icons/FontAwesome";
+import { NAV_THEME } from "@/lib/theme";
 import {
   DarkTheme,
   DefaultTheme,
@@ -24,14 +21,13 @@ import * as SplashScreen from "expo-splash-screen";
 import { SQLiteProvider } from "expo-sqlite";
 import * as SystemUI from "expo-system-ui";
 import * as React from "react";
-import { useEffect, useRef } from "react";
+import { useEffect } from "react";
 import { ActivityIndicator, Platform } from "react-native";
 import { SystemBars } from "react-native-edge-to-edge";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { KeyboardProvider } from "react-native-keyboard-controller";
-import { toast, Toaster } from "sonner-native";
-import { NAV_THEME, themes } from "~/lib/constants";
-import { useColorScheme } from "~/lib/useColorScheme";
+import { Toaster } from "sonner-native";
+import { themes } from "~/lib/constants";
 
 const navigationIntegration = Sentry.reactNavigationIntegration({
   enableTimeToInitialDisplay: true,
@@ -54,9 +50,6 @@ if (!__DEV__) {
       }),
     ],
   });
-
-  // I dont want your ip address
-  Sentry.setUser({ ip_address: "0.0.0.0" });
 }
 
 SplashScreen.preventAutoHideAsync();
@@ -115,10 +108,10 @@ function ProviderStack() {
         <ErrorBoundary>
           <GestureHandlerRootView>
             <KeyboardProvider>
-              <AuthProvider>
-                <DialogProvider>
-                  <NetworkProvider>
-                    <QueryClientProvider client={queryClient}>
+              <QueryClientProvider client={queryClient}>
+                <StartupProvider>
+                  <DialogProvider>
+                    <NetworkProvider>
                       <ThemeProvider
                         value={isDarkColorScheme ? DARK_THEME : LIGHT_THEME}
                       >
@@ -141,10 +134,10 @@ function ProviderStack() {
                           }}
                         />
                       </ThemeProvider>
-                    </QueryClientProvider>
-                  </NetworkProvider>
-                </DialogProvider>
-              </AuthProvider>
+                    </NetworkProvider>
+                  </DialogProvider>
+                </StartupProvider>
+              </QueryClientProvider>
             </KeyboardProvider>
           </GestureHandlerRootView>
         </ErrorBoundary>
@@ -154,10 +147,7 @@ function ProviderStack() {
 }
 
 function NavigationStack() {
-  const genTokenApi = useTokenGenApi();
-  const { setToken } = useAuth();
   const { supabaseLoginCheck, syncFromSupabase } = useSupabase();
-  const id = useRef<string | number>("");
 
   React.useEffect(() => {
     supabaseLoginCheck().then((loggedIn) => {
@@ -165,44 +155,12 @@ function NavigationStack() {
     });
   }, [supabaseLoginCheck, syncFromSupabase]);
 
-  React.useEffect(() => {
-    const setTokenAsync = async () => {
-      if (genTokenApi.isSuccess && genTokenApi.data.success) {
-        setToken(genTokenApi.data.data!.access_token);
-      } else if (genTokenApi.isError) {
-        toast.error("Cannot initialize app", {
-          id: id.current,
-          description:
-            genTokenApi.error?.message + "\nRestart app to try again",
-          duration: Infinity,
-          dismissible: __DEV__,
-          action: (
-            <Button
-              size="sm"
-              variant="outline"
-              onPress={() => {
-                toast.dismiss(id.current);
-                genTokenApi.refetch();
-              }}
-              className="flex-row items-center gap-3"
-            >
-              <Text>Try again</Text>
-              <FontAwesome name="repeat" size={16} color="white" />
-            </Button>
-          ),
-        });
-        toast.wiggle(id.current);
-      }
-    };
-
-    setTokenAsync();
-  }, [genTokenApi, setToken]);
-
   return (
     <Stack screenOptions={{ headerShown: false }}>
       <Stack.Screen name="index" />
       <Stack.Screen name="(home-tabs)" />
       <Stack.Screen name="poster-view" />
+      <Stack.Screen name="lyric-selection" />
     </Stack>
   );
 }

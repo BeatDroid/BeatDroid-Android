@@ -1,5 +1,5 @@
+import type { Theme } from "@/api/common/theme-schema";
 import { themes } from "@/lib/constants";
-import { ThemeTypes } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import * as Sentry from "@sentry/react-native";
 import React, { useEffect } from "react";
@@ -11,7 +11,7 @@ import Animated, {
 } from "react-native-reanimated";
 
 interface MiniPosterProps {
-  theme?: ThemeTypes;
+  theme?: Theme;
   accentEnabled?: boolean;
   className?: string;
 }

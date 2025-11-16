@@ -14,7 +14,7 @@ import Animated, {
 
 interface Props {
   uri: string;
-  blurhash?: string;
+  thumbhash?: string;
   loading?: boolean;
   onZoom?: (isPressed: boolean) => void;
   onPress?: () => void;
@@ -35,7 +35,7 @@ const ExpoImage = cssInterop(ExpoImageBase, {
   },
 });
 
-const AnimatedImage = ({ uri, blurhash, loading = true }: Props) => {
+const AnimatedImage = ({ uri, thumbhash, loading = true }: Props) => {
   const imageRef = React.useRef<Image>(null);
   const [isFocused, setIsFocused] = useState(false);
   const rotateY = useSharedValue<string>("0deg");
@@ -106,14 +106,12 @@ const AnimatedImage = ({ uri, blurhash, loading = true }: Props) => {
           cachePolicy="none"
           source={
             loading
-              ? {
-                  blurhash,
-                }
-              : {
-                  uri: uri?.startsWith("data:")
-                    ? uri
-                    : `data:image/jpeg;base64,${uri}`,
-                }
+              ? { thumbhash }
+              : uri?.startsWith("data:")
+                ? { uri }
+                : uri?.startsWith("file:") || uri?.startsWith("http")
+                  ? { uri }
+                  : { uri: `data:image/jpeg;base64,${uri}` }
           }
           contentFit={loading ? "cover" : "contain"}
           transition={2000}

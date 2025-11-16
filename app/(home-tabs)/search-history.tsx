@@ -414,18 +414,25 @@ export default function SearchHistoryView() {
     });
   }, [trackHistory.length, albumHistory.length]);
 
-  return (
-    <Background disableSafeArea className={"pt-safe px-0"}>
+  const Header = React.useCallback(
+    () => (
       <AnimatedHeader
         title="Search History 📜"
         description="Tracks and albums you couldn't get enough of"
-        containerClassName={"px-5"}
+        containerClassName={"px-5 pb-3"}
       />
+    ),
+    [],
+  );
+
+  return (
+    <Background disableSafeArea className={"pt-safe px-0"}>
       <Tabs
         value={currentTab}
         onValueChange={setCurrentTab}
         className="flex-1 px-2"
       >
+        <Header />
         <TabsContent value="albums" className="flex-1">
           {albumHistory.length === 0 ? (
             <ListEmptyComponent />
@@ -437,13 +444,14 @@ export default function SearchHistoryView() {
               keyExtractor={(item) => item.id.toString()}
               onEndReached={() => incrementallyLoadAlbums({})}
               onEndReachedThreshold={0.7}
-              contentContainerClassName={"mx-0 pb-[70] pt-4"}
+              contentContainerClassName={"mx-0 pb-[70]"}
               renderItem={renderItem}
               showsVerticalScrollIndicator={false}
               fadingEdgeLength={80}
               scrollEventThrottle={16}
               refreshing={refreshingAlbums}
               onRefresh={refreshAlbums}
+              // ListHeaderComponent={Header}
               refreshControl={
                 <TwRefreshControl
                   className="bg-muted text-primary"
@@ -465,13 +473,14 @@ export default function SearchHistoryView() {
               keyExtractor={(item) => item.id.toString()}
               onEndReached={() => incrementallyLoadTracks({})}
               onEndReachedThreshold={0.7}
-              contentContainerClassName={"mx-0 pb-[70] pt-4"}
+              contentContainerClassName={"mx-0 pb-[70]"}
               renderItem={renderItem}
               showsVerticalScrollIndicator={false}
               fadingEdgeLength={80}
               scrollEventThrottle={16}
               refreshing={refreshingTracks}
               onRefresh={refreshTracks}
+              // ListHeaderComponent={Header}
               refreshControl={
                 <TwRefreshControl
                   className="bg-muted text-foreground"

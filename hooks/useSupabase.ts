@@ -11,7 +11,8 @@ import {
 } from "@react-native-google-signin/google-signin";
 import * as Sentry from "@sentry/react-native";
 import { eq, inArray, sql } from "drizzle-orm";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useRef, useState } from "react";
+import { toast } from "sonner-native";
 
 export default function useSupabase() {
   const network = useNetwork();
@@ -41,7 +42,32 @@ export default function useSupabase() {
         timestamp: Date.now(),
       });
 
-      const { data: authData } = await supabase.auth.getUser();
+      const { data: authData, error: authError } =
+        await supabase.auth.getUser();
+
+      // Validate authentication before proceeding
+      if (authError || !authData?.user?.id) {
+        const errorMsg = "User not authenticated or session expired";
+        console.warn(errorMsg, authError);
+        toast.error("Error syncing history", {
+          description:
+            "There was an issue with your authentication. Please try logging in again..",
+        });
+
+        Sentry.addBreadcrumb({
+          type: "warning",
+          category: "Supabase push",
+          level: "warning",
+          message: errorMsg,
+          data: { authError: authError?.message },
+          timestamp: Date.now(),
+        });
+
+        // Update login status and exit gracefully
+        supabaseLogout();
+        return;
+      }
+
       const { error } = await supabase.from("search_history").upsert(
         unsyncedRecords.map(
           (record): SupabaseRecord => ({
@@ -55,7 +81,7 @@ export default function useSupabase() {
             blurhash: record.blurhash,
             synced: true,
             local_id: record.id,
-            user_id: authData?.user?.id || "",
+            user_id: authData.user.id, // Now guaranteed to be valid
           }),
         ),
       );
@@ -80,7 +106,7 @@ export default function useSupabase() {
         },
       });
     }
-  }, [db, network]);
+  }, [db, network, supabaseLogout]);
 
   const syncFromSupabase = useCallback(async () => {
     if (!network || !isLoggedInRef.current) return;
@@ -104,36 +130,65 @@ export default function useSupabase() {
       });
 
       if (data) {
-        const newRecords = data.map(
-          (record: SupabaseRecord): NewSearchHistory => ({
-            id: record.local_id,
-            searchType: record.search_type,
-            searchParam: record.search_param,
-            artistName: record.artist_name,
-            accentLine: record.accent_line,
-            blurhash: record.blurhash,
-            theme: record.theme,
-            createdAt: new Date(record.created_at),
-            synced: true,
-          }),
-        );
-
-        await db
-          .insert(searchHistoryTable)
-          .values(newRecords)
-          .onConflictDoUpdate({
-            target: searchHistoryTable.id,
-            set: {
-              searchType: sql`excluded.search_type`,
-              searchParam: sql`excluded.search_param`,
-              artistName: sql`excluded.artist_name`,
-              theme: sql`excluded.theme`,
-              accentLine: sql`excluded.accent_line`,
-              blurhash: sql`excluded.blurhash`,
-              createdAt: sql`excluded.created_at`,
+        const newRecords = data
+          .filter((record: SupabaseRecord) => {
+            // Filter out invalid records missing required fields
+            return (
+              record.search_param &&
+              record.artist_name &&
+              record.search_type &&
+              record.theme
+            );
+          })
+          .map(
+            (record: SupabaseRecord): NewSearchHistory => ({
+              id: record.local_id,
+              searchType: record.search_type,
+              searchParam: record.search_param,
+              artistName: record.artist_name,
+              accentLine: record.accent_line,
+              blurhash: record.blurhash,
+              theme: record.theme,
+              createdAt: new Date(record.created_at),
               synced: true,
-            },
-          });
+            }),
+          );
+
+        if (newRecords.length > 0) {
+          try {
+            await db
+              .insert(searchHistoryTable)
+              .values(newRecords)
+              .onConflictDoUpdate({
+                target: searchHistoryTable.id,
+                set: {
+                  searchType: sql`excluded.search_type`,
+                  searchParam: sql`excluded.search_param`,
+                  artistName: sql`excluded.artist_name`,
+                  theme: sql`excluded.theme`,
+                  accentLine: sql`excluded.accent_line`,
+                  blurhash: sql`excluded.blurhash`,
+                  createdAt: sql`excluded.created_at`,
+                  synced: true,
+                },
+              });
+          } catch (error) {
+            console.error("Error inserting records to local database:", error);
+            Sentry.captureException(error, {
+              tags: {
+                operation: "syncFromSupabase",
+                dbOperation: "insert",
+              },
+              contexts: {
+                database: {
+                  operation: "insert_with_conflict_update",
+                  table: "search_history",
+                  recordCount: newRecords.length,
+                },
+              },
+            });
+          }
+        }
 
         const remoteIds = new Set<number>(
           data.map((r: SupabaseRecord) => r.local_id),
@@ -239,6 +294,25 @@ export default function useSupabase() {
     [network],
   );
 
+  const supabaseLogout = useCallback(async () => {
+    if (!network) return;
+    setLoading(true);
+    await supabase.auth.signOut();
+    await GoogleSignin.signOut();
+    await supabaseLoginCheck();
+    setLoading(false);
+    Sentry.addBreadcrumb({
+      type: "debug",
+      category: "Supabase login check",
+      level: "info",
+      message: `User has logged out of Supabase`,
+      timestamp: Date.now(),
+    });
+    toast.success("Log out successful", {
+      description: "Search history will no longer be synced across devices.",
+    });
+  }, [network]);
+
   const supabaseLogin = useCallback(async () => {
     if (!network) return;
     setLoading(true);
@@ -269,6 +343,9 @@ export default function useSupabase() {
           throw { ...error, source: "supabase" };
         }
         isLoggedInRef.current = true;
+        toast.success("Log in successful", {
+          description: "Search history will be synced across devices.",
+        });
         await syncFromSupabase();
       } else {
         // sign in was cancelled by user
@@ -331,22 +408,6 @@ export default function useSupabase() {
     setLoading(false);
     return authData?.user !== null;
   };
-
-  const supabaseLogout = useCallback(async () => {
-    if (!network) return;
-    setLoading(true);
-    await supabase.auth.signOut();
-    await GoogleSignin.signOut();
-    await supabaseLoginCheck();
-    setLoading(false);
-    Sentry.addBreadcrumb({
-      type: "debug",
-      category: "Supabase login check",
-      level: "info",
-      message: `User has logged out of Supabase`,
-      timestamp: Date.now(),
-    });
-  }, [network]);
 
   return {
     syncToSupabase,
