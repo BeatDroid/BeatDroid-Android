@@ -1,23 +1,14 @@
 import type { Theme } from "@/api/common/theme-schema";
-import { useTrackSearchApi } from "@/api/search-track/useTrackSearchApi";
-import type {
-  SearchTrackRequest,
-  SearchTrackResponse,
-} from "@/api/search-track/zod-schema";
 import AnimatedHeader from "@/components/ui-custom/animated-header";
 import Background from "@/components/ui-custom/background";
 import { Button } from "@/components/ui/button";
 import { Text } from "@/components/ui/text";
-import { type NewSearchHistory, searchHistoryTable } from "@/db/schema";
-import useDatabase from "@/hooks/useDatabase";
-import useSupabase from "@/hooks/useSupabase";
+import { useSearch } from "@/hooks/useSearch";
 import { parseLyrics } from "@/utils/text-utls";
-import * as Sentry from "@sentry/react-native";
 import { FlashList } from "@shopify/flash-list";
-import { router, useLocalSearchParams } from "expo-router";
+import { useLocalSearchParams } from "expo-router";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { Pressable, View } from "react-native";
-import { toast } from "sonner-native";
 
 type Lyric = { id: number; text: string };
 type BlockRange = string; // Format: "start-end" e.g., "0-3"
@@ -34,14 +25,12 @@ const LyricSelection = () => {
     }>();
   const [lyricList, setLyricList] = useState<Lyric[]>();
   const [selectedBlock, setSelectedBlock] = useState<BlockRange | null>(null);
-  const { db } = useDatabase();
-  const { syncToSupabase } = useSupabase();
+  const { trackSearch } = useSearch();
 
   useEffect(() => {
     setLyricList(parseLyrics(lyrics));
   }, [lyrics]);
 
-  // Get only non-empty lyrics for block selection
   const nonEmptyLyrics = useMemo(() => {
     return lyricList?.filter((l) => l.text !== "") ?? [];
   }, [lyricList]);
@@ -52,7 +41,6 @@ const LyricSelection = () => {
     for (let i = 0; i < nonEmptyLyrics.length; i += 4) {
       const blockLyrics = nonEmptyLyrics.slice(i, i + 4);
       if (blockLyrics.length > 0) {
-        // Use actual lyric IDs from parsed lyrics to indicate real line numbers
         const startId = blockLyrics[0].id;
         const endId = blockLyrics[blockLyrics.length - 1].id;
         blocks.push({
@@ -64,18 +52,15 @@ const LyricSelection = () => {
     return blocks;
   }, [nonEmptyLyrics]);
 
-  // Toggle block selection
   const toggleBlock = useCallback((range: BlockRange) => {
     setSelectedBlock((prev) => (prev === range ? null : range));
   }, []);
 
-  // Check if a block is selected
   const isBlockSelected = useCallback(
     (range: BlockRange) => selectedBlock === range,
     [selectedBlock],
   );
 
-  // Render function for block-based FlatList
   const renderBlock = useCallback(
     ({ item }: { item: { range: BlockRange; lyrics: Lyric[] } }) => {
       return (
@@ -95,115 +80,17 @@ const LyricSelection = () => {
     [],
   );
 
-  const saveToDb = async (
-    responseData: SearchTrackResponse,
-    passedVariables: SearchTrackRequest,
-  ) => {
-    if (!responseData.name || !responseData.artist_name) {
-      console.error("Invalid response data: missing required fields");
-      Sentry.captureMessage(
-        "Failed to save search to database: missing required fields",
-        {
-          level: "error",
-          tags: {
-            operation: "saveToDb",
-            validation: "failed",
-          },
-        },
-      );
-      return;
-    }
-
-    const hasThumbhash = "thumb_hash" in responseData;
-
-    const insertData: NewSearchHistory = {
-      searchType: "Track",
-      searchParam: responseData.name,
-      artistName: responseData.artist_name,
-      theme: passedVariables.theme,
-      accentLine: passedVariables.accent,
-      blurhash: hasThumbhash ? responseData.thumb_hash : "",
-      createdAt: new Date(),
-    };
-
-    try {
-      await db.insert(searchHistoryTable).values(insertData);
-      await syncToSupabase();
-    } catch (error) {
-      console.error("Error saving to database:", error);
-      Sentry.captureException(error, {
-        tags: {
-          operation: "saveToDb",
-          searchType: "track",
-        },
-        contexts: {
-          database: {
-            operation: "insert",
-            table: "search_history",
-            hasValidData: true,
-          },
-        },
-      });
-    }
-  };
-
-  const onSuccess = (
-    data: SearchTrackResponse,
-    variables: SearchTrackRequest,
-  ) => {
-    if ("poster_url" in data) {
-      saveToDb(data, variables);
-
-      router.navigate({
-        pathname: "/poster-view",
-        params: {
-          posterPath: data.poster_url,
-          blurhash: data.thumb_hash,
-          searchParam: data.name,
-          artistName: data.artist_name,
-          theme: variables.theme,
-          accentLine: variables.accent.toString(),
-        },
-      });
-    } else {
-      toast.error("Unexpected response", {
-        description: "Please try again",
-      });
-    }
-  };
-
-  const onError = (error: unknown) => {
-    console.log("Error: ", error);
-    let errorMessage = "Unknown error";
-    if (error && typeof error === "object" && "message" in error) {
-      errorMessage = String((error as { message?: unknown }).message);
-    }
-    const displayMessage =
-      errorMessage === ""
-        ? "An error occurred. Please try again."
-        : errorMessage;
-    toast.error("Failed to generate poster", {
-      description: displayMessage,
-    });
-  };
-
-  const searchTrackApi = useTrackSearchApi({
-    onSuccess,
-    onError,
-  });
-
   const handleGeneratePoster = useCallback(() => {
     if (!selectedBlock) return;
 
-    // Call the same API with lyric_lines parameter
-    searchTrackApi.mutate({
+    trackSearch.mutate({
       song_name: songName,
       artist_name: artistName,
       theme: theme as Theme,
       accent: accentLine === "true",
-      lyric_lines: selectedBlock, // Pass selected lyrics range
+      lyric_lines: selectedBlock,
     });
-  }, [selectedBlock, songName, artistName, theme, accentLine, searchTrackApi]);
+  }, [selectedBlock, songName, artistName, theme, accentLine, trackSearch]);
 
   return (
     <Background>
@@ -246,11 +133,11 @@ const LyricSelection = () => {
 
             <Button
               className="w-full rounded-xl"
-              disabled={!selectedBlock || searchTrackApi.isPending}
+              disabled={!selectedBlock || trackSearch.isPending}
               onPress={handleGeneratePoster}
             >
               <Text className="font-ui-semibold text-base">
-                {searchTrackApi.isPending
+                {trackSearch.isPending
                   ? "Generating..."
                   : !selectedBlock
                     ? "Select a 4-line block"
