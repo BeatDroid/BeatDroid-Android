@@ -12,6 +12,7 @@ import {
 import * as Sentry from "@sentry/react-native";
 import { eq, inArray, sql } from "drizzle-orm";
 import { useCallback, useRef, useState } from "react";
+import { toast } from "sonner-native";
 
 export default function useSupabase() {
   const network = useNetwork();
@@ -41,7 +42,32 @@ export default function useSupabase() {
         timestamp: Date.now(),
       });
 
-      const { data: authData } = await supabase.auth.getUser();
+      const { data: authData, error: authError } =
+        await supabase.auth.getUser();
+
+      // Validate authentication before proceeding
+      if (authError || !authData?.user?.id) {
+        const errorMsg = "User not authenticated or session expired";
+        console.warn(errorMsg, authError);
+        toast.error("Error syncing history", {
+          description:
+            "There was an issue with your authentication. Please try logging in again..",
+        });
+
+        Sentry.addBreadcrumb({
+          type: "warning",
+          category: "Supabase push",
+          level: "warning",
+          message: errorMsg,
+          data: { authError: authError?.message },
+          timestamp: Date.now(),
+        });
+
+        // Update login status and exit gracefully
+        supabaseLogout();
+        return;
+      }
+
       const { error } = await supabase.from("search_history").upsert(
         unsyncedRecords.map(
           (record): SupabaseRecord => ({
@@ -55,7 +81,7 @@ export default function useSupabase() {
             blurhash: record.blurhash,
             synced: true,
             local_id: record.id,
-            user_id: authData?.user?.id || "",
+            user_id: authData.user.id, // Now guaranteed to be valid
           }),
         ),
       );
@@ -80,7 +106,7 @@ export default function useSupabase() {
         },
       });
     }
-  }, [db, network]);
+  }, [db, network, supabaseLogout]);
 
   const syncFromSupabase = useCallback(async () => {
     if (!network || !isLoggedInRef.current) return;
@@ -268,6 +294,25 @@ export default function useSupabase() {
     [network],
   );
 
+  const supabaseLogout = useCallback(async () => {
+    if (!network) return;
+    setLoading(true);
+    await supabase.auth.signOut();
+    await GoogleSignin.signOut();
+    await supabaseLoginCheck();
+    setLoading(false);
+    Sentry.addBreadcrumb({
+      type: "debug",
+      category: "Supabase login check",
+      level: "info",
+      message: `User has logged out of Supabase`,
+      timestamp: Date.now(),
+    });
+    toast.success("Log out successful", {
+      description: "Search history will no longer be synced across devices.",
+    });
+  }, [network]);
+
   const supabaseLogin = useCallback(async () => {
     if (!network) return;
     setLoading(true);
@@ -298,6 +343,9 @@ export default function useSupabase() {
           throw { ...error, source: "supabase" };
         }
         isLoggedInRef.current = true;
+        toast.success("Log in successful", {
+          description: "Search history will be synced across devices.",
+        });
         await syncFromSupabase();
       } else {
         // sign in was cancelled by user
@@ -360,22 +408,6 @@ export default function useSupabase() {
     setLoading(false);
     return authData?.user !== null;
   };
-
-  const supabaseLogout = useCallback(async () => {
-    if (!network) return;
-    setLoading(true);
-    await supabase.auth.signOut();
-    await GoogleSignin.signOut();
-    await supabaseLoginCheck();
-    setLoading(false);
-    Sentry.addBreadcrumb({
-      type: "debug",
-      category: "Supabase login check",
-      level: "info",
-      message: `User has logged out of Supabase`,
-      timestamp: Date.now(),
-    });
-  }, [network]);
 
   return {
     syncToSupabase,
