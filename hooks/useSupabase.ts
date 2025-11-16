@@ -39,7 +39,6 @@ export default function useSupabase() {
         category: "Supabase push",
         level: "info",
         message: `Pushing ${unsyncedRecords.length} local database entries to supabase`,
-        timestamp: Date.now(),
       });
 
       const { data: authData, error: authError } =
@@ -60,7 +59,6 @@ export default function useSupabase() {
           level: "warning",
           message: errorMsg,
           data: { authError: authError?.message },
-          timestamp: Date.now(),
         });
 
         // Update login status and exit gracefully
@@ -111,8 +109,13 @@ export default function useSupabase() {
   const syncFromSupabase = useCallback(async () => {
     if (!network || !isLoggedInRef.current) return;
     try {
-      const { data: authData } = await supabase.auth.getUser();
-      if (!authData?.user?.id) throw new Error("User not authenticated");
+      const { data: authData, error: authError } =
+        await supabase.auth.getUser();
+
+      if (authError || !authData?.user?.id) {
+        isLoggedInRef.current = false;
+        return;
+      }
 
       const { error, data } = await supabase
         .from("search_history")
@@ -126,7 +129,6 @@ export default function useSupabase() {
         category: "Supabase pull",
         level: "info",
         message: `Pulling ${data.length} entries from supabase to local database`,
-        timestamp: Date.now(),
       });
 
       if (data) {
@@ -209,7 +211,6 @@ export default function useSupabase() {
             category: "Supabase pull",
             level: "info",
             message: `Deleting ${toDelete.length} local records absent on remote`,
-            timestamp: Date.now(),
           });
 
           await db
@@ -256,7 +257,6 @@ export default function useSupabase() {
           category: "Supabase delete",
           level: "info",
           message: `Deleting record with local_id: ${localId}`,
-          timestamp: Date.now(),
         });
 
         const { error } = await supabase
@@ -272,7 +272,6 @@ export default function useSupabase() {
           category: "Supabase delete",
           level: "info",
           message: `Successfully deleted record with local_id: ${localId}`,
-          timestamp: Date.now(),
         });
       } catch (e) {
         console.log("Error deleting from Supabase:", e);
@@ -306,7 +305,6 @@ export default function useSupabase() {
       category: "Supabase login check",
       level: "info",
       message: `User has logged out of Supabase`,
-      timestamp: Date.now(),
     });
     toast.success("Log out successful", {
       description: "Search history will no longer be synced across devices.",
@@ -323,7 +321,6 @@ export default function useSupabase() {
         category: "Google sign in",
         level: "info",
         message: `Play services available, attempting to sign in with Google`,
-        timestamp: Date.now(),
       });
       setLoading(true);
       const response = await GoogleSignin.signIn();
@@ -338,7 +335,6 @@ export default function useSupabase() {
             category: "Google sign in",
             level: "error",
             message: `Error caused by Supabase: ${error.message}`,
-            timestamp: Date.now(),
           });
           throw { ...error, source: "supabase" };
         }
@@ -393,7 +389,6 @@ export default function useSupabase() {
         category: "Supabase login check",
         level: "info",
         message: `User is logged in with Supabase`,
-        timestamp: Date.now(),
       });
     } else {
       isLoggedInRef.current = false;
@@ -402,7 +397,6 @@ export default function useSupabase() {
         category: "Supabase login check",
         level: "info",
         message: `User is not logged in with Supabase`,
-        timestamp: Date.now(),
       });
     }
     setLoading(false);
