@@ -24,6 +24,24 @@ export default function useSupabase() {
     webClientId: process.env.EXPO_PUBLIC_WEB_CLIEND_ID || "",
   });
 
+  const supabaseLogout = useCallback(async () => {
+    if (!network) return;
+    setLoading(true);
+    await supabase.auth.signOut();
+    await GoogleSignin.signOut();
+    await supabaseLoginCheck();
+    setLoading(false);
+    Sentry.addBreadcrumb({
+      type: "debug",
+      category: "Supabase login check",
+      level: "info",
+      message: `User has logged out of Supabase`,
+    });
+    toast.success("Log out successful", {
+      description: "Search history will no longer be synced across devices.",
+    });
+  }, [network]);
+
   const syncToSupabase = useCallback(async () => {
     if (!network || !isLoggedInRef.current) return;
     try {
@@ -292,24 +310,6 @@ export default function useSupabase() {
     },
     [network],
   );
-
-  const supabaseLogout = useCallback(async () => {
-    if (!network) return;
-    setLoading(true);
-    await supabase.auth.signOut();
-    await GoogleSignin.signOut();
-    await supabaseLoginCheck();
-    setLoading(false);
-    Sentry.addBreadcrumb({
-      type: "debug",
-      category: "Supabase login check",
-      level: "info",
-      message: `User has logged out of Supabase`,
-    });
-    toast.success("Log out successful", {
-      description: "Search history will no longer be synced across devices.",
-    });
-  }, [network]);
 
   const supabaseLogin = useCallback(async () => {
     if (!network) return;
