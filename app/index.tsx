@@ -28,6 +28,22 @@ export default function Welcome() {
   const featureBox1Position = useSharedValue(-offset);
   const featureBox2Position = useSharedValue(-offset);
 
+  // useEffect(() => {
+  //   SplashScreen.hideAsync();
+  //   router.replace({
+  //     pathname: "/lyric-selection",
+  //     params: {
+  //       name: "Test Song",
+  //       artistName: "Test Artist",
+  //       lyrics: testLyrics,
+  //       // "1: Test lyrics line 1\n2: Test lyrics line 2\n3: Test lyrics line 3",
+  //       songName: "Test Song",
+  //       theme: "classic",
+  //       accentLine: "0",
+  //     },
+  //   });
+  // }, []);
+
   useEffect(() => {
     if (success) {
       setHasLoaded(true);

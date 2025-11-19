@@ -12,6 +12,7 @@ export async function searchTrack(
   theme: Theme,
   accent: boolean,
   lyric_lines?: string,
+  custom_lyrics?: string,
 ): Promise<SearchTrackResponse> {
   const requestData = searchTrackRequestSchema.parse({
     song_name: track,
@@ -19,6 +20,7 @@ export async function searchTrack(
     theme,
     accent,
     ...(lyric_lines !== undefined && { lyric_lines }),
+    ...(custom_lyrics !== undefined && { custom_lyrics }),
   });
 
   try {

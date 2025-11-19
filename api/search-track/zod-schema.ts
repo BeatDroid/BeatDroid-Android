@@ -7,6 +7,7 @@ export const searchTrackRequestSchema = z.object({
   theme: themeSchema.default("Dark"),
   accent: z.boolean().default(false),
   lyric_lines: z.string().optional(),
+  custom_lyrics: z.string().optional(),
 });
 
 export const searchTrackResponseSchema = z.union([

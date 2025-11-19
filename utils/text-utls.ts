@@ -12,6 +12,12 @@ export const parsePosterUrlWithApi = (url: string) => {
 export const searchRegex =
   /^[\w\s\-_.'()&!?,":;\[\]{}+=@#$%^*~/|\\<>À-ÿĀ-žА-я一-龯]+$/;
 
+// Regex for typical lyrics: allows letters (including Unicode), numbers, spaces,
+// common punctuation (.,!?'"-;:()), line breaks, and special characters like &, *, #, @
+// Also allows apostrophes, quotes, parentheses, brackets, slashes, and emoji ranges
+export const lyricsRegex =
+  /^[\w\s\-_.'()&!?,":;\[\]{}+=@#$%^*~/|\\<>\n\rÀ-ÿĀ-žА-я一-龯\u{1F300}-\u{1F9FF}]+$/u;
+
 export const parseLyrics = (lyrics: string) =>
   lyrics.split("\n").map((line) => {
     const match = line.match(/^(\d+):\s*(.*)$/);

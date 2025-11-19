@@ -1,5 +1,6 @@
 import type { Theme } from "@/api/common/theme-schema";
 import AnimatedHeader from "@/components/ui-custom/animated-header";
+import AnimatedLyricInfoCard from "@/components/ui-custom/animated-lyric-info-card";
 import Background from "@/components/ui-custom/background";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -34,6 +35,8 @@ const LyricSelection = () => {
       accentLine: string;
     }>();
   const [lyricList, setLyricList] = useState<Lyric[]>();
+  const [hasCustomLyrics, setHasCustomLyrics] = useState(false);
+  const [customLyrics, setCustomLyrics] = useState<string>("");
   const [selectedBlock, setSelectedBlock] = useState<BlockRange | null>(null);
   const [selectedIndices, setSelectedIndices] = useState<{
     start: number;
@@ -128,16 +131,49 @@ const LyricSelection = () => {
   const keyExtractor = useCallback((item: Lyric) => item.id.toString(), []);
 
   const handleGeneratePoster = useCallback(() => {
-    if (!selectedBlock) return;
+    if ((!selectedBlock || selectedLyricIds.size === 0) && !hasCustomLyrics) {
+      return;
+    }
+
+    const payload =
+      selectedBlock && selectedLyricIds.size > 0
+        ? { lyric_lines: selectedBlock }
+        : hasCustomLyrics && customLyrics.trim().length > 0
+          ? { custom_lyrics: customLyrics.trim() }
+          : undefined;
+
+    if (!payload) return;
 
     trackSearch.mutate({
-      song_name: songName,
-      artist_name: artistName,
+      song_name: songName.trim(),
+      artist_name: artistName.trim(),
       theme: theme as Theme,
       accent: accentLine === "true",
-      lyric_lines: selectedBlock,
+      ...payload,
     });
-  }, [selectedBlock, songName, artistName, theme, accentLine, trackSearch]);
+  }, [
+    selectedBlock,
+    selectedLyricIds,
+    trackSearch,
+    songName,
+    artistName,
+    theme,
+    accentLine,
+    hasCustomLyrics,
+    customLyrics,
+  ]);
+
+  const handleCustomLyricsSet = useCallback(
+    ({ lyrics }: { lyrics: string }) => {
+      setCustomLyrics(lyrics);
+      if (lyrics && lyrics.trim() !== "") {
+        setHasCustomLyrics(true);
+      } else {
+        setHasCustomLyrics(false);
+      }
+    },
+    [],
+  );
 
   return (
     <Background>
@@ -165,56 +201,58 @@ const LyricSelection = () => {
               {name} by {artistName}
             </Text>
           </Card>
-          <FlashList
-            data={nonEmptyLyrics}
-            renderItem={renderLine}
-            keyExtractor={keyExtractor}
-            showsVerticalScrollIndicator={false}
-            fadingEdgeLength={100}
-            contentContainerClassName={"pb-[200] px-2"}
-          />
+          {lyricList && lyricList.length > 4 ? (
+            <FlashList
+              data={nonEmptyLyrics}
+              renderItem={renderLine}
+              keyExtractor={keyExtractor}
+              showsVerticalScrollIndicator={false}
+              fadingEdgeLength={100}
+              contentContainerClassName={"pb-[200] px-2"}
+            />
+          ) : (
+            <NoLyricComponent lyricList={lyricList} />
+          )}
         </Card>
 
         {/* Floating Action Bar */}
-        <View className="absolute bottom-safe-offset-5 left-2 right-2 rounded-3xl bg-black/95 border-2 border-primary/20">
-          <View className="pt-6 pb-6 px-6">
-            <View className="flex-row items-center justify-between mb-3">
-              <View>
-                <Text className="text-muted-foreground text-xs font-ui-regular">
-                  Selected Lines
-                </Text>
-                <Text className="text-foreground text-2xl font-ui-bold">
-                  {selectedIndices
-                    ? `Lines ${selectedIndices.start}-${selectedIndices.end}`
-                    : "No selection"}
-                </Text>
-              </View>
-              <View className="bg-primary/20 px-4 py-2 rounded-full">
-                <Text className="text-primary text-sm font-ui-semibold">
-                  {selectedIndices ? "✓ Ready" : "Tap a line"}
-                </Text>
-              </View>
-            </View>
-
-            <Button
-              className="w-full rounded-xl"
-              disabled={!selectedBlock || trackSearch.isPending}
-              onPress={handleGeneratePoster}
-            >
-              <Text className="font-ui-semibold text-base">
-                {trackSearch.isPending
-                  ? "Generating..."
-                  : !selectedBlock
-                    ? "Select a line to continue"
-                    : "Generate Poster"}
-              </Text>
-            </Button>
-          </View>
-        </View>
+        <AnimatedLyricInfoCard
+          disabled={
+            (!selectedBlock && !hasCustomLyrics) || trackSearch.isPending
+          }
+          selectedIndices={selectedIndices}
+          onPress={handleGeneratePoster}
+          onCustomLyricsSet={handleCustomLyricsSet}
+          buttonLabel={
+            trackSearch.isPending
+              ? "Generating..."
+              : !selectedBlock && !hasCustomLyrics
+                ? "Select a line to continue"
+                : "Generate Poster"
+          }
+        />
       </View>
     </Background>
   );
 };
+
+const NoLyricComponent = React.memo(function NoLyricComponent({
+  lyricList,
+}: {
+  lyricList: Lyric[] | undefined;
+}) {
+  return (
+    <View className="flex-1 items-center justify-center">
+      <Text className="text-center text-muted-foreground text-sm font-ui-regular">
+        {lyricList && lyricList.length > 1 && lyricList.length < 4
+          ? `Not enough lines to select.\nTry adding some custom lyrics instead!`
+          : "No lyrics available"}
+      </Text>
+    </View>
+  );
+});
+
+NoLyricComponent.displayName = "NoLyricComponent";
 
 // Individual Lyric Line Component
 interface LyricLineProps {
