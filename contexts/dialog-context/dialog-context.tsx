@@ -13,18 +13,41 @@ const DialogContext = React.createContext<DialogContextValue | undefined>(
   undefined,
 );
 
+/**
+ * Dialog provider component for the global dialog system
+ * @description Must be placed at the root of your app to enable dialog functionality
+ * @param {React.ReactNode} children - Your app components
+ * @example
+ * ```tsx
+ * function App() {
+ *   return (
+ *     <DialogProvider>
+ *       <YourAppContent />
+ *     </DialogProvider>
+ *   );
+ * }
+ * ```
+ */
 export function DialogProvider({ children }: { children: React.ReactNode }) {
   const queueRef = useRef(new DialogQueue());
   const [activeDialog, setActiveDialog] = useState<DialogConfig | null>(null);
   const timerRef = useRef<number | null>(null);
+  const activeDialogIdRef = useRef<string | null>(null);
 
   const processQueue = useCallback(() => {
     const next = queueRef.current.getNext();
     setActiveDialog(next);
+    activeDialogIdRef.current = next?.id || null;
 
     if (next?.autoHideDuration && next.autoHideDuration > 0) {
       timerRef.current = setTimeout(() => {
-        hideDialog(next.id);
+        if (next?.id) {
+          const dialog = queueRef.current.get(next.id);
+          queueRef.current.removeById(next.id);
+          dialog?.onDismiss?.();
+        }
+        activeDialogIdRef.current = null;
+        processQueue();
       }, next.autoHideDuration);
     }
   }, []);
@@ -185,16 +208,19 @@ export function DialogProvider({ children }: { children: React.ReactNode }) {
     (id?: string) => {
       clearTimer();
 
-      const targetId = id || activeDialog?.id;
+      const targetId = id || activeDialogIdRef.current;
       if (targetId) {
         const dialog = queueRef.current.get(targetId);
         queueRef.current.removeById(targetId);
         dialog?.onDismiss?.();
+        if (targetId === activeDialogIdRef.current) {
+          activeDialogIdRef.current = null;
+        }
       }
 
       processQueue();
     },
-    [activeDialog, clearTimer, processQueue],
+    [clearTimer, processQueue],
   );
 
   const clearDialogsByIds = useCallback(
@@ -279,6 +305,47 @@ export function DialogProvider({ children }: { children: React.ReactNode }) {
   );
 }
 
+/**
+ * Hook for accessing the dialog context API
+ * @description Provides all dialog management methods
+ * @returns {DialogContextValue} Dialog context with all management methods
+ * @throws {Error} If used outside of DialogProvider
+ * @example
+ * ```tsx
+ * const { showError, showSuccess, showPersistent, clearDialogsByIds } = useDialog();
+ *
+ * // Show error with icon
+ * showError("Network error", {
+ *   title: "Connection Failed",
+ *   icon: () => <WifiOff size={50} color="#ef4444" />
+ * });
+ *
+ * // Show dialog with custom content
+ * showDialog({
+ *   title: "Confirm Action",
+ *   content: () => (
+ *     <View className="py-4">
+ *       <Text className="text-center mb-4">Are you sure?</Text>
+ *       <ProgressBar progress={75} />
+ *     </View>
+ *   )
+ * });
+ *
+ * // Show persistent dialog with progress
+ * const controller = showPersistent({
+ *   message: "Uploading...",
+ *   customId: "upload-progress"
+ * });
+ * controller.updateProgress(50);
+ *
+ * // Clear specific dialogs by custom ID
+ * clearDialogsByIds(["upload-progress", "toast-notification"]);
+ *
+ * // Priority queue: HIGH will interrupt LOW
+ * showInfo("This will be queued");
+ * showError("This shows immediately and interrupts");
+ * ```
+ */
 export function useDialog(): DialogContextValue {
   const context = React.useContext(DialogContext);
   if (!context) {
