@@ -1,37 +1,34 @@
-import { Text } from "@/components/ui/text";
-import FontAwesome from "@expo/vector-icons/FontAwesome";
 import NetInfo from "@react-native-community/netinfo";
 import { onlineManager } from "@tanstack/react-query";
-import { cssInterop } from "nativewind";
-import React, { createContext, useContext, useEffect, useState } from "react";
-import { useDialog } from "../dialog-context/dialog-context";
-
-const FontawesomeIcon = cssInterop(FontAwesome, {
-  className: {
-    target: "style",
-    nativeStyleToProp: { color: true },
-  },
-});
+import { WifiOff } from "lucide-react-native";
+import React, {
+  createContext,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
+import { DialogPriority, useDialog } from "../dialog-context";
 
 interface NetworkContextType {
   isOnline: boolean;
 }
 
 const NetworkContext = createContext<NetworkContextType | null>(null);
+const NETWORK_DIALOG_ID = "network-error";
 
 export function NetworkProvider({ children }: { children: React.ReactNode }) {
   const [isOnline, setIsOnline] = useState<boolean>(true);
-  const { setVisible, setContent } = useDialog();
+  const { showError, hideDialog } = useDialog();
+  const dialogIdRef = useRef<string | null>(null);
 
   useEffect(() => {
-    // Initial check
     NetInfo.fetch().then((state) => {
       const isConnected = !!state.isInternetReachable;
       setIsOnline(isConnected);
       onlineManager.setOnline(isConnected);
     });
 
-    // Subscribe to updates
     const unsubscribeNetInfo = NetInfo.addEventListener((state) => {
       const isConnected = !!state.isInternetReachable;
       setIsOnline(isConnected);
@@ -44,32 +41,22 @@ export function NetworkProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   useEffect(() => {
-    if (!isOnline) {
-      setVisible(true);
-      setContent({
-        content: (
-          <>
-            <Text className="mt-5 text-2xl font-ui-bold text-center text-foreground">
-              No internet connection
-            </Text>
-            <Text className="text-base text-center text-foreground">
-              Please check your internet connection and try again. This app
-              requires an active internet connection to function properly.
-            </Text>
-          </>
-        ),
-        icon: (
-          <FontawesomeIcon
-            className="text-destructive"
-            name="chain-broken"
-            size={50}
-          />
-        ),
-      });
-    } else {
-      setVisible(false);
+    if (!isOnline && !dialogIdRef.current) {
+      dialogIdRef.current = showError(
+        "Please check your internet connection and try again. This app requires an active internet connection to function properly.",
+        {
+          id: NETWORK_DIALOG_ID,
+          title: "No Internet Connection",
+          icon: () => <WifiOff size={50} color="#ef4444" />,
+          priority: DialogPriority.HIGH,
+          dismissible: false,
+        },
+      );
+    } else if (isOnline && dialogIdRef.current) {
+      hideDialog(NETWORK_DIALOG_ID);
+      dialogIdRef.current = null;
     }
-  }, [isOnline, setContent, setVisible]);
+  }, [hideDialog, isOnline, showError]);
 
   const value = React.useMemo(
     () => ({
