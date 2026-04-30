@@ -31,7 +31,7 @@ const DialogContext = React.createContext<DialogContextValue | undefined>(
 export function DialogProvider({ children }: { children: React.ReactNode }) {
   const queueRef = useRef(new DialogQueue());
   const [activeDialog, setActiveDialog] = useState<DialogConfig | null>(null);
-  const timerRef = useRef<number | null>(null);
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const activeDialogIdRef = useRef<string | null>(null);
 
   const processQueue = useCallback(() => {
